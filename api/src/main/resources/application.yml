@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: controle-de-remedios
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/appdb
+    username: admin_controle_de_remedios
+    password: password123
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+
+  security:
+    user:
+      name: dev_luanpaiva
+      password: 565a2051-676b-4baf-bf51-2a0465b97a14
+
+    jwt:
+      secret: 6a7d4e8c1f9b3a5d7c8f6e1b2a4c9d7e3f8b5a0f1a6c4d9b8e8c9c5f95f0d2
