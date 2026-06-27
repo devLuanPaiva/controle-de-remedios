@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:18
-    container_name: postgres-dev
+    container_name: postgres-controle-de-remedios
     restart: always
     environment:
       POSTGRES_USER: admin_controle_de_remedios
