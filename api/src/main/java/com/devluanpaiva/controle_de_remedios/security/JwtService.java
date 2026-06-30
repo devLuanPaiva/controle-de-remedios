@@ -6,117 +6,87 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.UUID;
 
 @Service
 public class JwtService {
-    @Value("${spring.security.jwt.secret}")
-    private String jwtSecret;
+        @Value("${spring.security.jwt.secret}")
+        private String jwtSecret;
 
-    private SecretKey getSignInKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
-    }
+        private SecretKey getSignInKey() {
+                return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        }
 
-    private String buildToken(JwtParamsDTO jwtParams) {
-        Date now = new Date();
-        Date expiration = new Date(now.getTime() + jwtParams.expirationMillis());
+        private String buildToken(UUID userId, String name, String email, String type, long expirationMillis,
+                        UserRole role, String imageUrl) {
+                Date now = new Date();
+                Date exp = new Date(System.currentTimeMillis() + expirationMillis);
 
-        return Jwts.builder()
-                .subject(jwtParams.userId().toString())
-                .claim("email", jwtParams.email())
-                .claim("name", jwtParams.name())
-                .claim("role", jwtParams.role().name())
-                .claim("cpf", jwtParams.cpf())
-                .claim("type", jwtParams.type())
-                .issuedAt(now)
-                .expiration(expiration)
-                .signWith(getSignInKey())
-                .compact();
-    }
+                return Jwts.builder()
+                                .subject(userId.toString())
+                                .claim("name", name)
+                                .claim("email", email)
+                                .claim("type", type)
+                                .claim("role", role.name())
+                                .claim("imageUrl", imageUrl)
+                                .issuedAt(now)
+                                .expiration(exp)
+                                .signWith(getSignInKey())
+                                .compact();
+        }
 
-    public String generateToken(JwtParamsDTO jwtParams) {
+        public String generateToken(UUID userId, String name, String email, String type, UserRole role,
+                        String imageUrl) {
+                long expiration = "refresh".equalsIgnoreCase(type)
+                                ? 1000L * 60 * 60 * 24 * 7
+                                : 1000L * 60 * 60;
 
-        long expiration = "refresh".equalsIgnoreCase(jwtParams.type()) ? 24 * 60 * 60 * 1000
-                : jwtParams.expirationMillis();
+                return buildToken(userId, name, email, type, expiration, role, imageUrl);
+        }
 
-        JwtParamsDTO updatedJwtParams = new JwtParamsDTO(
-                jwtParams.userId(),
-                jwtParams.email(),
-                jwtParams.name(),
-                jwtParams.role(),
-                jwtParams.cpf(),
-                jwtParams.type(),
-                expiration);
+        public String generateAccessToken(UUID userId, String name, String email, UserRole role, String imageUrl) {
+                return buildToken(userId, name, email, "access", 1000L * 60 * 60, role, imageUrl);
+        }
 
-        return buildToken(updatedJwtParams);
-    }
+        public String generateRefreshToken(UUID userId, String name, String email, UserRole role, String imageUrl) {
+                return buildToken(userId, name, email, "refresh", 1000L * 60 * 60 * 24 * 7, role, imageUrl);
+        }
 
-    public String generateAccessToken(JwtParamsDTO jwtParams) {
-        return generateToken(new JwtParamsDTO(
-                jwtParams.userId(),
-                jwtParams.email(),
-                jwtParams.name(),
-                jwtParams.role(),
-                jwtParams.cpf(),
-                "access", 1000L * 60 * 60));
-    }
+        public UUID extractUserId(String token) {
+                Claims claims = Jwts.parser()
+                                .verifyWith(getSignInKey())
+                                .build()
+                                .parseSignedClaims(token)
+                                .getPayload();
 
-    public String generateRefreshToken(JwtParamsDTO jwtParams) {
-        return generateToken(new JwtParamsDTO(
-                jwtParams.userId(),
-                jwtParams.email(),
-                jwtParams.name(),
-                jwtParams.role(),
-                jwtParams.cpf(),
-                "refresh", 1000L * 60 * 60 * 24 * 7));
-    }
+                return UUID.fromString(claims.getSubject());
+        }
 
-     public UUID extractUserId(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSignInKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        public Claims parseClaims(String refreshToken) {
+                return Jwts.parser()
+                                .verifyWith(getSignInKey())
+                                .build()
+                                .parseSignedClaims(refreshToken)
+                                .getPayload();
+        }
 
-        return UUID.fromString(claims.getSubject());
-    }
+        public boolean isRefreshToken(
+                        String token) {
 
-    public Claims parseClaims(String refreshToken) {
-        return Jwts.parser()
-                .verifyWith(getSignInKey())
-                .build()
-                .parseSignedClaims(refreshToken)
-                .getPayload();
-    }
+                return "refresh".equals(parseClaims(token).get("type", String.class));
+        }
 
-    public boolean isRefreshToken(
-            String token) {
+        public boolean isAccessToken(String token) {
 
-        return "refresh".equals(
-                parseClaims(token)
-                        .get(
-                                "type",
-                                String.class));
-    }
+                return "access".equals(parseClaims(token).get("type", String.class));
+        }
 
-    public boolean isAccessToken(
-            String token) {
+        public String extractRole(String token) {
 
-        return "access".equals(
-                parseClaims(token)
-                        .get(
-                                "type",
-                                String.class));
-    }
-
-    public String extractRole(
-            String token) {
-
-        return parseClaims(token)
-                .get(
-                        "role",
-                        String.class);
-    }
+                return parseClaims(token).get("role", String.class);
+        }
 }
