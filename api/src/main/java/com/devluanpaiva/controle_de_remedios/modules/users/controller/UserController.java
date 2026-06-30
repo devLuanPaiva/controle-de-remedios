@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.ChangePasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.CreateUserRequestDTO;
@@ -35,18 +36,18 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<UserResponseDTO> getUserById(@PathVariable String id) {
+    public ApiResponse<UserResponseDTO> getUserById(@PathVariable UUID id) {
         return ApiResponseFactory.success("Usuário encontrado com sucesso", userService.getUserById(id));
     }
 
-    @PutMapping("/{id}")
-    public ApiResponse<UserResponseDTO> updateUser(@PathVariable String id,
+    @PatchMapping("/{id}")
+    public ApiResponse<UserResponseDTO> updateUser(@PathVariable UUID id,
             @RequestBody @Valid UpdateUserRequestDTO dto) {
         return ApiResponseFactory.success("Usuário atualizado com sucesso", userService.updateUser(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteUser(@PathVariable String id) {
+    public ApiResponse<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ApiResponseFactory.success("Usuário deletado com sucesso", null);
     }

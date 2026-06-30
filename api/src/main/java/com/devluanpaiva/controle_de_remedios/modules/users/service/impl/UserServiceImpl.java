@@ -1,6 +1,7 @@
 package com.devluanpaiva.controle_de_remedios.modules.users.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -62,7 +63,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO getUserById(String id) {
+    public UserResponseDTO getUserById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(
                         HttpStatus.NOT_FOUND,
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String id) {
+    public void deleteUser(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(
                         HttpStatus.NOT_FOUND,
@@ -96,7 +97,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO updateUser(String id, UpdateUserRequestDTO dto) {
+    public UserResponseDTO updateUser(UUID id, UpdateUserRequestDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(
                         HttpStatus.NOT_FOUND,
@@ -104,9 +105,18 @@ public class UserServiceImpl implements UserService {
                         "USER_NOT_FOUND",
                         "id",
                         "Não foi possível encontrar um usuário com o ID '" + id + "'."));
-        user.setName(dto.name());
-        user.setCpf(dto.cpf());
-        user.setImageUrl(dto.imageUrl());
+
+        if (dto.name() != null) {
+            user.setName(dto.name());
+        }
+
+        if (dto.cpf() != null) {
+            user.setCpf(dto.cpf());
+        }
+
+        if (dto.imageUrl() != null) {
+            user.setImageUrl(dto.imageUrl());
+        }
 
         User updatedUser = userRepository.save(user);
         return userMapper.toResponseDTO(updatedUser);
