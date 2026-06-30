@@ -2,6 +2,8 @@ package com.devluanpaiva.controle_de_remedios.modules.auth.service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.devluanpaiva.controle_de_remedios.modules.auth.dto.AuthResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.auth.dto.LoginRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.auth.dto.RefreshTokenRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
 import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.security.JwtService;
@@ -40,6 +43,42 @@ public class AuthService {
                 user.getId(),
                 user.getEmail(),
                 user.getName(),
+                user.getRole(),
+                user.getImageUrl());
+
+        String refreshToken = jwtService.generateRefreshToken(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole(),
+                user.getImageUrl());
+
+        return new AuthResponseDTO(
+                accessToken,
+                refreshToken);
+    }
+
+    public AuthResponseDTO refresh(
+            RefreshTokenRequestDTO dto) {
+
+        if (!jwtService.isRefreshToken(
+                dto.refreshToken())) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Refresh token inválido");
+        }
+
+        UUID userId = jwtService.extractUserId(
+                dto.refreshToken());
+
+        User user = userRepository.findById(userId)
+                .orElseThrow();
+
+        String accessToken = jwtService.generateAccessToken(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
                 user.getRole(),
                 user.getImageUrl());
 
