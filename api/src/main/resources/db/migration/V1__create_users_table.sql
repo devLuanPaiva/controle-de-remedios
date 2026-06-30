@@ -1,0 +1,17 @@
+CREATE TYPE user_role AS ENUM (
+    'ADMIN',
+    'PREMIUM',
+    'USER'
+);
+
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    email VARCHAR(180) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role user_role NOT NULL DEFAULT 'USER',
+    image_url VARCHAR(255),
+    cpf VARCHAR(11) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -1,10 +1,12 @@
 package com.devluanpaiva.controle_de_remedios.shared.exceptions;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.Getter;
 
 @Getter
 public abstract class ApiException extends RuntimeException {
-    private final int status;
+    private final HttpStatus status;
 
     private final String code;
 
@@ -13,7 +15,7 @@ public abstract class ApiException extends RuntimeException {
     private final String detail;
 
     protected ApiException(
-            int status,
+            HttpStatus status,
             String message,
             String code,
             String field,
