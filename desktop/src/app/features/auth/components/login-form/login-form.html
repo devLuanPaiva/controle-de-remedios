@@ -1,34 +1,26 @@
-<form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-    @if (errorMessage()) {
-        <div class="login-form__alert" role="alert">
-            {{ errorMessage() }}
-        </div>
+<form class="login-form" (submit)="onSubmit($event)" novalidate>
+    @if (submitError()) {
+    <div class="login-form__alert" role="alert">
+        {{ submitError() }}
+    </div>
     }
 
     <div class="login-form__field">
         <label class="login-form__label" for="login-email">Email</label>
 
-        <input
-            id="login-email"
-            class="input"
-            type="email"
-            formControlName="email"
-            autocomplete="email"
-            placeholder="voce@exemplo.com"
-            aria-label="Email"
-            [attr.aria-invalid]="emailControl.invalid && emailControl.touched"
-            [attr.aria-describedby]="emailControl.invalid && emailControl.touched ? 'login-email-error' : null"
-            [disabled]="loading()"
-        />
+        <input id="login-email" class="input" type="email" [formField]="authForm.email" autocomplete="email"
+            placeholder="voce@exemplo.com" aria-label="Email"
+            [attr.aria-invalid]="authForm.email().invalid() && authForm.email().touched()"
+            [attr.aria-describedby]="authForm.email().invalid() && authForm.email().touched() ? 'login-email-error' : null" />
 
-        @if (emailControl.touched && emailControl.invalid) {
-            <span class="login-form__error" id="login-email-error">
-                @if (emailControl.hasError('required')) {
-                    Email é obrigatório.
-                } @else if (emailControl.hasError('email')) {
-                    Informe um email válido.
-                }
-            </span>
+        @if (authForm.email().touched() && authForm.email().invalid()) {
+        <span class="login-form__error" id="login-email-error">
+            @if (authForm.email().errors()[0]?.message) {
+            {{ authForm.email().errors()[0]?.message }}
+            } @else {
+            Informe um email válido.
+            }
+        </span>
         }
     </div>
 
@@ -36,55 +28,29 @@
         <label class="login-form__label" for="login-password">Senha</label>
 
         <div class="login-form__password-wrapper">
-            <input
-                id="login-password"
-                class="input"
-                [type]="passwordVisible() ? 'text' : 'password'"
-                formControlName="password"
-                autocomplete="current-password"
-                placeholder="Sua senha"
-                aria-label="Senha"
-                [attr.aria-invalid]="passwordControl.invalid && passwordControl.touched"
-                [attr.aria-describedby]="passwordControl.invalid && passwordControl.touched ? 'login-password-error' : null"
-                [disabled]="loading()"
-            />
-
-            <button
-                type="button"
-                class="login-form__toggle-visibility"
-                (click)="togglePasswordVisibility()"
-                [attr.aria-label]="passwordVisible() ? 'Ocultar senha' : 'Mostrar senha'"
-                [disabled]="loading()"
-            >
-                @if (passwordVisible()) {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-                        <line x1="2" y1="2" x2="22" y2="22" />
-                        <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
-                    </svg>
-                } @else {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
-                        <circle cx="12" cy="12" r="3" />
-                    </svg>
-                }
-            </button>
+            <input id="login-password" class="input" type="password" [formField]="authForm.password"
+                autocomplete="current-password" placeholder="Sua senha" aria-label="Senha"
+                [attr.aria-invalid]="authForm.password().invalid() && authForm.password().touched()"
+                [attr.aria-describedby]="authForm.password().invalid() && authForm.password().touched() ? 'login-password-error' : null" />
         </div>
 
-        @if (passwordControl.touched && passwordControl.invalid) {
-            <span class="login-form__error" id="login-password-error">
-                Senha é obrigatória.
-            </span>
+        @if (authForm.password().touched() && authForm.password().invalid()) {
+        <span class="login-form__error" id="login-password-error">
+            @if (authForm.password().errors()[0]?.message) {
+            {{ authForm.password().errors()[0]?.message }}
+            } @else {
+            Senha é obrigatória.
+            }
+        </span>
         }
     </div>
 
-    <button type="submit" class="btn btn-primary login-form__submit" [disabled]="loading()">
+    <button type="submit" class="btn btn-primary login-form__submit" [disabled]="loading() || !canSubmit()">
         @if (loading()) {
-            <span class="spinner spinner-sm" aria-hidden="true"></span>
-            <span>Entrando...</span>
+        <span class="spinner spinner-sm" aria-hidden="true"></span>
+        <span>Entrando...</span>
         } @else {
-            <span>Entrar</span>
+        <span>Entrar</span>
         }
     </button>
 </form>
