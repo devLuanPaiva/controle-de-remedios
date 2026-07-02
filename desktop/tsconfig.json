@@ -28,6 +28,9 @@
       ],
       "@store/*": [
         "./src/app/store/*"
+      ],
+      "@environments/*": [
+        "./src/environments/*"
       ]
     }
   },
