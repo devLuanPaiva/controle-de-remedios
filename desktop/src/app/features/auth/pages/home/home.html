@@ -1,0 +1,24 @@
+<main class="home-page">
+    <section class="home-page__card card">
+        <div class="home-page__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+        </div>
+
+        <h1 class="home-page__title">
+            @if (user(); as currentUser) {
+                Bem-vindo(a), {{ currentUser.name }}!
+            } @else {
+                Bem-vindo(a)!
+            }
+        </h1>
+
+        <p class="home-page__subtitle">Você está autenticado com sucesso.</p>
+
+        <button type="button" class="btn btn-outline home-page__logout" (click)="onLogout()">
+            Sair
+        </button>
+    </section>
+</main>
