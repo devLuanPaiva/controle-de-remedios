@@ -6,14 +6,15 @@ import { AuthSessionService } from './auth-session.service';
 import { AuthUser } from '../models/auth-user.model';
 import { decodeJwtPayload } from '@shared/utils/jwt.util';
 import { map } from 'rxjs';
-
+import { environment } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  apiUrl = signal(api_url)
+
+  apiUrl = signal(environment.api_url)
 
   private readonly session = inject(AuthSessionService);
 
