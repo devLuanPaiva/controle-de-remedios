@@ -1,0 +1,7 @@
+<main class="login-page">
+    <div class="login-page__background" aria-hidden="true"></div>
+
+    <app-auth-card title="Controle de Remédios" subtitle="Gerencie seus medicamentos com simplicidade e segurança.">
+        <app-login-form [loading]="loading()" [errorMessage]="errorMessage()" (submitted)="onSubmit($event)" />
+    </app-auth-card>
+</main>
