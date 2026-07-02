@@ -1,0 +1,16 @@
+
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./out-tsc/spec",
+    "types": [
+      "vitest/globals",
+      "jasmine",
+    ]
+  },
+  "include": [
+    "src/**/*.d.ts",
+    "src/**/*.spec.ts"
+  ]
+}

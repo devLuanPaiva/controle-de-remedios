@@ -1,0 +1,39 @@
+.flex {
+    display: flex;
+}
+.grid {
+    display: grid;
+}
+
+.items-center {
+    align-items: center;
+}
+.justify-center {
+    justify-content: center;
+}
+.justify-between {
+    justify-content: space-between;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.h-full {
+    height: 100%;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.rounded {
+    border-radius: var(--radius-lg);
+}
+.rounded-full {
+    border-radius: 9999px;
+}
+
+.shadow {
+    box-shadow: var(--shadow-md);
+}
