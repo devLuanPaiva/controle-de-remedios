@@ -9,14 +9,32 @@ import { routes } from "./app.routes";
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { provideHttpClient, withFetch, withInterceptors } from "@angular/common/http";
+import { authInterceptor } from "@features/auth/interceptors/auth.interceptor";
+import { refreshInterceptor } from "@features/auth/interceptors/refresh.interceptor";
+import { provideClientHydration, withEventReplay } from "@angular/platform-browser";
+import { authReducer } from "@features/auth/store/auth.reducer";
+import { AuthEffects } from "@features/auth/store/auth.effects";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideStore(),
-    provideEffects(),
-    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() })
-],
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([
+        authInterceptor,
+        refreshInterceptor
+      ])
+    ),
+    provideClientHydration(withEventReplay()),
+    provideStore({
+      auth: authReducer
+    }),
+    provideEffects([
+      AuthEffects
+    ]),
+    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
+  ],
 };
