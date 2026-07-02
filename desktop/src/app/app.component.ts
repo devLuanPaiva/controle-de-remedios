@@ -1,10 +1,11 @@
 import { Component } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { invoke } from "@tauri-apps/api/core";
+import { ToastContainer } from "@core/ui/toast/container/toast-container/toast-container";
 
 @Component({
   selector: "app-root",
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToastContainer],
   templateUrl: "./app.component.html",
   styleUrl: "./app.component.scss",
 })
