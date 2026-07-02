@@ -10,6 +10,5 @@ import { NgOptimizedImage } from '@angular/common';
 })
 export class AuthCard {
     readonly logoSrc = input('/assets/logo.png');
-    readonly title = input.required<string>();
     readonly subtitle = input('');
 }
