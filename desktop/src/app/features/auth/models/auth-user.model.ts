@@ -1,8 +1,4 @@
-export enum UserRole {
-    ADMIN = 'ADMIN',
-    PREMIUM = 'PREMIUM',
-    USER = 'USER'
-}
+import { UserRole } from "@features/users/models/user.model";
 
 export interface AuthUser {
     id: string;
