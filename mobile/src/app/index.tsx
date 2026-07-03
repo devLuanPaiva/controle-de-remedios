@@ -1,4 +1,5 @@
 import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
+import { useRouter } from "expo-router";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { StatusBar } from "expo-status-bar";
@@ -6,6 +7,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Wave } from "@/components/shared/Wave";
 
 export default function Index() {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -37,7 +40,7 @@ export default function Index() {
             activeOpacity={0.85}
             accessibilityRole="button"
             accessibilityLabel="Entrar"
-            onPress={() => { }}
+            onPress={() => router.push("/(authentication)/signIn")}
           >
             <Text style={styles.buttonText}>Entrar</Text>
           </TouchableOpacity>
@@ -70,14 +73,14 @@ const styles = StyleSheet.create({
   },
 
   brand: {
-    fontFamily: Typography.heading,
+    fontFamily: Typography.fonts.heading,
     fontSize: Typography.sizes.xxl,
     color: Colors.white,
     letterSpacing: 0.5,
   },
 
   tagline: {
-    fontFamily: Typography.bodyMedium,
+    fontFamily: Typography.fonts.bodyMedium,
     fontSize: Typography.sizes.xs,
     color: Colors.white,
     opacity: 0.75,
@@ -105,14 +108,14 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontFamily: Typography.heading,
+    fontFamily: Typography.fonts.heading,
     fontSize: Typography.sizes.xxl,
     color: Colors.text,
     lineHeight: 30,
   },
 
   subtitle: {
-    fontFamily: Typography.body,
+    fontFamily: Typography.fonts.body,
     fontSize: Typography.sizes.md,
     color: Colors.textSecondary,
     marginTop: Spacing.sm,
@@ -133,14 +136,14 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    fontFamily: Typography.bodySemiBold,
+    fontFamily: Typography.fonts.bodySemiBold,
     fontSize: Typography.sizes.md,
     color: Colors.white,
     letterSpacing: 0.5,
   },
 
   footerHint: {
-    fontFamily: Typography.body,
+    fontFamily: Typography.fonts.body,
     fontSize: Typography.sizes.xs,
     color: Colors.textSecondary,
     marginTop: Spacing.md,
