@@ -26,8 +26,8 @@ export class AuthService {
       map(response => {
         const parsed = decodeJwtPayload(response.accessToken);
         let user: AuthUser | null = null;
-        if (parsed && typeof parsed.sub === 'string' && typeof parsed.name === 'string' && typeof parsed.email === 'string' && typeof parsed.role === 'string') {
-          user = { id: parsed.sub, name: parsed.name, email: parsed.email, role: parsed.role };
+        if (parsed && typeof parsed.sub === 'string' && typeof parsed.name === 'string' && typeof parsed.email === 'string' && typeof parsed.role === 'string' && typeof parsed.imageUrl === 'string') {
+          user = { id: parsed.sub, name: parsed.name, email: parsed.email, role: parsed.role, imageUrl: parsed.imageUrl };
           this.session.setSession(user, response.accessToken, response.refreshToken);
         } else {
           this.session.setSession(null, response.accessToken, response.refreshToken);
