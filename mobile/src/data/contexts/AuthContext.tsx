@@ -43,8 +43,8 @@ export const AuthContext = createContext<AuthContextType>({
     isLoggedIn: false,
     isLoadingSession: true,
     user: null,
-    login: async () => {},
-    logout: async () => {},
+    login: async () => { },
+    logout: async () => { },
 });
 
 function decodeJWT(token: string): TokenPayload {
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
     const [isLoadingSession, setIsLoadingSession] = useState(true);
     const [user, setUser] = useState<Partial<IUser> | null>(null);
     const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const performRefreshRef = useRef<(refreshToken: string) => Promise<void>>(async () => {});
+    const performRefreshRef = useRef<(refreshToken: string) => Promise<void>>(async () => { });
     const router = useRouter();
 
     const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
@@ -121,7 +121,7 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
 
     const performRefresh = useCallback(async (refreshToken: string) => {
         try {
-            const response = await fetch(`${BASE_URL}/auth/refresh/`, {
+            const response = await fetch(`${BASE_URL}/auth/refresh`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ refresh: refreshToken }),
@@ -178,8 +178,8 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
 
     const login = useCallback(
         async (email: string, password: string) => {
-            const response: ApiResponse<{ access: string; refresh: string }> =
-                await fetch(`${BASE_URL}/auth/login/`, {
+            const response =
+                await fetch(`${BASE_URL}/auth/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password }),
@@ -189,8 +189,8 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
                 throw new Error(response.errors.detail || "Erro ao realizar login.");
             }
 
-            const access = response.data?.access;
-            const refresh = response.data?.refresh;
+            const access = response?.accessToken;
+            const refresh = response?.refreshToken;
 
             if (!access || !refresh) {
                 throw new Error("Resposta inválida do servidor");
