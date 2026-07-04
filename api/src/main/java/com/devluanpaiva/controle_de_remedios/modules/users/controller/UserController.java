@@ -1,6 +1,10 @@
 package com.devluanpaiva.controle_de_remedios.modules.users.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -31,8 +35,25 @@ public class UserController {
     }
 
     @GetMapping
-    public ApiResponse<List<UserResponseDTO>> getAllUsers() {
-        return ApiResponseFactory.success("Lista de usuários obtida com sucesso", userService.getAllUsers());
+    public ApiResponse<List<UserResponseDTO>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserResponseDTO> result = userService.getAllUsers(pageable);
+
+        String next = result.hasNext() ? buildPageUri(page + 1, size) : null;
+        String previous = result.hasPrevious() ? buildPageUri(page - 1, size) : null;
+
+        return ApiResponseFactory.paginated(
+                "Lista de usuários obtida com sucesso", result, next, previous);
+    }
+
+    private String buildPageUri(int page, int size) {
+        return ServletUriComponentsBuilder.fromCurrentRequestUri()
+                .replaceQueryParam("page", page)
+                .replaceQueryParam("size", size)
+                .toUriString();
     }
 
     @GetMapping("/{id}")
