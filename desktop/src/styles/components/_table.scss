@@ -1,0 +1,45 @@
+.table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background: white;
+}
+
+.table thead {
+    background: var(--color-primary-600);
+
+    color: white;
+}
+
+.table th {
+    text-align: left;
+
+    padding: 1rem;
+
+    font-size: var(--text-sm);
+
+    font-weight: 600;
+}
+
+.table td {
+    padding: 1rem;
+
+    border-bottom: 1px solid var(--color-neutral-300);
+}
+
+.table tbody tr {
+    transition: var(--transition);
+}
+
+.table tbody tr:hover {
+    background: var(--color-neutral-100);
+}
+
+.table-striped tbody tr:nth-child(even) {
+    background: var(--color-neutral-100);
+}
+
+.table-responsive {
+    overflow-x: auto;
+}

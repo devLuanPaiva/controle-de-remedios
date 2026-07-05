@@ -1,0 +1,53 @@
+.card {
+    display: flex;
+    flex-direction: column;
+
+    background: var(--bg-secondary);
+
+    border: 1px solid var(--color-neutral-300);
+
+    border-radius: var(--radius-xl);
+
+    box-shadow: var(--shadow-sm);
+
+    overflow: hidden;
+
+    transition: var(--transition);
+
+    &:hover {
+        box-shadow: var(--shadow-md);
+    }
+}
+
+.card-header {
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--color-neutral-300);
+}
+
+.card-title {
+    font-size: var(--text-xl);
+    font-weight: 600;
+}
+
+.card-subtitle {
+    margin-top: 0.25rem;
+
+    color: var(--text-secondary);
+
+    font-size: var(--text-sm);
+}
+
+.card-body {
+    padding: var(--space-5);
+    flex: 1;
+}
+
+.card-footer {
+    padding: var(--space-5);
+
+    border-top: 1px solid var(--color-neutral-300);
+
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+}

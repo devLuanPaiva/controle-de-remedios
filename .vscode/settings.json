@@ -1,0 +1,8 @@
+{
+  "yaml.schemaStore.enable": false,
+
+  "files.associations": {
+    "application.yml": "yaml",
+    "application-*.yml": "yaml"
+  }
+}

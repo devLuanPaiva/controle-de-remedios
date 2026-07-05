@@ -1,0 +1,63 @@
+@use "../../../../../styles/abstracts/breakpoints" as bp;
+
+.auth-card {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    max-width: 420px;
+
+    padding: var(--space-8);
+
+    background: var(--bg-secondary);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-lg);
+
+    animation: auth-card-in 0.5s ease;
+}
+
+.auth-card__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.auth-card__logo {
+    width: 100px;
+    height: auto;
+    object-fit: fill;
+}
+
+.auth-card__subtitle {
+    max-width: 32ch;
+
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+}
+
+.auth-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+}
+
+@keyframes auth-card-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: bp.$sm) {
+    .auth-card {
+        padding: var(--space-6);
+        border-radius: var(--radius-xl);
+    }
+}

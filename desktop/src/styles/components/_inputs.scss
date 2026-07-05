@@ -1,0 +1,21 @@
+.input {
+    width: 100%;
+
+    padding: 0.875rem 1rem;
+
+    border: 1px solid var(--color-neutral-300);
+
+    border-radius: var(--radius-lg);
+
+    background: white;
+
+    transition: var(--transition);
+
+    &:focus {
+        outline: none;
+
+        border-color: var(--color-primary-500);
+
+        box-shadow: 0 0 0 4px rgba(3, 89, 65, 0.15);
+    }
+}

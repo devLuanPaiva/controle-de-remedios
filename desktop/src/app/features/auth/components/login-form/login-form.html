@@ -1,0 +1,56 @@
+<form class="login-form" (submit)="onSubmit($event)" novalidate>
+    @if (submitError()) {
+    <div class="login-form__alert" role="alert">
+        {{ submitError() }}
+    </div>
+    }
+
+    <div class="login-form__field">
+        <label class="login-form__label" for="login-email">Email</label>
+
+        <input id="login-email" class="input" type="email" [formField]="authForm.email" autocomplete="email"
+            placeholder="voce@exemplo.com" aria-label="Email"
+            [attr.aria-invalid]="authForm.email().invalid() && authForm.email().touched()"
+            [attr.aria-describedby]="authForm.email().invalid() && authForm.email().touched() ? 'login-email-error' : null" />
+
+        @if (authForm.email().touched() && authForm.email().invalid()) {
+        <span class="login-form__error" id="login-email-error">
+            @if (authForm.email().errors()[0]?.message) {
+            {{ authForm.email().errors()[0]?.message }}
+            } @else {
+            Informe um email válido.
+            }
+        </span>
+        }
+    </div>
+
+    <div class="login-form__field">
+        <label class="login-form__label" for="login-password">Senha</label>
+
+        <div class="login-form__password-wrapper">
+            <input id="login-password" class="input" type="password" [formField]="authForm.password"
+                autocomplete="current-password" placeholder="Sua senha" aria-label="Senha"
+                [attr.aria-invalid]="authForm.password().invalid() && authForm.password().touched()"
+                [attr.aria-describedby]="authForm.password().invalid() && authForm.password().touched() ? 'login-password-error' : null" />
+        </div>
+
+        @if (authForm.password().touched() && authForm.password().invalid()) {
+        <span class="login-form__error" id="login-password-error">
+            @if (authForm.password().errors()[0]?.message) {
+            {{ authForm.password().errors()[0]?.message }}
+            } @else {
+            Senha é obrigatória.
+            }
+        </span>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary login-form__submit" [disabled]="loading() || !canSubmit()">
+        @if (loading()) {
+        <span class="spinner spinner-sm" aria-hidden="true"></span>
+        <span>Entrando...</span>
+        } @else {
+        <span>Entrar</span>
+        }
+    </button>
+</form>

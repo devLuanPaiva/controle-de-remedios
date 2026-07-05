@@ -1,0 +1,13 @@
+<div class="auth-card">
+    <div class="auth-card__header">
+        <img class="auth-card__logo" [ngSrc]="logoSrc()" width="156" height="156" priority alt="Logomarca ChegaMed" />
+
+        @if (subtitle()) {
+        <p class="auth-card__subtitle">{{ subtitle() }}</p>
+        }
+    </div>
+
+    <div class="auth-card__body">
+        <ng-content />
+    </div>
+</div>

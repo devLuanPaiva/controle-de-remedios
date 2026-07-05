@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: postgres-controle-de-remedios
+    restart: always
+    environment:
+      POSTGRES_USER: admin_controle_de_remedios
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: appdb
+    ports:
+      - "5432:5432"
+
