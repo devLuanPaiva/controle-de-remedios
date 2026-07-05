@@ -39,15 +39,6 @@ public class JwtService {
                                 .compact();
         }
 
-        public String generateToken(UUID userId, String name, String email, String type, UserRole role,
-                        String imageUrl) {
-                long expiration = "refresh".equalsIgnoreCase(type)
-                                ? 1000L * 60 * 60 * 24 * 7
-                                : 1000L * 60 * 60;
-
-                return buildToken(userId, name, email, type, expiration, role, imageUrl);
-        }
-
         public String generateAccessToken(UUID userId, String name, String email, UserRole role, String imageUrl) {
                 return buildToken(userId, name, email, "access", 1000L * 60 * 60, role, imageUrl);
         }
@@ -83,10 +74,5 @@ public class JwtService {
         public boolean isAccessToken(String token) {
 
                 return "access".equals(parseClaims(token).get("type", String.class));
-        }
-
-        public String extractRole(String token) {
-
-                return parseClaims(token).get("role", String.class);
         }
 }

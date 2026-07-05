@@ -2,6 +2,8 @@ package com.devluanpaiva.controle_de_remedios.shared.responses;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 public final class ApiResponseFactory {
     private ApiResponseFactory() {
     }
@@ -21,5 +23,22 @@ public final class ApiResponseFactory {
                 null,
                 null,
                 data);
+    }
+
+    public static <T> ApiResponse<List<T>> paginated(
+            String message,
+            Page<T> page,
+            String next,
+            String previous) {
+
+        return new ApiResponse<>(
+                true,
+                message,
+                page.getTotalElements(),
+                page.getNumber() + 1,
+                page.getTotalPages(),
+                next,
+                previous,
+                page.getContent());
     }
 }

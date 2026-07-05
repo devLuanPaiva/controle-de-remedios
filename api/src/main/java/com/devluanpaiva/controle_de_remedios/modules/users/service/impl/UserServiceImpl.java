@@ -1,8 +1,9 @@
 package com.devluanpaiva.controle_de_remedios.modules.users.service.impl;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
 import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
 import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.modules.users.service.UserService;
+import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final SecurityContextHelper securityContextHelper;
 
     @Override
     public UserResponseDTO createUser(CreateUserRequestDTO dto) {
@@ -72,15 +75,22 @@ public class UserServiceImpl implements UserService {
                         "id",
                         "Não foi possível encontrar um usuário com o ID '" + id + "'."));
 
+        assertCanManage(securityContextHelper.getCurrentUser(), user);
+
         return userMapper.toResponseDTO(user);
     }
 
     @Override
-    public List<UserResponseDTO> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(userMapper::toResponseDTO)
-                .toList();
+    public Page<UserResponseDTO> getAllUsers(Pageable pageable) {
+        User actor = securityContextHelper.getCurrentUser();
+        var manageableRoles = actor.getRole().manageableRoles();
+
+        if (manageableRoles.isEmpty()) {
+            throw forbidden();
+        }
+
+        return userRepository.findByRoleIn(manageableRoles, pageable)
+                .map(userMapper::toResponseDTO);
     }
 
     @Override
@@ -92,6 +102,8 @@ public class UserServiceImpl implements UserService {
                         "USER_NOT_FOUND",
                         "id",
                         "Não foi possível encontrar um usuário com o ID '" + id + "'."));
+
+        assertCanManage(securityContextHelper.getCurrentUser(), user);
 
         userRepository.delete(user);
     }
@@ -105,6 +117,8 @@ public class UserServiceImpl implements UserService {
                         "USER_NOT_FOUND",
                         "id",
                         "Não foi possível encontrar um usuário com o ID '" + id + "'."));
+
+        assertCanManage(securityContextHelper.getCurrentUser(), user);
 
         if (dto.name() != null) {
             user.setName(dto.name());
@@ -130,5 +144,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
         // Implementação do método de alteração de senha
+    }
+
+    private void assertCanManage(User actor, User target) {
+        if (actor.getId().equals(target.getId())) {
+            return;
+        }
+
+        if (actor.getRole().canManage(target.getRole())) {
+            return;
+        }
+
+        throw forbidden();
+    }
+
+    private BusinessException forbidden() {
+        return new BusinessException(
+                HttpStatus.FORBIDDEN,
+                "Acesso negado",
+                "AUTH_FORBIDDEN",
+                "authorization",
+                "Você não possui permissão para gerenciar este usuário.");
     }
 }
