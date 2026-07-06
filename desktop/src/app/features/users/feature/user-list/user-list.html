@@ -56,7 +56,7 @@
                                 <app-role-badge [role]="user.role" />
                             </td>
                             <td data-label="Ações" class="user-list__col-actions">
-                                <a class="btn btn-outline" [routerLink]="['/users', user.id, 'edit']">
+                                <a class="btn btn-outline btn-sm" [routerLink]="['/users', user.id, 'edit']">
                                     Editar
                                 </a>
                             </td>
@@ -71,7 +71,7 @@
         </div>
 
         <div class="user-list__pagination">
-            <button type="button" class="btn btn-outline" [disabled]="!pagination().previous" (click)="goToPreviousPage()">
+            <button type="button" class="btn btn-outline btn-sm" [disabled]="!pagination().previous" (click)="goToPreviousPage()">
                 Anterior
             </button>
 
@@ -79,7 +79,7 @@
                 Página {{ pagination().currentPage }} de {{ pagination().totalPages }}
             </span>
 
-            <button type="button" class="btn btn-outline" [disabled]="!pagination().next" (click)="goToNextPage()">
+            <button type="button" class="btn btn-outline btn-sm" [disabled]="!pagination().next" (click)="goToNextPage()">
                 Próxima
             </button>
         </div>
