@@ -32,6 +32,9 @@ public class Company {
     @Column(nullable = false, length = 120)
     private String name;
 
+    @Column(nullable = false, unique = true, length = 180)
+    private String slug;
+
     @Column(nullable = false, unique = true, length = 14)
     private String cnpj;
 
