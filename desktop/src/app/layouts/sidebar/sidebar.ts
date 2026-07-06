@@ -7,12 +7,11 @@ import * as AuthActions from '@features/auth/store/auth.actions';
 import { AuthSessionService } from '@features/auth/services/auth-session.service';
 import { normalizeUserRole, UserRole } from '@features/users/models/user.model';
 import { HasRoleDirective } from '@shared/directives/has-role.directive';
-import { Avatar } from '@shared/ui/avatar/avatar';
-import { RoleBadge } from '@shared/ui/role-badge/role-badge';
+import { SidebarUser } from './sidebar-user/sidebar-user';
 
 @Component({
     selector: 'app-sidebar',
-    imports: [RouterLink, RouterLinkActive, NgOptimizedImage, HasRoleDirective, Avatar, RoleBadge],
+    imports: [RouterLink, RouterLinkActive, NgOptimizedImage, HasRoleDirective, SidebarUser],
     templateUrl: './sidebar.html',
     styleUrl: './sidebar.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

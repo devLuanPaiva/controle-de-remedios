@@ -4,6 +4,7 @@
 }
 
 .avatar__image {
+    max-width: none;
     border-radius: var(--radius-full);
     object-fit: cover;
 }
