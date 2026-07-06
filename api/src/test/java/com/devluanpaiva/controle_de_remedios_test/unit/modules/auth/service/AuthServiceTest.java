@@ -59,6 +59,7 @@ class AuthServiceTest {
                 .email("luan@example.com")
                 .password("encoded-password")
                 .cpf("12345678901")
+                .active(true)
                 .role(UserRole.USER)
                 .imageUrl("https://example.com/avatar.png")
                 .build();
@@ -75,11 +76,9 @@ class AuthServiceTest {
         void shouldReturnTokensWhenCredentialsAreValid() {
             when(userRepository.findByEmail(dto.email())).thenReturn(Optional.of(user));
             when(passwordEncoder.matches(dto.password(), user.getPassword())).thenReturn(true);
-            when(jwtService.generateAccessToken(
-                    user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getImageUrl()))
+            when(jwtService.generateAccessToken(user))
                     .thenReturn("access-token");
-            when(jwtService.generateRefreshToken(
-                    user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getImageUrl()))
+            when(jwtService.generateRefreshToken(user))
                     .thenReturn("refresh-token");
 
             AuthResponseDTO response = authService.login(dto);
@@ -87,10 +86,9 @@ class AuthServiceTest {
             assertThat(response.accessToken()).isEqualTo("access-token");
             assertThat(response.refreshToken()).isEqualTo("refresh-token");
 
-            verify(jwtService).generateAccessToken(
-                    user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getImageUrl());
-            verify(jwtService).generateRefreshToken(
-                    user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getImageUrl());
+            verify(jwtService).generateAccessToken(user);
+            verify(jwtService).generateRefreshToken(user);
+
         }
 
         @Test
@@ -108,7 +106,7 @@ class AuthServiceTest {
                     });
 
             verify(passwordEncoder, never()).matches(anyString(), anyString());
-            verify(jwtService, never()).generateAccessToken(any(), anyString(), anyString(), any(), anyString());
+            verify(jwtService, never()).generateAccessToken(any());
         }
 
         @Test
@@ -126,7 +124,7 @@ class AuthServiceTest {
                         assertThat(businessException.getMessage()).isEqualTo("Credenciais inválidas");
                     });
 
-            verify(jwtService, never()).generateAccessToken(any(), anyString(), anyString(), any(), anyString());
+            verify(jwtService, never()).generateAccessToken(any());
         }
 
         @Test
@@ -155,22 +153,16 @@ class AuthServiceTest {
             when(jwtService.isRefreshToken(dto.refreshToken())).thenReturn(true);
             when(jwtService.extractUserId(dto.refreshToken())).thenReturn(user.getId());
             when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-            when(jwtService.generateAccessToken(
-                    user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getImageUrl()))
-                    .thenReturn("new-access-token");
-            when(jwtService.generateRefreshToken(
-                    user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getImageUrl()))
-                    .thenReturn("new-refresh-token");
+            when(jwtService.generateAccessToken(user)).thenReturn("new-access-token");
+            when(jwtService.generateRefreshToken(user)).thenReturn("new-refresh-token");
 
             AuthResponseDTO response = authService.refresh(dto);
 
             assertThat(response.accessToken()).isEqualTo("new-access-token");
             assertThat(response.refreshToken()).isEqualTo("new-refresh-token");
 
-            verify(jwtService, times(1)).generateAccessToken(
-                    user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getImageUrl());
-            verify(jwtService, times(1)).generateRefreshToken(
-                    user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getImageUrl());
+            verify(jwtService, times(1)).generateAccessToken(user);
+            verify(jwtService, times(1)).generateRefreshToken(user);
         }
 
         @Test
@@ -213,7 +205,8 @@ class AuthServiceTest {
 
             assertThatThrownBy(() -> authService.refresh(dto))
                     .isInstanceOf(BusinessException.class)
-                    .satisfies(ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED));
+                    .satisfies(
+                            ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED));
 
             verify(userRepository, never()).findById(any());
         }
@@ -227,9 +220,10 @@ class AuthServiceTest {
 
             assertThatThrownBy(() -> authService.refresh(dto))
                     .isInstanceOf(BusinessException.class)
-                    .satisfies(ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED));
+                    .satisfies(
+                            ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED));
 
-            verify(jwtService, never()).generateAccessToken(any(), anyString(), anyString(), any(), anyString());
+            verify(jwtService, never()).generateAccessToken(any());
         }
     }
 
