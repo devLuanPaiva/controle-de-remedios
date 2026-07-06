@@ -1,0 +1,80 @@
+@use '../../../styles/abstracts/breakpoints' as bp;
+
+.shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.shell__sidebar {
+    width: 260px;
+    flex-shrink: 0;
+}
+
+.shell__content {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-6);
+}
+
+.shell__menu-toggle {
+    display: none;
+
+    position: fixed;
+    top: var(--space-4);
+    left: var(--space-4);
+    z-index: 101;
+
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--bg-dark);
+    color: var(--text-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+
+    svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+.shell__backdrop {
+    display: none;
+}
+
+@media (max-width: bp.$lg) {
+    .shell__menu-toggle {
+        display: flex;
+    }
+
+    .shell__sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 100;
+
+        width: 260px;
+        transform: translateX(-100%);
+        transition: transform var(--transition);
+    }
+
+    .shell__sidebar--open {
+        transform: translateX(0);
+    }
+
+    .shell__backdrop {
+        display: block;
+
+        position: fixed;
+        inset: 0;
+        z-index: 99;
+
+        background: rgba(0, 0, 0, 0.45);
+    }
+
+    .shell__content {
+        padding: var(--space-4);
+        padding-top: var(--space-16);
+    }
+}

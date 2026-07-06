@@ -1,0 +1,38 @@
+:host {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
+.avatar__image {
+    border-radius: var(--radius-full);
+    object-fit: cover;
+}
+
+.avatar__initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--radius-full);
+    background: var(--color-primary-500);
+    color: var(--text-white);
+    font-weight: 600;
+}
+
+.avatar--sm {
+    width: 32px;
+    height: 32px;
+    font-size: var(--text-xs);
+}
+
+.avatar--md {
+    width: 44px;
+    height: 44px;
+    font-size: var(--text-sm);
+}
+
+.avatar--lg {
+    width: 72px;
+    height: 72px;
+    font-size: var(--text-xl);
+}
