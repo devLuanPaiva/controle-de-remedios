@@ -53,6 +53,9 @@ public class User implements UserDetails {
     @Column(nullable = false, columnDefinition = "user_role")
     private UserRole role;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private Boolean active;
+
     @CreatedDate
     @Column(nullable = false, updatable = false, name = "created_at")
     private LocalDateTime createdAt;
