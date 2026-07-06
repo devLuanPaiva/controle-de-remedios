@@ -1,0 +1,27 @@
+<div class="shell">
+    <button
+        type="button"
+        class="shell__menu-toggle"
+        (click)="toggleSidebar()"
+        [attr.aria-expanded]="sidebarOpen()"
+        aria-label="Abrir menu de navegação"
+    >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+    </button>
+
+    @if (sidebarOpen()) {
+        <div class="shell__backdrop" (click)="closeSidebar()"></div>
+    }
+
+    <aside class="shell__sidebar" [class.shell__sidebar--open]="sidebarOpen()">
+        <app-sidebar (navigated)="closeSidebar()" />
+    </aside>
+
+    <main class="shell__content">
+        <router-outlet />
+    </main>
+</div>

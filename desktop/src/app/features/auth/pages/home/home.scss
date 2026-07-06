@@ -3,8 +3,7 @@
     align-items: center;
     justify-content: center;
 
-    min-height: 100vh;
-    padding: var(--space-6);
+    min-height: 60vh;
 }
 
 .home-page__card {
@@ -46,8 +45,4 @@
 .home-page__subtitle {
     color: var(--text-secondary);
     font-size: var(--text-base);
-}
-
-.home-page__logout {
-    margin-top: var(--space-4);
 }

@@ -1,0 +1,91 @@
+<section class="user-list">
+    <header class="user-list__header">
+        <h1 class="user-list__title">Usuários</h1>
+
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+            Novo usuário
+        </button>
+    </header>
+
+    <div class="user-list__toolbar">
+        <input
+            #searchBox
+            type="search"
+            class="input user-list__search"
+            placeholder="Buscar por nome, e-mail ou CPF"
+            aria-label="Buscar usuários"
+            (input)="onSearchTermChange(searchBox.value)"
+        />
+    </div>
+
+    @if (loading()) {
+        <div class="loading user-list__state">
+            <output class="spinner" aria-label="Carregando usuários"></output>
+        </div>
+    } @else if (error()) {
+        <div class="user-list__state user-list__state--error">
+            <p>{{ error() }}</p>
+            <button type="button" class="btn btn-outline" (click)="retry()">
+                Tentar novamente
+            </button>
+        </div>
+    } @else {
+        <div class="table-responsive">
+            <table class="table user-list__table">
+                <thead>
+                    <tr>
+                        <th class="user-list__col-avatar"><span class="sr-only">Foto</span></th>
+                        <th>Nome</th>
+                        <th class="user-list__col-email">E-mail</th>
+                        <th>CPF</th>
+                        <th>Perfil</th>
+                        <th class="user-list__col-actions">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (user of filteredUsers(); track user.id) {
+                        <tr>
+                            <td class="user-list__col-avatar">
+                                <app-avatar [name]="user.name" [imageUrl]="user.imageUrl" size="sm" />
+                            </td>
+                            <td data-label="Nome" class="user-list__col-name">{{ user.name }}</td>
+                            <td data-label="E-mail" class="user-list__col-email">{{ user.email }}</td>
+                            <td data-label="CPF">{{ formatCpf(user.cpf) }}</td>
+                            <td data-label="Perfil">
+                                <app-role-badge [role]="user.role" />
+                            </td>
+                            <td data-label="Ações" class="user-list__col-actions">
+                                <a class="btn btn-outline" [routerLink]="['/users', user.id, 'edit']">
+                                    Editar
+                                </a>
+                            </td>
+                        </tr>
+                    } @empty {
+                        <tr class="user-list__empty-row">
+                            <td colspan="6">Nenhum usuário encontrado.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="user-list__pagination">
+            <button type="button" class="btn btn-outline" [disabled]="!pagination().previous" (click)="goToPreviousPage()">
+                Anterior
+            </button>
+
+            <span class="user-list__pagination-label">
+                Página {{ pagination().currentPage }} de {{ pagination().totalPages }}
+            </span>
+
+            <button type="button" class="btn btn-outline" [disabled]="!pagination().next" (click)="goToNextPage()">
+                Próxima
+            </button>
+        </div>
+    }
+</section>
+
+@if (showCreateModal()) {
+    <app-user-create-modal [allowedRoles]="manageableRoles()" (closed)="closeCreateModal()" />
+}

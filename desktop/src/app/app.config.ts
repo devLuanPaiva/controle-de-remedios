@@ -15,6 +15,8 @@ import { refreshInterceptor } from "@features/auth/interceptors/refresh.intercep
 import { provideClientHydration, withEventReplay } from "@angular/platform-browser";
 import { authReducer } from "@features/auth/store/auth.reducer";
 import { AuthEffects } from "@features/auth/store/auth.effects";
+import { usersReducer } from "@features/users/store/user.reducer";
+import { UsersEffects } from "@features/users/store/user.effects";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,10 +32,12 @@ export const appConfig: ApplicationConfig = {
     ),
     provideClientHydration(withEventReplay()),
     provideStore({
-      auth: authReducer
+      auth: authReducer,
+      users: usersReducer
     }),
     provideEffects([
-      AuthEffects
+      AuthEffects,
+      UsersEffects
     ]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],

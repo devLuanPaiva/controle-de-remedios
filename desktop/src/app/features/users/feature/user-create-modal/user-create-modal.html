@@ -1,0 +1,155 @@
+<dialog
+    #dialogRef
+    class="modal user-create-modal"
+    aria-labelledby="create-user-title"
+    (close)="closed.emit()"
+    (click)="onDialogClick($event)"
+    (keydown.escape)="requestClose()"
+>
+    <form (submit)="onSubmit($event)" novalidate>
+        <div class="modal-header">
+            <h2 class="modal-title" id="create-user-title">Novo usuário</h2>
+
+            <button type="button" class="user-create-modal__close" (click)="requestClose()" aria-label="Fechar">
+                &times;
+            </button>
+        </div>
+
+        <div class="modal-body user-create-modal__body">
+            <div class="user-create-modal__field">
+                <label class="user-create-modal__label" for="create-user-name">Nome</label>
+                <input
+                    id="create-user-name"
+                    class="input"
+                    type="text"
+                    autocomplete="name"
+                    autofocus
+                    [formField]="userForm.name"
+                        [attr.aria-invalid]="userForm.name().invalid() && userForm.name().touched()"
+                        [attr.aria-describedby]="userForm.name().invalid() && userForm.name().touched() ? 'create-user-name-error' : null"
+                    />
+                    @if (userForm.name().touched() && userForm.name().invalid()) {
+                        <span class="user-create-modal__error" id="create-user-name-error">
+                            {{ userForm.name().errors()[0]?.message }}
+                        </span>
+                    }
+                </div>
+
+                <div class="user-create-modal__field">
+                    <label class="user-create-modal__label" for="create-user-email">Email</label>
+                    <input
+                        id="create-user-email"
+                        class="input"
+                        type="email"
+                        autocomplete="email"
+                        [formField]="userForm.email"
+                        [attr.aria-invalid]="userForm.email().invalid() && userForm.email().touched()"
+                        [attr.aria-describedby]="userForm.email().invalid() && userForm.email().touched() ? 'create-user-email-error' : null"
+                    />
+                    @if (userForm.email().touched() && userForm.email().invalid()) {
+                        <span class="user-create-modal__error" id="create-user-email-error">
+                            {{ userForm.email().errors()[0]?.message }}
+                        </span>
+                    }
+                </div>
+
+                <div class="user-create-modal__field">
+                    <label class="user-create-modal__label" for="create-user-cpf">CPF</label>
+                    <input
+                        #cpfInput
+                        id="create-user-cpf"
+                        class="input"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="14"
+                        placeholder="000.000.000-00"
+                        [value]="model().cpf"
+                        (input)="onCpfInput(cpfInput.value)"
+                        (blur)="userForm.cpf().markAsTouched()"
+                        [attr.aria-invalid]="userForm.cpf().invalid() && userForm.cpf().touched()"
+                        [attr.aria-describedby]="userForm.cpf().invalid() && userForm.cpf().touched() ? 'create-user-cpf-error' : null"
+                    />
+                    @if (userForm.cpf().touched() && userForm.cpf().invalid()) {
+                        <span class="user-create-modal__error" id="create-user-cpf-error">
+                            {{ userForm.cpf().errors()[0]?.message }}
+                        </span>
+                    }
+                </div>
+
+                <div class="user-create-modal__field">
+                    <label class="user-create-modal__label" for="create-user-role">Perfil</label>
+                    <select
+                        #roleSelect
+                        id="create-user-role"
+                        class="input"
+                        [value]="model().role ?? ''"
+                        (change)="onRoleChange(roleSelect.value)"
+                        (blur)="userForm.role().markAsTouched()"
+                        [attr.aria-invalid]="userForm.role().invalid() && userForm.role().touched()"
+                        [attr.aria-describedby]="userForm.role().invalid() && userForm.role().touched() ? 'create-user-role-error' : null"
+                    >
+                        <option value="" disabled>Selecione um perfil</option>
+                        @for (role of allowedRoles(); track role) {
+                            <option [value]="role">{{ roleLabel(role) }}</option>
+                        }
+                    </select>
+                    @if (userForm.role().touched() && userForm.role().invalid()) {
+                        <span class="user-create-modal__error" id="create-user-role-error">
+                            {{ userForm.role().errors()[0]?.message }}
+                        </span>
+                    }
+                </div>
+
+                <div class="user-create-modal__field">
+                    <label class="user-create-modal__label" for="create-user-password">Senha</label>
+
+                    <div class="user-create-modal__password-row">
+                        <input
+                            id="create-user-password"
+                            class="input"
+                            [type]="showPassword() ? 'text' : 'password'"
+                            autocomplete="new-password"
+                            [formField]="userForm.password"
+                            [attr.aria-invalid]="userForm.password().invalid() && userForm.password().touched()"
+                            [attr.aria-describedby]="userForm.password().invalid() && userForm.password().touched() ? 'create-user-password-error' : null"
+                        />
+                        <button type="button" class="btn btn-outline" (click)="toggleShowPassword()">
+                            {{ showPassword() ? 'Ocultar' : 'Mostrar' }}
+                        </button>
+                        <button type="button" class="btn btn-outline" (click)="generatePassword()">
+                            Gerar senha
+                        </button>
+                    </div>
+
+                    @if (userForm.password().touched() && userForm.password().invalid()) {
+                        <span class="user-create-modal__error" id="create-user-password-error">
+                            {{ userForm.password().errors()[0]?.message }}
+                        </span>
+                    }
+                </div>
+
+                <div class="user-create-modal__field">
+                    <label class="user-create-modal__label" for="create-user-image">Foto de perfil (URL, opcional)</label>
+                    <input
+                        id="create-user-image"
+                        class="input"
+                        type="text"
+                        placeholder="https://..."
+                        [formField]="userForm.imageUrl"
+                    />
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" (click)="requestClose()">Cancelar</button>
+                <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
+                    @if (mutating()) {
+                        <span class="spinner spinner-sm" aria-hidden="true"></span>
+                        <span>Salvando...</span>
+                    } @else {
+                        <span>Salvar</span>
+                    }
+                </button>
+            </div>
+        </form>
+</dialog>

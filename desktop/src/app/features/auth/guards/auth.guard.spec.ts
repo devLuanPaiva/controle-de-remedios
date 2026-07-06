@@ -2,12 +2,12 @@ import { TestBed } from '@angular/core/testing';
 import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { authGuard } from './auth.guard';
-import { AuthService } from '../services/auth.service';
+import { AuthSessionService } from '../services/auth-session.service';
 
 describe('authGuard', () => {
-  let authService: AuthService;
+  let session: AuthSessionService;
   let router: Router;
-  let isAuthenticatedSpy: ReturnType<typeof vi.spyOn>;
+  let authenticatedSpy: ReturnType<typeof vi.spyOn>;
   let navigateSpy: ReturnType<typeof vi.spyOn>;
 
   const createMockActivatedRouteSnapshot = (): ActivatedRouteSnapshot => {
@@ -42,18 +42,18 @@ describe('authGuard', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [AuthService],
+      providers: [AuthSessionService],
     });
 
-    authService = TestBed.inject(AuthService);
+    session = TestBed.inject(AuthSessionService);
     router = TestBed.inject(Router);
 
-    isAuthenticatedSpy = vi.spyOn(authService, 'isAuthenticated');
+    authenticatedSpy = vi.spyOn(session, 'authenticated');
     navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
   });
 
   afterEach(() => {
-    isAuthenticatedSpy.mockRestore();
+    authenticatedSpy.mockRestore();
     navigateSpy.mockRestore();
   });
 
@@ -62,35 +62,35 @@ describe('authGuard', () => {
   });
 
   it('should allow access when user is authenticated', () => {
-    isAuthenticatedSpy.mockReturnValue(true);
+    authenticatedSpy.mockReturnValue(true);
     const activatedRoute: ActivatedRouteSnapshot = createMockActivatedRouteSnapshot();
     const routerState: RouterStateSnapshot = createMockRouterStateSnapshot();
     const result = executeGuard(activatedRoute, routerState);
 
-    expect(isAuthenticatedSpy).toHaveBeenCalled();
+    expect(authenticatedSpy).toHaveBeenCalled();
     expect(navigateSpy).not.toHaveBeenCalled();
     expect(result).toBe(true);
   });
 
   it('should block access when user is not authenticated', () => {
-    isAuthenticatedSpy.mockReturnValue(false);
+    authenticatedSpy.mockReturnValue(false);
     const activatedRoute: ActivatedRouteSnapshot = createMockActivatedRouteSnapshot();
     const routerState: RouterStateSnapshot = createMockRouterStateSnapshot();
 
     const result = executeGuard(activatedRoute, routerState);
 
-    expect(isAuthenticatedSpy).toHaveBeenCalled();
+    expect(authenticatedSpy).toHaveBeenCalled();
     expect(result).toBe(false);
   });
 
   it('should redirect to /login when user is not authenticated', () => {
-    isAuthenticatedSpy.mockReturnValue(false);
+    authenticatedSpy.mockReturnValue(false);
     const activatedRoute: ActivatedRouteSnapshot = createMockActivatedRouteSnapshot();
     const routerState: RouterStateSnapshot = createMockRouterStateSnapshot();
 
     executeGuard(activatedRoute, routerState);
 
-    expect(isAuthenticatedSpy).toHaveBeenCalled();
+    expect(authenticatedSpy).toHaveBeenCalled();
     expect(navigateSpy).toHaveBeenCalledWith(['/login']);
     expect(navigateSpy).toHaveBeenCalledTimes(1);
   });
