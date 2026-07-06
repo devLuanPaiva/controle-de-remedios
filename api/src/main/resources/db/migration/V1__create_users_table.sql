@@ -1,6 +1,6 @@
 CREATE TYPE user_role AS ENUM (
     'ADMIN',
-    'PREMIUM',
+    'MANAGER',
     'USER'
 );
 
@@ -12,6 +12,7 @@ CREATE TABLE users (
     role user_role NOT NULL DEFAULT 'USER',
     image_url VARCHAR(255),
     cpf VARCHAR(11) UNIQUE NOT NULL,
+    active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
