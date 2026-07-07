@@ -16,5 +16,17 @@
         </h1>
 
         <p class="home-page__subtitle">Você está autenticado com sucesso.</p>
+
+        @if (companies().length > 0) {
+            <div class="home-page__company-card">
+                <span class="home-page__company-label">Empresa conectada</span>
+
+                <app-company-switcher
+                    [companies]="companies()"
+                    [selectedCompanyId]="selectedCompanyId()"
+                    (companySelected)="onCompanySelected($event)"
+                />
+            </div>
+        }
     </section>
 </main>
