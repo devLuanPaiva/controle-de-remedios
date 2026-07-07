@@ -5,23 +5,10 @@ import { map, Observable } from 'rxjs';
 import { environment } from '@environments/environment';
 import { ApiResponse } from '@shared/models/api-response.model';
 
-import { CreateUserRequest, UpdateUserRequest, UserApiDto, UsersPage } from '../models/user-api.model';
-import { IUser, normalizeUserRole, UserRole } from '../models/user.model';
+import { CreateUserRequest, toUser, UpdateUserRequest, UserApiDto, UsersPage } from '../models/user-api.model';
+import { IUser, UserRole } from '../models/user.model';
 
 const DEFAULT_PAGE_SIZE = 20;
-
-function toUser(dto: UserApiDto): IUser {
-    return {
-        id: dto.id,
-        name: dto.name,
-        email: dto.email,
-        imageUrl: dto.imageUrl ?? undefined,
-        cpf: dto.cpf,
-        role: normalizeUserRole(dto.role) ?? UserRole.USER,
-        createdAt: new Date(dto.createdAt),
-        updatedAt: new Date(dto.updatedAt),
-    };
-}
 
 @Injectable({
     providedIn: 'root',
