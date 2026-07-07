@@ -38,9 +38,9 @@ export function normalizeUserRole(raw: unknown): UserRole | null {
 export function getManageableRoles(currentUserRole: UserRole | null | undefined): UserRole[] {
     switch (currentUserRole) {
         case UserRole.ADMIN:
-            return [UserRole.ADMIN, UserRole.MANAGER, UserRole.USER];
-        case UserRole.MANAGER:
             return [UserRole.MANAGER, UserRole.USER];
+        case UserRole.MANAGER:
+            return [UserRole.USER];
         default:
             return [];
     }
