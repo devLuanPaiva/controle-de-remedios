@@ -1,0 +1,85 @@
+<dialog
+    #dialogRef
+    class="modal company-create-modal"
+    aria-labelledby="create-company-title"
+    (close)="closed.emit()"
+    (click)="onDialogClick($event)"
+    (keydown.escape)="requestClose()"
+>
+    <form (submit)="onSubmit($event)" novalidate>
+        <div class="modal-header">
+            <h2 class="modal-title" id="create-company-title">Nova empresa</h2>
+
+            <button type="button" class="company-create-modal__close" (click)="requestClose()" aria-label="Fechar">
+                &times;
+            </button>
+        </div>
+
+        <div class="modal-body company-create-modal__body">
+            <div class="company-create-modal__field">
+                <label class="company-create-modal__label" for="create-company-name">Nome</label>
+                <input
+                    id="create-company-name"
+                    class="input"
+                    type="text"
+                    autocomplete="organization"
+                    autofocus
+                    [formField]="companyForm.name"
+                    [attr.aria-invalid]="companyForm.name().invalid() && companyForm.name().touched()"
+                    [attr.aria-describedby]="companyForm.name().invalid() && companyForm.name().touched() ? 'create-company-name-error' : null"
+                />
+                @if (companyForm.name().touched() && companyForm.name().invalid()) {
+                    <span class="company-create-modal__error" id="create-company-name-error">
+                        {{ companyForm.name().errors()[0]?.message }}
+                    </span>
+                }
+            </div>
+
+            <div class="company-create-modal__field">
+                <label class="company-create-modal__label" for="create-company-cnpj">CNPJ</label>
+                <input
+                    #cnpjInput
+                    id="create-company-cnpj"
+                    class="input"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="18"
+                    placeholder="00.000.000/0000-00"
+                    [value]="model().cnpj"
+                    (input)="onCnpjInput(cnpjInput.value)"
+                    (blur)="companyForm.cnpj().markAsTouched()"
+                    [attr.aria-invalid]="companyForm.cnpj().invalid() && companyForm.cnpj().touched()"
+                    [attr.aria-describedby]="companyForm.cnpj().invalid() && companyForm.cnpj().touched() ? 'create-company-cnpj-error' : null"
+                />
+                @if (companyForm.cnpj().touched() && companyForm.cnpj().invalid()) {
+                    <span class="company-create-modal__error" id="create-company-cnpj-error">
+                        {{ companyForm.cnpj().errors()[0]?.message }}
+                    </span>
+                }
+            </div>
+
+            <div class="company-create-modal__field">
+                <label class="company-create-modal__label" for="create-company-image">Logo (URL, opcional)</label>
+                <input
+                    id="create-company-image"
+                    class="input"
+                    type="text"
+                    placeholder="https://..."
+                    [formField]="companyForm.imageUrl"
+                />
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline btn-sm" (click)="requestClose()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSubmit()">
+                @if (mutating()) {
+                    <span class="spinner spinner-sm" aria-hidden="true"></span>
+                    <span>Salvando...</span>
+                } @else {
+                    <span>Salvar</span>
+                }
+            </button>
+        </div>
+    </form>
+</dialog>
