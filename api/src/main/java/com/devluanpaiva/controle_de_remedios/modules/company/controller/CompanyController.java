@@ -16,6 +16,7 @@ import com.devluanpaiva.controle_de_remedios.modules.company.dto.CreateCompanyRe
 import com.devluanpaiva.controle_de_remedios.modules.company.dto.UpdateCompanyRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanyFilter;
 import com.devluanpaiva.controle_de_remedios.modules.company.service.CompanyService;
+import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponse;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponseFactory;
 
@@ -75,6 +76,18 @@ public class CompanyController {
     public ApiResponse<Void> deleteCompany(@PathVariable UUID id) {
         companyService.deleteCompany(id);
         return ApiResponseFactory.success("Empresa deletada com sucesso", null);
+    }
+
+    @GetMapping("/{id}/users")
+    public ApiResponse<List<UserResponseDTO>> getCompanyUsers(
+            @PathVariable UUID id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserResponseDTO> result = companyService.getCompanyUsers(id, pageable);
+
+        return ApiResponseFactory.paginated("Usuários da empresa obtidos com sucesso", result, null, null);
     }
 
     @PostMapping("/{id}/users")

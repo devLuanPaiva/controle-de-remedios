@@ -9,6 +9,7 @@ import com.devluanpaiva.controle_de_remedios.modules.company.dto.CompanyResponse
 import com.devluanpaiva.controle_de_remedios.modules.company.dto.CreateCompanyRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.company.dto.UpdateCompanyRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanyFilter;
+import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
 
 public interface CompanyService {
     CompanyResponseDTO createCompany(CreateCompanyRequestDTO dto);
@@ -20,6 +21,8 @@ public interface CompanyService {
     CompanyResponseDTO updateCompany(UUID id, UpdateCompanyRequestDTO dto);
 
     void deleteCompany(UUID id);
+
+    Page<UserResponseDTO> getCompanyUsers(UUID companyId, Pageable pageable);
 
     void associateUser(UUID companyId, UUID userId);
 

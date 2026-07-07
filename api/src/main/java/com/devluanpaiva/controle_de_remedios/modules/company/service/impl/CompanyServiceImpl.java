@@ -18,8 +18,10 @@ import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanySpeci
 import com.devluanpaiva.controle_de_remedios.modules.company.mapper.CompanyMapper;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
 import com.devluanpaiva.controle_de_remedios.modules.company.service.CompanyService;
+import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
 import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
 import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
@@ -33,6 +35,7 @@ public class CompanyServiceImpl implements CompanyService {
     private final CompanyRepository companyRepository;
     private final UserRepository userRepository;
     private final CompanyMapper companyMapper;
+    private final UserMapper userMapper;
     private final SecurityContextHelper securityContextHelper;
 
     @Override
@@ -119,6 +122,18 @@ public class CompanyServiceImpl implements CompanyService {
         assertIsAdmin(actor);
 
         companyRepository.delete(company);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserResponseDTO> getCompanyUsers(UUID companyId, Pageable pageable) {
+        User actor = securityContextHelper.getCurrentUser();
+        Company company = findCompanyOrThrow(companyId);
+
+        assertCanView(actor, company);
+
+        return userRepository.findByCompanies_Id(companyId, pageable)
+                .map(userMapper::toResponseDTO);
     }
 
     @Override
