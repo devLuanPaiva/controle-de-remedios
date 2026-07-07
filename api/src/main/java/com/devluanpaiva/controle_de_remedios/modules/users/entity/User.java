@@ -85,4 +85,12 @@ public class User implements UserDetails {
         return email;
     }
 
+    public void assignToCompany(Company company) {
+        companies.add(company);
+    }
+
+    public void unassignFromCompany(Company company) {
+        companies.remove(company);
+    }
+
 }
