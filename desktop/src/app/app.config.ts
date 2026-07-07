@@ -17,6 +17,8 @@ import { authReducer } from "@features/auth/store/auth.reducer";
 import { AuthEffects } from "@features/auth/store/auth.effects";
 import { usersReducer } from "@features/users/store/user.reducer";
 import { UsersEffects } from "@features/users/store/user.effects";
+import { companyReducer } from "@features/company/store/company.reducer";
+import { CompanyEffects } from "@features/company/store/company.effects";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -33,11 +35,13 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideStore({
       auth: authReducer,
-      users: usersReducer
+      users: usersReducer,
+      company: companyReducer
     }),
     provideEffects([
       AuthEffects,
-      UsersEffects
+      UsersEffects,
+      CompanyEffects
     ]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],
