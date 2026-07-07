@@ -14,7 +14,6 @@ import com.devluanpaiva.controle_de_remedios.modules.users.dto.ResetPasswordRequ
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
 import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
 import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.modules.users.service.UserService;
@@ -33,6 +32,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO createUser(CreateUserRequestDTO dto) {
+        User actor = securityContextHelper.getCurrentUser();
+
+        if (!actor.getRole().canManage(dto.role())) {
+            throw forbidden();
+        }
+
         if (userRepository.existsByEmail(dto.email())) {
             throw new BusinessException(
                     HttpStatus.CONFLICT,
@@ -54,7 +59,7 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .name(dto.name())
                 .email(dto.email())
-                .role(UserRole.USER)
+                .role(dto.role())
                 .cpf(dto.cpf())
                 .imageUrl(dto.imageUrl())
                 .password(passwordEncoder.encode(dto.password()))

@@ -29,7 +29,7 @@ public final class CompanySpecification {
 
     private static Specification<Company> containsIgnoreCase(String field, String value) {
         if (!StringUtils.hasText(value)) {
-            return null;
+            return Specification.unrestricted();
         }
 
         return (root, query, builder) -> builder.like(
