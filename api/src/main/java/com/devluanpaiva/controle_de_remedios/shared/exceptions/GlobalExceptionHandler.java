@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,6 +51,27 @@ public class GlobalExceptionHandler {
                         "Erro de validação",
                         null,
                         new ApiError("VALIDATION_ERROR", field, detail));
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiExceptionResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+
+        String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "desconhecido";
+
+        ApiExceptionResponse response =
+                new ApiExceptionResponse(
+                        "error",
+                        "Parâmetro inválido",
+                        null,
+                        new ApiError(
+                                "INVALID_PARAMETER",
+                                ex.getName(),
+                                "O valor '" + ex.getValue() + "' informado para '" + ex.getName()
+                                        + "' é inválido. Era esperado um valor do tipo " + requiredType + "."));
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
