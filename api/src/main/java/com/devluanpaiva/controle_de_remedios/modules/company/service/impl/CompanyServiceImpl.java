@@ -77,15 +77,23 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @Transactional(readOnly = true)
     public Page<CompanyResponseDTO> getCompanies(CompanyFilter filter, Pageable pageable) {
-        UUID actorId = securityContextHelper.getCurrentUserId();
+        User actor = securityContextHelper.getCurrentUser();
 
-        Specification<Company> specification = CompanySpecification.associatedWith(actorId)
+        Specification<Company> specification = visibilityScope(actor)
                 .and(CompanySpecification.hasName(filter.name()))
                 .and(CompanySpecification.hasSlug(filter.slug()))
                 .and(CompanySpecification.hasCnpj(filter.cnpj()));
 
         return companyRepository.findAll(specification, pageable)
                 .map(companyMapper::toResponseDTO);
+    }
+
+    private Specification<Company> visibilityScope(User actor) {
+        if (actor.getRole() == UserRole.ADMIN) {
+            return Specification.unrestricted();
+        }
+
+        return CompanySpecification.associatedWith(actor.getId());
     }
 
     @Override
