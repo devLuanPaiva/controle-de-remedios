@@ -102,9 +102,9 @@ public class CompanyServiceImpl implements CompanyService {
     @Transactional
     public CompanyResponseDTO updateCompany(UUID id, UpdateCompanyRequestDTO dto) {
         User actor = securityContextHelper.getCurrentUser();
-        Company company = findCompanyOrThrow(id);
+        assertCanEdit(actor, id);
 
-        assertCanEdit(actor, company);
+        Company company = findCompanyOrThrow(id);
 
         if (dto.name() != null) {
             company.setName(dto.name());
@@ -127,9 +127,9 @@ public class CompanyServiceImpl implements CompanyService {
     @Transactional
     public void deleteCompany(UUID id) {
         User actor = securityContextHelper.getCurrentUser();
-        Company company = findCompanyOrThrow(id);
-
         assertIsAdmin(actor);
+
+        Company company = findCompanyOrThrow(id);
 
         companyRepository.delete(company);
     }
@@ -203,24 +203,24 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     private void assertCanView(User actor, Company company) {
-        authorizationPolicy.requireAdminOrCondition(actor, () -> isMemberOf(company, actor));
+        authorizationPolicy.requireAdminOrCondition(actor, () -> isMemberOf(company.getId(), actor));
     }
 
-    private void assertCanEdit(User actor, Company company) {
+    private void assertCanEdit(User actor, UUID companyId) {
         authorizationPolicy.requireAdminOrRoleWithCondition(
-                actor, UserRole.MANAGER, () -> isMemberOf(company, actor));
+                actor, UserRole.MANAGER, () -> isMemberOf(companyId, actor));
     }
 
     private void assertCanManageCompanyUser(User actor, Company company, User targetUser) {
         authorizationPolicy.requireManageableRole(actor, targetUser.getRole());
 
         if (actor.getRole() == UserRole.MANAGER) {
-            authorizationPolicy.requireCondition(isMemberOf(company, actor));
+            authorizationPolicy.requireCondition(isMemberOf(company.getId(), actor));
         }
     }
 
-    private boolean isMemberOf(Company company, User user) {
-        return companyRepository.existsByIdAndUsers_Id(company.getId(), user.getId());
+    private boolean isMemberOf(UUID companyId, User user) {
+        return companyRepository.existsByIdAndUsers_Id(companyId, user.getId());
     }
 
     private Company findCompanyOrThrow(UUID id) {
