@@ -18,12 +18,12 @@ import com.devluanpaiva.controle_de_remedios.modules.users.dto.ResetPasswordRequ
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
 import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
 import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserSpecification;
 import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
 import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.modules.users.service.UserService;
+import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
 import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 
@@ -37,15 +37,14 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final SecurityContextHelper securityContextHelper;
+    private final AuthorizationPolicy authorizationPolicy;
 
     @Override
     @Transactional
     public UserResponseDTO createUser(CreateUserRequestDTO dto) {
         User actor = securityContextHelper.getCurrentUser();
 
-        if (!actor.getRole().canManage(dto.role())) {
-            throw forbidden();
-        }
+        authorizationPolicy.requireManageableRole(actor, dto.role());
 
         if (userRepository.existsByEmail(dto.email())) {
             throw new BusinessException(
@@ -104,12 +103,10 @@ public class UserServiceImpl implements UserService {
         User actor = securityContextHelper.getCurrentUser();
         var manageableRoles = actor.getRole().manageableRoles();
 
-        if (manageableRoles.isEmpty()) {
-            throw forbidden();
-        }
+        authorizationPolicy.requireCondition(!manageableRoles.isEmpty());
 
-        if (filter.role() != null && !manageableRoles.contains(filter.role())) {
-            throw forbidden();
+        if (filter.role() != null) {
+            authorizationPolicy.requireCondition(manageableRoles.contains(filter.role()));
         }
 
         if (filter.companyId() != null) {
@@ -182,27 +179,12 @@ public class UserServiceImpl implements UserService {
     }
 
     private void assertCanManage(User actor, User target) {
-        if (actor.getId().equals(target.getId())) {
-            return;
-        }
-
-        if (actor.getRole().canManage(target.getRole())) {
-            return;
-        }
-
-        throw forbidden();
+        authorizationPolicy.requireSelfOrManageable(actor, target);
     }
 
     private void assertBelongsToCompany(User actor, UUID companyId) {
-        if (actor.getRole() == UserRole.ADMIN) {
-            return;
-        }
-
-        if (companyRepository.existsByIdAndUsers_Id(companyId, actor.getId())) {
-            return;
-        }
-
-        throw forbidden();
+        authorizationPolicy.requireAdminOrCondition(
+                actor, () -> companyRepository.existsByIdAndUsers_Id(companyId, actor.getId()));
     }
 
     private Company findCompanyOrThrow(UUID id) {
@@ -213,14 +195,5 @@ public class UserServiceImpl implements UserService {
                         "COMPANY_NOT_FOUND",
                         "id",
                         "Não foi possível encontrar uma empresa com o ID '" + id + "'."));
-    }
-
-    private BusinessException forbidden() {
-        return new BusinessException(
-                HttpStatus.FORBIDDEN,
-                "Acesso negado",
-                "AUTH_FORBIDDEN",
-                "authorization",
-                "Você não possui permissão para gerenciar este usuário.");
     }
 }

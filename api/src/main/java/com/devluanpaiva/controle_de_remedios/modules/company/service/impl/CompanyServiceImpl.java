@@ -23,6 +23,7 @@ import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
 import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
 import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
 import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
+import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
 import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 import com.devluanpaiva.controle_de_remedios.shared.utils.SlugGenerator;
@@ -37,6 +38,7 @@ public class CompanyServiceImpl implements CompanyService {
     private final CompanyMapper companyMapper;
     private final UserMapper userMapper;
     private final SecurityContextHelper securityContextHelper;
+    private final AuthorizationPolicy authorizationPolicy;
 
     @Override
     @Transactional
@@ -197,38 +199,23 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     private void assertIsAdmin(User actor) {
-        if (actor.getRole() != UserRole.ADMIN) {
-            throw forbidden();
-        }
+        authorizationPolicy.requireAdmin(actor);
     }
 
     private void assertCanView(User actor, Company company) {
-        if (actor.getRole() == UserRole.ADMIN || company.hasUser(actor.getId())) {
-            return;
-        }
-
-        throw forbidden();
+        authorizationPolicy.requireAdminOrCondition(actor, () -> company.hasUser(actor.getId()));
     }
 
     private void assertCanEdit(User actor, Company company) {
-        if (actor.getRole() == UserRole.ADMIN) {
-            return;
-        }
-
-        if (actor.getRole() == UserRole.MANAGER && company.hasUser(actor.getId())) {
-            return;
-        }
-
-        throw forbidden();
+        authorizationPolicy.requireAdminOrRoleWithCondition(
+                actor, UserRole.MANAGER, () -> company.hasUser(actor.getId()));
     }
 
     private void assertCanManageCompanyUser(User actor, Company company, User targetUser) {
-        if (!actor.getRole().canManage(targetUser.getRole())) {
-            throw forbidden();
-        }
+        authorizationPolicy.requireManageableRole(actor, targetUser.getRole());
 
-        if (actor.getRole() == UserRole.MANAGER && !company.hasUser(actor.getId())) {
-            throw forbidden();
+        if (actor.getRole() == UserRole.MANAGER) {
+            authorizationPolicy.requireCondition(company.hasUser(actor.getId()));
         }
     }
 
@@ -259,14 +246,5 @@ public class CompanyServiceImpl implements CompanyService {
                 "CNPJ_ALREADY_EXISTS",
                 "cnpj",
                 "Já existe uma empresa cadastrada com o CNPJ '" + cnpj + "'.");
-    }
-
-    private BusinessException forbidden() {
-        return new BusinessException(
-                HttpStatus.FORBIDDEN,
-                "Acesso negado",
-                "AUTH_FORBIDDEN",
-                "authorization",
-                "Você não possui permissão para gerenciar esta empresa.");
     }
 }

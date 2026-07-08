@@ -43,6 +43,7 @@ import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
 import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
 import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.modules.users.service.impl.UserServiceImpl;
+import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
 import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 
@@ -69,7 +70,8 @@ class UserServiceImplTest {
     @BeforeEach
     void setUp() {
         userService = new UserServiceImpl(
-                userRepository, companyRepository, new UserMapper(), passwordEncoder, securityContextHelper);
+                userRepository, companyRepository, new UserMapper(), passwordEncoder, securityContextHelper,
+                new AuthorizationPolicy());
     }
 
     private Company buildCompany() {
@@ -231,7 +233,8 @@ class UserServiceImplTest {
         void shouldAssociateUserToCompanyWhenActorIsAdmin() {
             Company company = buildCompany();
             CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
-                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER, company.getId());
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER,
+                    company.getId());
 
             when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
             when(userRepository.existsByCpf(dtoWithCompany.cpf())).thenReturn(false);
@@ -254,7 +257,8 @@ class UserServiceImplTest {
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
 
             CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
-                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER, company.getId());
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER,
+                    company.getId());
 
             when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
             when(userRepository.existsByCpf(dtoWithCompany.cpf())).thenReturn(false);
@@ -278,7 +282,8 @@ class UserServiceImplTest {
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
 
             CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
-                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER, company.getId());
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER,
+                    company.getId());
 
             when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
             when(userRepository.existsByCpf(dtoWithCompany.cpf())).thenReturn(false);
@@ -694,6 +699,7 @@ class UserServiceImplTest {
     @DisplayName("getAllUsers")
     class GetAllUsers {
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should query the repository when the actor is ADMIN")
         void shouldQueryRepositoryForAdmin() {
@@ -710,6 +716,7 @@ class UserServiceImplTest {
             assertThat(result.getTotalElements()).isEqualTo(2);
         }
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should deny a USER from listing users and never query the repository")
         void shouldDenyUserFromListingUsers() {
@@ -723,6 +730,7 @@ class UserServiceImplTest {
             verify(userRepository, never()).findAll(any(Specification.class), any(Pageable.class));
         }
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should deny a MANAGER from filtering by a role they cannot manage")
         void shouldDenyManagerFilteringByUnmanageableRole() {
@@ -737,6 +745,7 @@ class UserServiceImplTest {
             verify(userRepository, never()).findAll(any(Specification.class), any(Pageable.class));
         }
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should allow an ADMIN to filter by any company regardless of membership")
         void shouldAllowAdminToFilterByAnyCompany() {
@@ -754,6 +763,7 @@ class UserServiceImplTest {
             verify(companyRepository, never()).existsByIdAndUsers_Id(any(), any());
         }
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should allow a MANAGER to filter by a company they belong to")
         void shouldAllowManagerToFilterByOwnCompany() {
@@ -772,6 +782,7 @@ class UserServiceImplTest {
             assertThat(result.getTotalElements()).isZero();
         }
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should deny a MANAGER from filtering by a company they don't belong to")
         void shouldDenyManagerFilteringByForeignCompany() {
@@ -788,6 +799,7 @@ class UserServiceImplTest {
             verify(userRepository, never()).findAll(any(Specification.class), any(Pageable.class));
         }
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should return an empty page without throwing when there are no matching users")
         void shouldReturnEmptyPageWhenNoUsersMatch() {
@@ -804,6 +816,7 @@ class UserServiceImplTest {
             assertThat(result.getTotalElements()).isZero();
         }
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should forward the given Pageable unchanged to the repository")
         void shouldForwardPageableUnchangedToRepository() {
