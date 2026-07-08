@@ -1,7 +1,6 @@
 package com.devluanpaiva.controle_de_remedios.modules.users.controller;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -20,6 +19,7 @@ import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
 import com.devluanpaiva.controle_de_remedios.modules.users.service.UserService;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponse;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponseFactory;
+import com.devluanpaiva.controle_de_remedios.shared.utils.PageableFactory;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class UserController {
             @RequestParam(required = false) String cpf,
             @RequestParam(required = false) Boolean active) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableFactory.build(page, size);
         UserFilter filter = new UserFilter(companyId, role, name, email, cpf, active);
         Page<UserResponseDTO> result = userService.getAllUsers(filter, pageable);
 

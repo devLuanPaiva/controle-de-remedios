@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +18,7 @@ import com.devluanpaiva.controle_de_remedios.modules.company.service.CompanyServ
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponse;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponseFactory;
+import com.devluanpaiva.controle_de_remedios.shared.utils.PageableFactory;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +43,7 @@ public class CompanyController {
             @RequestParam(required = false) String slug,
             @RequestParam(required = false) String cnpj) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableFactory.build(page, size);
         CompanyFilter filter = new CompanyFilter(name, slug, cnpj);
         Page<CompanyResponseDTO> result = companyService.getCompanies(filter, pageable);
 
@@ -84,7 +84,8 @@ public class CompanyController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageableFactory.build(page, size);
+
         Page<UserResponseDTO> result = companyService.getCompanyUsers(id, pageable);
 
         String next = result.hasNext() ? buildPageUri(page + 1, size) : null;
