@@ -203,20 +203,24 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     private void assertCanView(User actor, Company company) {
-        authorizationPolicy.requireAdminOrCondition(actor, () -> company.hasUser(actor.getId()));
+        authorizationPolicy.requireAdminOrCondition(actor, () -> isMemberOf(company, actor));
     }
 
     private void assertCanEdit(User actor, Company company) {
         authorizationPolicy.requireAdminOrRoleWithCondition(
-                actor, UserRole.MANAGER, () -> company.hasUser(actor.getId()));
+                actor, UserRole.MANAGER, () -> isMemberOf(company, actor));
     }
 
     private void assertCanManageCompanyUser(User actor, Company company, User targetUser) {
         authorizationPolicy.requireManageableRole(actor, targetUser.getRole());
 
         if (actor.getRole() == UserRole.MANAGER) {
-            authorizationPolicy.requireCondition(company.hasUser(actor.getId()));
+            authorizationPolicy.requireCondition(isMemberOf(company, actor));
         }
+    }
+
+    private boolean isMemberOf(Company company, User user) {
+        return companyRepository.existsByIdAndUsers_Id(company.getId(), user.getId());
     }
 
     private Company findCompanyOrThrow(UUID id) {

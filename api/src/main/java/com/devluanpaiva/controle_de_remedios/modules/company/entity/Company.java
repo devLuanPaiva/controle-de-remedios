@@ -55,8 +55,4 @@ public class Company {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    public boolean hasUser(UUID userId) {
-        return users.stream().anyMatch(user -> user.getId().equals(userId));
-    }
 }
