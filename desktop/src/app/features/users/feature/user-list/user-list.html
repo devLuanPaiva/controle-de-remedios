@@ -7,16 +7,81 @@
         </button>
     </header>
 
-    <div class="user-list__toolbar">
-        <input
-            #searchBox
-            type="search"
-            class="input user-list__search"
-            placeholder="Buscar por nome, e-mail ou CPF"
-            aria-label="Buscar usuários"
-            (input)="onSearchTermChange(searchBox.value)"
-        />
-    </div>
+    <form class="user-list__filters" (submit)="applyFilters($event)">
+        <div class="user-list__filter-field">
+            <label class="user-list__filter-label" for="filter-role">Perfil</label>
+            <select
+                id="filter-role"
+                #roleSelect
+                class="input"
+                [value]="filterForm().role"
+                (change)="onFilterRoleChange(roleSelect.value)"
+            >
+                <option value="">Todos os perfis</option>
+                @for (role of manageableRoles(); track role) {
+                    <option [value]="role">{{ UserRoleLabels[role] }}</option>
+                }
+            </select>
+        </div>
+
+        <div class="user-list__filter-field">
+            <label class="user-list__filter-label" for="filter-name">Nome</label>
+            <input
+                id="filter-name"
+                #nameInput
+                type="text"
+                class="input"
+                [value]="filterForm().name"
+                (input)="onFilterNameChange(nameInput.value)"
+            />
+        </div>
+
+        <div class="user-list__filter-field">
+            <label class="user-list__filter-label" for="filter-email">E-mail</label>
+            <input
+                id="filter-email"
+                #emailInput
+                type="text"
+                class="input"
+                [value]="filterForm().email"
+                (input)="onFilterEmailChange(emailInput.value)"
+            />
+        </div>
+
+        <div class="user-list__filter-field">
+            <label class="user-list__filter-label" for="filter-cpf">CPF</label>
+            <input
+                id="filter-cpf"
+                #cpfInput
+                type="text"
+                inputmode="numeric"
+                maxlength="14"
+                class="input"
+                [value]="filterForm().cpf"
+                (input)="onFilterCpfChange(cpfInput.value)"
+            />
+        </div>
+
+        <div class="user-list__filter-field">
+            <label class="user-list__filter-label" for="filter-active">Status</label>
+            <select
+                id="filter-active"
+                #activeSelect
+                class="input"
+                [value]="filterForm().active"
+                (change)="onFilterActiveChange(activeSelect.value)"
+            >
+                <option value="">Todos</option>
+                <option value="true">Ativos</option>
+                <option value="false">Inativos</option>
+            </select>
+        </div>
+
+        <div class="user-list__filter-actions">
+            <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+            <button type="button" class="btn btn-outline btn-sm" (click)="clearFilters()">Limpar filtros</button>
+        </div>
+    </form>
 
     @if (loading()) {
         <div class="loading user-list__state">
@@ -44,7 +109,7 @@
                 </thead>
 
                 <tbody>
-                    @for (user of filteredUsers(); track user.id) {
+                    @for (user of users(); track user.id) {
                         <tr>
                             <td class="user-list__col-avatar">
                                 <app-avatar [name]="user.name" [imageUrl]="user.imageUrl" size="sm" />
