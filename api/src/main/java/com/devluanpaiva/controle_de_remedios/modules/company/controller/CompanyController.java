@@ -87,7 +87,10 @@ public class CompanyController {
         Pageable pageable = PageRequest.of(page, size);
         Page<UserResponseDTO> result = companyService.getCompanyUsers(id, pageable);
 
-        return ApiResponseFactory.paginated("Usuários da empresa obtidos com sucesso", result, null, null);
+        String next = result.hasNext() ? buildPageUri(page + 1, size) : null;
+        String previous = result.hasPrevious() ? buildPageUri(page - 1, size) : null;
+
+        return ApiResponseFactory.paginated("Usuários da empresa obtidos com sucesso", result, next, previous);
     }
 
     @PostMapping("/{id}/users")
