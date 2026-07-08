@@ -15,6 +15,8 @@ import com.devluanpaiva.controle_de_remedios.modules.users.dto.CreateUserRequest
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.ResetPasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
 import com.devluanpaiva.controle_de_remedios.modules.users.service.UserService;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponse;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponseFactory;
@@ -37,10 +39,17 @@ public class UserController {
     @GetMapping
     public ApiResponse<List<UserResponseDTO>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) UUID companyId,
+            @RequestParam(required = false) UserRole role,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String cpf,
+            @RequestParam(required = false) Boolean active) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<UserResponseDTO> result = userService.getAllUsers(pageable);
+        UserFilter filter = new UserFilter(companyId, role, name, email, cpf, active);
+        Page<UserResponseDTO> result = userService.getAllUsers(filter, pageable);
 
         String next = result.hasNext() ? buildPageUri(page + 1, size) : null;
         String previous = result.hasPrevious() ? buildPageUri(page - 1, size) : null;
