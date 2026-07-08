@@ -2,6 +2,7 @@ package com.devluanpaiva.controle_de_remedios.shared.exceptions;
 
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -53,6 +54,25 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiExceptionResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.warn("Violação de integridade de dados", ex);
+
+        ApiExceptionResponse response =
+                new ApiExceptionResponse(
+                        "error",
+                        "Conflito de dados",
+                        null,
+                        new ApiError(
+                                "DATA_INTEGRITY_CONFLICT",
+                                null,
+                                "Os dados informados conflitam com um registro já existente."));
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(response);
     }
 
