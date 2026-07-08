@@ -13,4 +13,6 @@ public interface CompanyRepository extends JpaRepository<Company, UUID>, JpaSpec
     boolean existsBySlug(String slug);
 
     boolean existsBySlugAndIdNot(String slug, UUID id);
+
+    boolean existsByIdAndUsers_Id(UUID id, UUID userId);
 }
