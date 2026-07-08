@@ -18,12 +18,22 @@ export interface CreateUserRequest {
     cpf: string;
     imageUrl?: string;
     role: UserRole;
+    companyId?: string;
 }
 
 export interface UpdateUserRequest {
     name: string;
     cpf: string;
     imageUrl?: string;
+}
+
+export interface UserFilterParams {
+    companyId?: string;
+    role?: UserRole;
+    name?: string;
+    email?: string;
+    cpf?: string;
+    active?: boolean;
 }
 
 export interface UsersPage {
