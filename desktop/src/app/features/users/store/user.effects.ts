@@ -23,7 +23,7 @@ export class UsersEffects {
         this.actions$.pipe(
             ofType(UsersActions.loadUsers),
             switchMap((action) =>
-                this.userService.getUsers(action.page).pipe(
+                this.userService.getUsers(action.page, action.filter).pipe(
                     map((page) =>
                         UsersActions.loadUsersSuccess({
                             users: page.users,
