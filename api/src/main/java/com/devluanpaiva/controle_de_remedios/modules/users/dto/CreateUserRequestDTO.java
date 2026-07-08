@@ -1,5 +1,7 @@
 package com.devluanpaiva.controle_de_remedios.modules.users.dto;
 
+import java.util.UUID;
+
 import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
 
 import jakarta.validation.constraints.Email;
@@ -13,5 +15,6 @@ public record CreateUserRequestDTO(
         @NotBlank @Size(min = 6, max = 20) String password,
         @NotBlank @Size(min = 11, max = 11) String cpf,
         String imageUrl,
-        @NotNull UserRole role) {
+        @NotNull UserRole role,
+        UUID companyId) {
 }
