@@ -2,6 +2,7 @@ package com.devluanpaiva.controle_de_remedios.shared.exceptions;
 
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -57,14 +58,21 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
+<<<<<<< HEAD
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiExceptionResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException ex) {
 
         String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "desconhecido";
+=======
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiExceptionResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.warn("Violação de integridade de dados", ex);
+>>>>>>> ac87e77bf3ff82281f262def379d361f50d38c73
 
         ApiExceptionResponse response =
                 new ApiExceptionResponse(
                         "error",
+<<<<<<< HEAD
                         "Parâmetro inválido",
                         null,
                         new ApiError(
@@ -75,6 +83,17 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+=======
+                        "Conflito de dados",
+                        null,
+                        new ApiError(
+                                "DATA_INTEGRITY_CONFLICT",
+                                null,
+                                "Os dados informados conflitam com um registro já existente."));
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+>>>>>>> ac87e77bf3ff82281f262def379d361f50d38c73
                 .body(response);
     }
 
