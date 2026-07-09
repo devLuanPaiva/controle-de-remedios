@@ -3,7 +3,6 @@ package com.devluanpaiva.controle_de_remedios_test.unit.modules.users.service.im
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
@@ -12,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -30,17 +28,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
+import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.CreateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
 import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
 import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
 import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.modules.users.service.impl.UserServiceImpl;
+import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
 import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 
@@ -48,8 +51,13 @@ import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException
 @DisplayName("UserServiceImpl")
 class UserServiceImplTest {
 
+    private static final UserFilter NO_FILTER = new UserFilter(null, null, null, null, null, null);
+
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private CompanyRepository companyRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -61,7 +69,19 @@ class UserServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        userService = new UserServiceImpl(userRepository, new UserMapper(), passwordEncoder, securityContextHelper);
+        userService = new UserServiceImpl(
+                userRepository, companyRepository, new UserMapper(), passwordEncoder, securityContextHelper,
+                new AuthorizationPolicy());
+    }
+
+    private Company buildCompany() {
+        return Company.builder()
+                .id(UUID.randomUUID())
+                .name("Acme")
+                .slug("acme")
+                .cnpj("12345678000199")
+                .active(true)
+                .build();
     }
 
     private User buildUser(UserRole role) {
@@ -100,8 +120,15 @@ class UserServiceImplTest {
     @DisplayName("createUser")
     class CreateUser {
 
+        private final User admin = buildUser(UserRole.ADMIN);
+
         private final CreateUserRequestDTO dto = new CreateUserRequestDTO(
-                "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER);
+                "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER, null);
+
+        @BeforeEach
+        void stubActor() {
+            lenient().when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+        }
 
         @Test
         @DisplayName("should save the user with an encoded password when email and cpf are unique")
@@ -116,27 +143,42 @@ class UserServiceImplTest {
             assertThat(response.name()).isEqualTo(dto.name());
             assertThat(response.email()).isEqualTo(dto.email());
             assertThat(response.cpf()).isEqualTo(dto.cpf());
+            assertThat(response.role()).isEqualTo(UserRole.USER);
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
             verify(userRepository).save(userCaptor.capture());
             assertThat(userCaptor.getValue().getPassword()).isEqualTo("hashed-password");
         }
 
-        @ParameterizedTest(name = "should force role to USER even when the request specifies {0}")
-        @EnumSource(value = UserRole.class, names = "USER", mode = EnumSource.Mode.EXCLUDE)
-        @DisplayName("should force role to USER regardless of the role requested")
-        void shouldForceRoleToUserRegardlessOfRequestedRole(UserRole requestedRole) {
-            CreateUserRequestDTO privilegedDto = new CreateUserRequestDTO(
-                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, requestedRole);
+        @Test
+        @DisplayName("should save the user with the requested role when the actor can manage it")
+        void shouldSaveUserWithRequestedRoleWhenActorCanManageIt() {
+            CreateUserRequestDTO managerDto = new CreateUserRequestDTO(
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.MANAGER, null);
 
-            when(userRepository.existsByEmail(privilegedDto.email())).thenReturn(false);
-            when(userRepository.existsByCpf(privilegedDto.cpf())).thenReturn(false);
-            when(passwordEncoder.encode(privilegedDto.password())).thenReturn("hashed-password");
+            when(userRepository.existsByEmail(managerDto.email())).thenReturn(false);
+            when(userRepository.existsByCpf(managerDto.cpf())).thenReturn(false);
+            when(passwordEncoder.encode(managerDto.password())).thenReturn("hashed-password");
             when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-            UserResponseDTO response = userService.createUser(privilegedDto);
+            UserResponseDTO response = userService.createUser(managerDto);
 
-            assertThat(response.role()).isEqualTo(UserRole.USER);
+            assertThat(response.role()).isEqualTo(UserRole.MANAGER);
+        }
+
+        @ParameterizedTest(name = "should deny a MANAGER creating a {0}")
+        @EnumSource(value = UserRole.class, names = "USER", mode = EnumSource.Mode.EXCLUDE)
+        @DisplayName("should deny creating a user with a role the actor cannot manage")
+        void shouldDenyCreatingUserWithRoleActorCannotManage(UserRole requestedRole) {
+            User manager = buildUser(UserRole.MANAGER);
+            when(securityContextHelper.getCurrentUser()).thenReturn(manager);
+
+            CreateUserRequestDTO privilegedDto = new CreateUserRequestDTO(
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, requestedRole, null);
+
+            assertForbidden(() -> userService.createUser(privilegedDto));
+
+            verify(userRepository, never()).save(any());
         }
 
         @Test
@@ -184,6 +226,95 @@ class UserServiceImplTest {
                     .satisfies(ex -> assertThat(((BusinessException) ex).getCode()).isEqualTo("EMAIL_ALREADY_EXISTS"));
 
             verify(userRepository, never()).existsByCpf(any());
+        }
+
+        @Test
+        @DisplayName("should associate the user to the given company when the actor is an ADMIN")
+        void shouldAssociateUserToCompanyWhenActorIsAdmin() {
+            Company company = buildCompany();
+            CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER,
+                    company.getId());
+
+            when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
+            when(userRepository.existsByCpf(dtoWithCompany.cpf())).thenReturn(false);
+            when(passwordEncoder.encode(dtoWithCompany.password())).thenReturn("hashed-password");
+            when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            userService.createUser(dtoWithCompany);
+
+            ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+            verify(userRepository).save(userCaptor.capture());
+            assertThat(userCaptor.getValue().getCompanies()).contains(company);
+        }
+
+        @Test
+        @DisplayName("should allow a MANAGER to associate the user to a company they belong to")
+        void shouldAllowManagerToAssociateUserToOwnCompany() {
+            User manager = buildUser(UserRole.MANAGER);
+            Company company = buildCompany();
+            when(securityContextHelper.getCurrentUser()).thenReturn(manager);
+
+            CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER,
+                    company.getId());
+
+            when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
+            when(userRepository.existsByCpf(dtoWithCompany.cpf())).thenReturn(false);
+            when(passwordEncoder.encode(dtoWithCompany.password())).thenReturn("hashed-password");
+            when(companyRepository.existsByIdAndUsers_Id(company.getId(), manager.getId())).thenReturn(true);
+            when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            userService.createUser(dtoWithCompany);
+
+            ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+            verify(userRepository).save(userCaptor.capture());
+            assertThat(userCaptor.getValue().getCompanies()).contains(company);
+        }
+
+        @Test
+        @DisplayName("should deny a MANAGER from associating the user to a company they don't belong to")
+        void shouldDenyManagerAssociatingUserToForeignCompany() {
+            User manager = buildUser(UserRole.MANAGER);
+            Company company = buildCompany();
+            when(securityContextHelper.getCurrentUser()).thenReturn(manager);
+
+            CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER,
+                    company.getId());
+
+            when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
+            when(userRepository.existsByCpf(dtoWithCompany.cpf())).thenReturn(false);
+            when(companyRepository.existsByIdAndUsers_Id(company.getId(), manager.getId())).thenReturn(false);
+
+            assertForbidden(() -> userService.createUser(dtoWithCompany));
+
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("should throw 404 when the given company does not exist")
+        void shouldThrowNotFoundWhenCompanyDoesNotExist() {
+            UUID companyId = UUID.randomUUID();
+            CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER, companyId);
+
+            when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
+            when(userRepository.existsByCpf(dtoWithCompany.cpf())).thenReturn(false);
+            when(passwordEncoder.encode(dtoWithCompany.password())).thenReturn("hashed-password");
+            when(companyRepository.findById(companyId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> userService.createUser(dtoWithCompany))
+                    .isInstanceOf(BusinessException.class)
+                    .satisfies(ex -> {
+                        BusinessException businessException = (BusinessException) ex;
+                        assertThat(businessException.getStatus()).isEqualTo(HttpStatus.NOT_FOUND);
+                        assertThat(businessException.getCode()).isEqualTo("COMPANY_NOT_FOUND");
+                    });
+
+            verify(userRepository, never()).save(any());
         }
     }
 
@@ -521,7 +652,7 @@ class UserServiceImplTest {
 
             assertForbidden(() -> userService.deleteUser(target.getId()));
 
-            verify(userRepository, never()).delete(any());
+            verify(userRepository, never()).delete(any(User.class));
         }
 
         @Test
@@ -535,7 +666,7 @@ class UserServiceImplTest {
 
             assertForbidden(() -> userService.deleteUser(admin.getId()));
 
-            verify(userRepository, never()).delete(any());
+            verify(userRepository, never()).delete(any(User.class));
         }
 
         @Test
@@ -549,7 +680,7 @@ class UserServiceImplTest {
 
             assertForbidden(() -> userService.deleteUser(otherAdmin.getId()));
 
-            verify(userRepository, never()).delete(any());
+            verify(userRepository, never()).delete(any(User.class));
         }
 
         @Test
@@ -568,39 +699,24 @@ class UserServiceImplTest {
     @DisplayName("getAllUsers")
     class GetAllUsers {
 
+        @SuppressWarnings("unchecked")
         @Test
-        @DisplayName("should query manageable roles MANAGER and USER when the actor is ADMIN")
-        void shouldQueryManagerAndUserRolesForAdmin() {
+        @DisplayName("should query the repository when the actor is ADMIN")
+        void shouldQueryRepositoryForAdmin() {
             User admin = buildUser(UserRole.ADMIN);
             Pageable pageable = PageRequest.of(0, 20);
             Page<User> page = new PageImpl<>(
                     List.of(buildUser(UserRole.MANAGER), buildUser(UserRole.USER)), pageable, 2);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
-            when(userRepository.findByRoleIn(Set.of(UserRole.MANAGER, UserRole.USER), pageable)).thenReturn(page);
+            when(userRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
 
-            Page<UserResponseDTO> result = userService.getAllUsers(pageable);
+            Page<UserResponseDTO> result = userService.getAllUsers(NO_FILTER, pageable);
 
             assertThat(result.getTotalElements()).isEqualTo(2);
-            verify(userRepository).findByRoleIn(Set.of(UserRole.MANAGER, UserRole.USER), pageable);
         }
 
-        @Test
-        @DisplayName("should query manageable role USER when the actor is MANAGER")
-        void shouldQueryUserRoleForManager() {
-            User manager = buildUser(UserRole.MANAGER);
-            Pageable pageable = PageRequest.of(0, 20);
-            Page<User> page = new PageImpl<>(List.of(buildUser(UserRole.USER)), pageable, 1);
-
-            when(securityContextHelper.getCurrentUser()).thenReturn(manager);
-            when(userRepository.findByRoleIn(Set.of(UserRole.USER), pageable)).thenReturn(page);
-
-            Page<UserResponseDTO> result = userService.getAllUsers(pageable);
-
-            assertThat(result.getTotalElements()).isEqualTo(1);
-            verify(userRepository).findByRoleIn(Set.of(UserRole.USER), pageable);
-        }
-
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should deny a USER from listing users and never query the repository")
         void shouldDenyUserFromListingUsers() {
@@ -609,11 +725,81 @@ class UserServiceImplTest {
 
             when(securityContextHelper.getCurrentUser()).thenReturn(regularUser);
 
-            assertForbidden(() -> userService.getAllUsers(pageable));
+            assertForbidden(() -> userService.getAllUsers(NO_FILTER, pageable));
 
-            verify(userRepository, never()).findByRoleIn(any(), any());
+            verify(userRepository, never()).findAll(any(Specification.class), any(Pageable.class));
         }
 
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("should deny a MANAGER from filtering by a role they cannot manage")
+        void shouldDenyManagerFilteringByUnmanageableRole() {
+            User manager = buildUser(UserRole.MANAGER);
+            Pageable pageable = PageRequest.of(0, 20);
+            UserFilter filter = new UserFilter(null, UserRole.ADMIN, null, null, null, null);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(manager);
+
+            assertForbidden(() -> userService.getAllUsers(filter, pageable));
+
+            verify(userRepository, never()).findAll(any(Specification.class), any(Pageable.class));
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("should allow an ADMIN to filter by any company regardless of membership")
+        void shouldAllowAdminToFilterByAnyCompany() {
+            User admin = buildUser(UserRole.ADMIN);
+            Pageable pageable = PageRequest.of(0, 20);
+            UUID companyId = UUID.randomUUID();
+            UserFilter filter = new UserFilter(companyId, null, null, null, null, null);
+            Page<User> page = new PageImpl<>(List.of(), pageable, 0);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+            when(userRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
+
+            userService.getAllUsers(filter, pageable);
+
+            verify(companyRepository, never()).existsByIdAndUsers_Id(any(), any());
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("should allow a MANAGER to filter by a company they belong to")
+        void shouldAllowManagerToFilterByOwnCompany() {
+            User manager = buildUser(UserRole.MANAGER);
+            Pageable pageable = PageRequest.of(0, 20);
+            UUID companyId = UUID.randomUUID();
+            UserFilter filter = new UserFilter(companyId, null, null, null, null, null);
+            Page<User> page = new PageImpl<>(List.of(), pageable, 0);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(manager);
+            when(companyRepository.existsByIdAndUsers_Id(companyId, manager.getId())).thenReturn(true);
+            when(userRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
+
+            Page<UserResponseDTO> result = userService.getAllUsers(filter, pageable);
+
+            assertThat(result.getTotalElements()).isZero();
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("should deny a MANAGER from filtering by a company they don't belong to")
+        void shouldDenyManagerFilteringByForeignCompany() {
+            User manager = buildUser(UserRole.MANAGER);
+            Pageable pageable = PageRequest.of(0, 20);
+            UUID companyId = UUID.randomUUID();
+            UserFilter filter = new UserFilter(companyId, null, null, null, null, null);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(manager);
+            when(companyRepository.existsByIdAndUsers_Id(companyId, manager.getId())).thenReturn(false);
+
+            assertForbidden(() -> userService.getAllUsers(filter, pageable));
+
+            verify(userRepository, never()).findAll(any(Specification.class), any(Pageable.class));
+        }
+
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should return an empty page without throwing when there are no matching users")
         void shouldReturnEmptyPageWhenNoUsersMatch() {
@@ -622,15 +808,15 @@ class UserServiceImplTest {
             Page<User> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
-            when(userRepository.findByRoleIn(Set.of(UserRole.MANAGER, UserRole.USER), pageable))
-                    .thenReturn(emptyPage);
+            when(userRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(emptyPage);
 
-            Page<UserResponseDTO> result = userService.getAllUsers(pageable);
+            Page<UserResponseDTO> result = userService.getAllUsers(NO_FILTER, pageable);
 
             assertThat(result.getContent()).isEmpty();
             assertThat(result.getTotalElements()).isZero();
         }
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should forward the given Pageable unchanged to the repository")
         void shouldForwardPageableUnchangedToRepository() {
@@ -639,11 +825,11 @@ class UserServiceImplTest {
             Page<User> page = new PageImpl<>(List.of(), pageable, 0);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
-            when(userRepository.findByRoleIn(anySet(), eq(pageable))).thenReturn(page);
+            when(userRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
 
-            userService.getAllUsers(pageable);
+            userService.getAllUsers(NO_FILTER, pageable);
 
-            verify(userRepository).findByRoleIn(anySet(), eq(pageable));
+            verify(userRepository).findAll(any(Specification.class), eq(pageable));
         }
     }
 

@@ -24,6 +24,11 @@ export const authRoutes: Routes = [
                 canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER])],
                 loadChildren: () => import('@features/users/users.routes').then((m) => m.usersRoutes),
             },
+            {
+                path: 'companies',
+                canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER])],
+                loadChildren: () => import('@features/company/company.routes').then((m) => m.companyRoutes),
+            },
         ],
     },
 ];

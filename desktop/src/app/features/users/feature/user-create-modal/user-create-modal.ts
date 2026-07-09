@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, afterNextRender, comput
 import { FormField, email, form, maxLength, minLength, required, validate } from '@angular/forms/signals';
 import { Store } from '@ngrx/store';
 
+import { selectSelectedCompany } from '@features/company/store/company.selectors';
 import { formatCpf, isValidCpf, onlyDigits } from '@shared/utils/cpf.util';
 
 import * as UsersActions from '../../store/user.actions';
@@ -36,6 +37,7 @@ export class UserCreateModal {
     readonly UserRoleLabels = UserRoleLabels;
 
     readonly mutating = this.store.selectSignal(selectUsersMutating);
+    readonly connectedCompany = this.store.selectSignal(selectSelectedCompany);
     readonly showPassword = signal(false);
 
     readonly model = signal({
@@ -125,6 +127,7 @@ export class UserCreateModal {
                     role: value.role!,
                     password: value.password,
                     imageUrl: value.imageUrl || undefined,
+                    companyId: this.connectedCompany()?.id,
                 },
             }),
         );

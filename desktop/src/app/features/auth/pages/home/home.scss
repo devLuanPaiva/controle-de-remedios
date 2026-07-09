@@ -46,3 +46,24 @@
     color: var(--text-secondary);
     font-size: var(--text-base);
 }
+
+.home-page__company-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+
+    width: 100%;
+    margin-top: var(--space-2);
+    padding: var(--space-4);
+
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-lg);
+    background: var(--color-primary-50);
+}
+
+.home-page__company-label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-primary-600);
+}

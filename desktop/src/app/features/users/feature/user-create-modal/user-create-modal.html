@@ -138,6 +138,12 @@
                         [formField]="userForm.imageUrl"
                     />
                 </div>
+
+                @if (connectedCompany(); as company) {
+                    <p class="user-create-modal__hint">
+                        Este usuário será associado à empresa conectada: <strong>{{ company.name }}</strong>.
+                    </p>
+                }
             </div>
 
             <div class="modal-footer">

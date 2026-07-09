@@ -4,23 +4,29 @@ import { map, Observable } from 'rxjs';
 
 import { environment } from '@environments/environment';
 import { ApiResponse } from '@shared/models/api-response.model';
+import { fetchAllPages } from '@shared/utils/pagination.util';
 
-import { CreateUserRequest, UpdateUserRequest, UserApiDto, UsersPage } from '../models/user-api.model';
-import { IUser, normalizeUserRole, UserRole } from '../models/user.model';
+import { CreateUserRequest, toUser, UpdateUserRequest, UserApiDto, UserFilterParams, UsersPage } from '../models/user-api.model';
+import { IUser, UserRole } from '../models/user.model';
 
 const DEFAULT_PAGE_SIZE = 20;
+const MAX_PAGE_SIZE = 100;
 
-function toUser(dto: UserApiDto): IUser {
-    return {
-        id: dto.id,
-        name: dto.name,
-        email: dto.email,
-        imageUrl: dto.imageUrl ?? undefined,
-        cpf: dto.cpf,
-        role: normalizeUserRole(dto.role) ?? UserRole.USER,
-        createdAt: new Date(dto.createdAt),
-        updatedAt: new Date(dto.updatedAt),
-    };
+function buildUserFilterParams(filter?: UserFilterParams): Record<string, string | number | boolean> {
+    if (!filter) {
+        return {};
+    }
+
+    const params: Record<string, string | number | boolean> = {};
+
+    if (filter.companyId) params['companyId'] = filter.companyId;
+    if (filter.role !== undefined) params['role'] = UserRole[filter.role];
+    if (filter.name) params['name'] = filter.name;
+    if (filter.email) params['email'] = filter.email;
+    if (filter.cpf) params['cpf'] = filter.cpf;
+    if (filter.active !== undefined) params['active'] = filter.active;
+
+    return params;
 }
 
 @Injectable({
@@ -31,10 +37,10 @@ export class UserService {
 
     private readonly apiUrl = signal(environment.api_url);
 
-    getUsers(page = 0, size = DEFAULT_PAGE_SIZE): Observable<UsersPage> {
+    getUsers(page = 0, filter?: UserFilterParams, size = DEFAULT_PAGE_SIZE): Observable<UsersPage> {
         return this.http
             .get<ApiResponse<UserApiDto[]>>(`${this.apiUrl()}/users`, {
-                params: { page, size },
+                params: { page, size, ...buildUserFilterParams(filter) },
             })
             .pipe(
                 map((response) => ({
@@ -46,6 +52,16 @@ export class UserService {
                     previous: response.previous,
                 })),
             );
+    }
+
+    getAllUsers(filter?: UserFilterParams): Observable<IUser[]> {
+        return fetchAllPages(
+            (page) =>
+                this.http.get<ApiResponse<UserApiDto[]>>(`${this.apiUrl()}/users`, {
+                    params: { page, size: MAX_PAGE_SIZE, ...buildUserFilterParams(filter) },
+                }),
+            toUser,
+        );
     }
 
     getUserById(id: string): Observable<IUser> {

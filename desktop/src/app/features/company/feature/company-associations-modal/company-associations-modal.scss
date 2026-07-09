@@ -1,0 +1,84 @@
+.company-associations-modal {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+
+    padding: 0;
+    border: none;
+    max-height: 90vh;
+    max-width: 90vw;
+    width: min(560px, 90vw);
+    overflow-y: auto;
+
+    &::backdrop {
+        background: rgba(0, 0, 0, 0.45);
+    }
+}
+
+.company-associations-modal__close {
+    font-size: var(--text-2xl);
+    line-height: 1;
+    color: var(--text-secondary);
+
+    &:hover {
+        color: var(--text-primary);
+    }
+}
+
+.company-associations-modal__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.company-associations-modal__add {
+    display: flex;
+    gap: var(--space-2);
+
+    .input {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+.company-associations-modal__state {
+    padding: var(--space-8) 0;
+}
+
+.company-associations-modal__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.company-associations-modal__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    padding: var(--space-3);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-lg);
+}
+
+.company-associations-modal__item-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.company-associations-modal__item-name {
+    font-weight: 600;
+}
+
+.company-associations-modal__item-email {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+}
+
+.company-associations-modal__empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: var(--space-6) 0;
+}

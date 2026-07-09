@@ -10,6 +10,7 @@ import com.devluanpaiva.controle_de_remedios.modules.users.dto.CreateUserRequest
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.ResetPasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
 
 public interface UserService {
     UserResponseDTO createUser(CreateUserRequestDTO createUserResponseDTO);
@@ -18,7 +19,7 @@ public interface UserService {
 
     UserResponseDTO updateUser(UUID id, UpdateUserRequestDTO updateUserRequestDTO);
 
-    Page<UserResponseDTO> getAllUsers(Pageable pageable);
+    Page<UserResponseDTO> getAllUsers(UserFilter filter, Pageable pageable);
 
     void deleteUser(UUID id);
 

@@ -38,9 +38,8 @@ export class AuthSessionService {
         }
 
         if (token) {
-            const parsed = decodeJwtPayload(token);
-            if (parsed && typeof parsed.sub === 'string' && typeof parsed.name === 'string' && typeof parsed.email === 'string' && typeof parsed.role === 'string' && typeof parsed.imageUrl === 'string') {
-                const decodedUser: AuthUser = { id: parsed.sub, name: parsed.name, email: parsed.email, role: parsed.role, imageUrl: parsed.imageUrl };
+            const decodedUser = this.decodeJwtUser(token);
+            if (decodedUser) {
                 this.userSignal.set(decodedUser);
                 return;
             }
@@ -82,8 +81,9 @@ export class AuthSessionService {
     private decodeJwtUser(token: string): AuthUser | null {
         const parsed = decodeJwtPayload(token);
         if (!parsed) return null;
-        if (typeof parsed.sub === 'string' && typeof parsed.name === 'string' && typeof parsed.email === 'string' && typeof parsed.role === 'string' && typeof parsed.imageUrl === 'string') {
-            return { id: parsed.sub, name: parsed.name, email: parsed.email, role: parsed.role, imageUrl: parsed.imageUrl };
+        if (typeof parsed.sub === 'string' && typeof parsed.name === 'string' && typeof parsed.email === 'string' && typeof parsed.role === 'string') {
+            const imageUrl = typeof parsed.imageUrl === 'string' ? parsed.imageUrl : '';
+            return { id: parsed.sub, name: parsed.name, email: parsed.email, role: parsed.role, imageUrl };
         }
         return null;
     }

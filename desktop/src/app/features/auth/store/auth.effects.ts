@@ -7,6 +7,7 @@ import { ToastService } from "@core/ui/toast/service/toast.service";
 import { catchError, exhaustMap, map, of, tap } from "rxjs";
 import { ToastType } from "@core/ui/toast/models/toast.model";
 import { AuthSessionService } from "../services/auth-session.service";
+import { extractErrorMessage } from "@shared/utils/api-error.util";
 
 @Injectable()
 export class AuthEffects {
@@ -32,7 +33,7 @@ export class AuthEffects {
                 catchError(error =>
                     of(
                         AuthActions.loginFailure({
-                            message: error.error?.message || "Erro ao fazer login."
+                            message: extractErrorMessage(error, "Erro ao fazer login.")
                         })
                     )
                 )
