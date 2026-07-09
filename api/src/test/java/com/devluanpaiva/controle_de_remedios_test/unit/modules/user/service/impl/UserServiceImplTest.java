@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios_test.unitmodules.user.service.impl;
+package com.devluanpaiva.controle_de_remedios_test.unit.modules.user.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
