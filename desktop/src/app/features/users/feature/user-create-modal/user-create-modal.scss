@@ -46,6 +46,11 @@
     font-size: var(--text-sm);
 }
 
+.user-create-modal__hint {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+}
+
 .user-create-modal__password-row {
     display: flex;
     gap: var(--space-2);

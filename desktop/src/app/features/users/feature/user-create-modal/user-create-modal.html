@@ -113,10 +113,10 @@
                             [attr.aria-invalid]="userForm.password().invalid() && userForm.password().touched()"
                             [attr.aria-describedby]="userForm.password().invalid() && userForm.password().touched() ? 'create-user-password-error' : null"
                         />
-                        <button type="button" class="btn btn-outline" (click)="toggleShowPassword()">
+                        <button type="button" class="btn btn-outline btn-sm" (click)="toggleShowPassword()">
                             {{ showPassword() ? 'Ocultar' : 'Mostrar' }}
                         </button>
-                        <button type="button" class="btn btn-outline" (click)="generatePassword()">
+                        <button type="button" class="btn btn-outline btn-sm" (click)="generatePassword()">
                             Gerar senha
                         </button>
                     </div>
@@ -138,11 +138,17 @@
                         [formField]="userForm.imageUrl"
                     />
                 </div>
+
+                @if (connectedCompany(); as company) {
+                    <p class="user-create-modal__hint">
+                        Este usuário será associado à empresa conectada: <strong>{{ company.name }}</strong>.
+                    </p>
+                }
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" (click)="requestClose()">Cancelar</button>
-                <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
+                <button type="button" class="btn btn-outline btn-sm" (click)="requestClose()">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSubmit()">
                     @if (mutating()) {
                         <span class="spinner spinner-sm" aria-hidden="true"></span>
                         <span>Salvando...</span>

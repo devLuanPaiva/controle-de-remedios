@@ -1,11 +1,11 @@
 import { createAction, props } from '@ngrx/store';
 
-import { CreateUserRequest, UpdateUserRequest } from '../models/user-api.model';
+import { CreateUserRequest, UpdateUserRequest, UserFilterParams } from '../models/user-api.model';
 import { IUser } from '../models/user.model';
 
 export const loadUsers = createAction(
     '[Users] Load Users',
-    props<{ page: number }>(),
+    props<{ page: number; filter?: UserFilterParams }>(),
 );
 
 export const loadUsersSuccess = createAction(

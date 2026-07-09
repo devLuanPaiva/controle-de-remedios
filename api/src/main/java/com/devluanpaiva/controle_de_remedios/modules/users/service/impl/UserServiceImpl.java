@@ -4,20 +4,26 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
+import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.ChangePasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.CreateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.ResetPasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
+import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserSpecification;
 import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
 import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.modules.users.service.UserService;
+import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
 import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 
@@ -27,12 +33,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final SecurityContextHelper securityContextHelper;
+    private final AuthorizationPolicy authorizationPolicy;
 
     @Override
+    @Transactional
     public UserResponseDTO createUser(CreateUserRequestDTO dto) {
+        User actor = securityContextHelper.getCurrentUser();
+
+        authorizationPolicy.requireManageableRole(actor, dto.role());
+
         if (userRepository.existsByEmail(dto.email())) {
             throw new BusinessException(
                     HttpStatus.CONFLICT,
@@ -54,11 +67,16 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .name(dto.name())
                 .email(dto.email())
-                .role(UserRole.USER)
+                .role(dto.role())
                 .cpf(dto.cpf())
                 .imageUrl(dto.imageUrl())
                 .password(passwordEncoder.encode(dto.password()))
                 .build();
+
+        if (dto.companyId() != null) {
+            assertBelongsToCompany(actor, dto.companyId());
+            user.assignToCompany(findCompanyOrThrow(dto.companyId()));
+        }
 
         User savedUser = userRepository.save(user);
 
@@ -81,15 +99,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserResponseDTO> getAllUsers(Pageable pageable) {
+    public Page<UserResponseDTO> getAllUsers(UserFilter filter, Pageable pageable) {
         User actor = securityContextHelper.getCurrentUser();
         var manageableRoles = actor.getRole().manageableRoles();
 
-        if (manageableRoles.isEmpty()) {
-            throw forbidden();
+        authorizationPolicy.requireCondition(!manageableRoles.isEmpty());
+
+        if (filter.role() != null) {
+            authorizationPolicy.requireCondition(manageableRoles.contains(filter.role()));
         }
 
-        return userRepository.findByRoleIn(manageableRoles, pageable)
+        if (filter.companyId() != null) {
+            assertBelongsToCompany(actor, filter.companyId());
+        }
+
+        Specification<User> specification = UserSpecification.hasRoleIn(manageableRoles)
+                .and(UserSpecification.hasRole(filter.role()))
+                .and(UserSpecification.associatedWithCompany(filter.companyId()))
+                .and(UserSpecification.hasName(filter.name()))
+                .and(UserSpecification.hasEmail(filter.email()))
+                .and(UserSpecification.hasCpf(filter.cpf()))
+                .and(UserSpecification.isActive(filter.active()));
+
+        return userRepository.findAll(specification, pageable)
                 .map(userMapper::toResponseDTO);
     }
 
@@ -147,23 +179,21 @@ public class UserServiceImpl implements UserService {
     }
 
     private void assertCanManage(User actor, User target) {
-        if (actor.getId().equals(target.getId())) {
-            return;
-        }
-
-        if (actor.getRole().canManage(target.getRole())) {
-            return;
-        }
-
-        throw forbidden();
+        authorizationPolicy.requireSelfOrManageable(actor, target);
     }
 
-    private BusinessException forbidden() {
-        return new BusinessException(
-                HttpStatus.FORBIDDEN,
-                "Acesso negado",
-                "AUTH_FORBIDDEN",
-                "authorization",
-                "Você não possui permissão para gerenciar este usuário.");
+    private void assertBelongsToCompany(User actor, UUID companyId) {
+        authorizationPolicy.requireAdminOrCondition(
+                actor, () -> companyRepository.existsByIdAndUsers_Id(companyId, actor.getId()));
+    }
+
+    private Company findCompanyOrThrow(UUID id) {
+        return companyRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        HttpStatus.NOT_FOUND,
+                        "Empresa não encontrada",
+                        "COMPANY_NOT_FOUND",
+                        "id",
+                        "Não foi possível encontrar uma empresa com o ID '" + id + "'."));
     }
 }

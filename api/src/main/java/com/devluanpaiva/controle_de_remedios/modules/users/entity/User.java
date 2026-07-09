@@ -6,7 +6,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.type.SqlTypes;
@@ -18,6 +20,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
 
 @Entity
@@ -53,6 +56,14 @@ public class User implements UserDetails {
     @Column(nullable = false, columnDefinition = "user_role")
     private UserRole role;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private Boolean active;
+
+    @ManyToMany
+    @JoinTable(name = "user_companies", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "company_id"))
+    @Builder.Default
+    private Set<Company> companies = new HashSet<>();
+
     @CreatedDate
     @Column(nullable = false, updatable = false, name = "created_at")
     private LocalDateTime createdAt;
@@ -72,6 +83,14 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    public void assignToCompany(Company company) {
+        companies.add(company);
+    }
+
+    public void unassignFromCompany(Company company) {
+        companies.remove(company);
     }
 
 }

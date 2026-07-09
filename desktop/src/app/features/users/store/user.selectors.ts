@@ -1,8 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 
-import { selectUser as selectAuthUser } from '@features/auth/store/auth.selectors';
-
-import { getManageableRoles, normalizeUserRole } from '../models/user.model';
 import { UsersState } from './user.state';
 
 export const selectUsersState = createFeatureSelector<UsersState>('users');
@@ -26,13 +23,3 @@ export const selectUsersPagination = createSelector(selectUsersState, (state) =>
 export const selectSelectedUser = createSelector(selectUsersState, (state) => state.selectedUser);
 
 export const selectSelectedUserLoading = createSelector(selectUsersState, (state) => state.selectedUserLoading);
-
-export const selectManageableRolesForCurrentUser = createSelector(selectAuthUser, (user) =>
-    getManageableRoles(normalizeUserRole(user?.role)),
-);
-
-export const selectVisibleUsers = createSelector(
-    selectAllUsers,
-    selectManageableRolesForCurrentUser,
-    (users, manageableRoles) => users.filter((user) => manageableRoles.includes(user.role)),
-);

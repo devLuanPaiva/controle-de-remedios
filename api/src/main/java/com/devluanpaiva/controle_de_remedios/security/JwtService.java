@@ -6,7 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -21,30 +21,30 @@ public class JwtService {
                 return Keys.hmacShaKeyFor(jwtSecret.getBytes());
         }
 
-        private String buildToken(UUID userId, String name, String email, String type, long expirationMillis,
-                        UserRole role, String imageUrl) {
+        private String buildToken(User user, long expirationMillis, String type) {
                 Date now = new Date();
                 Date exp = new Date(System.currentTimeMillis() + expirationMillis);
 
                 return Jwts.builder()
-                                .subject(userId.toString())
-                                .claim("name", name)
-                                .claim("email", email)
+                                .subject(user.getId().toString())
+                                .claim("name", user.getName())
+                                .claim("email", user.getEmail())
                                 .claim("type", type)
-                                .claim("role", role.name())
-                                .claim("imageUrl", imageUrl)
+                                .claim("role", user.getRole().name())
+                                .claim("imageUrl", user.getImageUrl())
+                                .claim("isActive", user.getActive())
                                 .issuedAt(now)
                                 .expiration(exp)
                                 .signWith(getSignInKey())
                                 .compact();
         }
 
-        public String generateAccessToken(UUID userId, String name, String email, UserRole role, String imageUrl) {
-                return buildToken(userId, name, email, "access", 1000L * 60 * 60, role, imageUrl);
+        public String generateAccessToken(User user) {
+                return buildToken(user, 1000L * 60 * 60, "access");
         }
 
-        public String generateRefreshToken(UUID userId, String name, String email, UserRole role, String imageUrl) {
-                return buildToken(userId, name, email, "refresh", 1000L * 60 * 60 * 24 * 7, role, imageUrl);
+        public String generateRefreshToken(User user) {
+                return buildToken(user, 1000L * 60 * 60 * 24 * 7, "refresh");
         }
 
         public UUID extractUserId(String token) {
