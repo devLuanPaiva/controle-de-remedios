@@ -4,11 +4,13 @@ import { map, Observable } from 'rxjs';
 
 import { environment } from '@environments/environment';
 import { ApiResponse } from '@shared/models/api-response.model';
+import { fetchAllPages } from '@shared/utils/pagination.util';
 
 import { CreateUserRequest, toUser, UpdateUserRequest, UserApiDto, UserFilterParams, UsersPage } from '../models/user-api.model';
 import { IUser, UserRole } from '../models/user.model';
 
 const DEFAULT_PAGE_SIZE = 20;
+const MAX_PAGE_SIZE = 100;
 
 function buildUserFilterParams(filter?: UserFilterParams): Record<string, string | number | boolean> {
     if (!filter) {
@@ -50,6 +52,16 @@ export class UserService {
                     previous: response.previous,
                 })),
             );
+    }
+
+    getAllUsers(filter?: UserFilterParams): Observable<IUser[]> {
+        return fetchAllPages(
+            (page) =>
+                this.http.get<ApiResponse<UserApiDto[]>>(`${this.apiUrl()}/users`, {
+                    params: { page, size: MAX_PAGE_SIZE, ...buildUserFilterParams(filter) },
+                }),
+            toUser,
+        );
     }
 
     getUserById(id: string): Observable<IUser> {

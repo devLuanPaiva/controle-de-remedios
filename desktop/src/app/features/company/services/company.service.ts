@@ -4,6 +4,7 @@ import { map, Observable } from 'rxjs';
 
 import { environment } from '@environments/environment';
 import { ApiResponse } from '@shared/models/api-response.model';
+import { fetchAllPages } from '@shared/utils/pagination.util';
 import { toUser, UserApiDto } from '@features/users/models/user-api.model';
 import { IUser } from '@features/users/models/user.model';
 
@@ -34,11 +35,13 @@ export class CompanyService {
     private readonly apiUrl = signal(environment.api_url);
 
     getCompanies(): Observable<ICompany[]> {
-        return this.http
-            .get<ApiResponse<CompanyApiDto[]>>(`${this.apiUrl()}/companies`, {
-                params: { page: 0, size: MAX_PAGE_SIZE },
-            })
-            .pipe(map((response) => response.data.map(toCompany)));
+        return fetchAllPages(
+            (page) =>
+                this.http.get<ApiResponse<CompanyApiDto[]>>(`${this.apiUrl()}/companies`, {
+                    params: { page, size: MAX_PAGE_SIZE },
+                }),
+            toCompany,
+        );
     }
 
     createCompany(payload: CreateCompanyRequest): Observable<ICompany> {
@@ -64,11 +67,13 @@ export class CompanyService {
     }
 
     getCompanyUsers(companyId: string): Observable<IUser[]> {
-        return this.http
-            .get<ApiResponse<UserApiDto[]>>(`${this.apiUrl()}/companies/${companyId}/users`, {
-                params: { page: 0, size: MAX_PAGE_SIZE },
-            })
-            .pipe(map((response) => response.data.map(toUser)));
+        return fetchAllPages(
+            (page) =>
+                this.http.get<ApiResponse<UserApiDto[]>>(`${this.apiUrl()}/companies/${companyId}/users`, {
+                    params: { page, size: MAX_PAGE_SIZE },
+                }),
+            toUser,
+        );
     }
 
     associateUser(companyId: string, userId: string): Observable<void> {
