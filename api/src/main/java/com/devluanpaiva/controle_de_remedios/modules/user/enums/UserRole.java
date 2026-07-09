@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.enums;
+package com.devluanpaiva.controle_de_remedios.modules.user.enums;
 
 import java.util.Set;
 

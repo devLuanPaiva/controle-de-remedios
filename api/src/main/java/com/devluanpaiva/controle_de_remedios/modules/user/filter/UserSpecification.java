@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.filter;
+package com.devluanpaiva.controle_de_remedios.modules.user.filter;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
 
 public final class UserSpecification {
     private UserSpecification() {

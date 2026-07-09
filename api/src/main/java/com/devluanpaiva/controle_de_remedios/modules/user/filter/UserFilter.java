@@ -1,8 +1,8 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.filter;
+package com.devluanpaiva.controle_de_remedios.modules.user.filter;
 
 import java.util.UUID;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
 
 public record UserFilter(
         UUID companyId,

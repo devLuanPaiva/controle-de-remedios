@@ -1,9 +1,9 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.mapper;
+package com.devluanpaiva.controle_de_remedios.modules.user.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
 
 @Component
 public class UserMapper {

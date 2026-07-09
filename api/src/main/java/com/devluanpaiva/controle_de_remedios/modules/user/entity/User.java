@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.entity;
+package com.devluanpaiva.controle_de_remedios.modules.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,7 +21,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
 
 @Entity
 @Table(name = "users")

@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.repository;
+package com.devluanpaiva.controle_de_remedios.modules.user.repository;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
 
 public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
     Optional<User> findByEmail(String email);

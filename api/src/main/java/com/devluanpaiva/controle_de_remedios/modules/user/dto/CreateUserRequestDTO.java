@@ -1,8 +1,8 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.dto;
+package com.devluanpaiva.controle_de_remedios.modules.user.dto;
 
 import java.util.UUID;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

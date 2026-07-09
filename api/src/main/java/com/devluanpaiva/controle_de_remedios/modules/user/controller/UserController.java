@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.controller;
+package com.devluanpaiva.controle_de_remedios.modules.user.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,14 +9,14 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.util.UUID;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.ChangePasswordRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.CreateUserRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.ResetPasswordRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UpdateUserRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
-import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
-import com.devluanpaiva.controle_de_remedios.modules.users.service.UserService;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.ChangePasswordRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.ResetPasswordRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.filter.UserFilter;
+import com.devluanpaiva.controle_de_remedios.modules.user.service.UserService;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponse;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponseFactory;
 import com.devluanpaiva.controle_de_remedios.shared.utils.PageableFactory;

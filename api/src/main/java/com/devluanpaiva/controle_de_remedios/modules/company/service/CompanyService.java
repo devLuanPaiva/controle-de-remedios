@@ -9,7 +9,7 @@ import com.devluanpaiva.controle_de_remedios.modules.company.dto.CompanyResponse
 import com.devluanpaiva.controle_de_remedios.modules.company.dto.CreateCompanyRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.company.dto.UpdateCompanyRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanyFilter;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
 
 public interface CompanyService {
     CompanyResponseDTO createCompany(CreateCompanyRequestDTO dto);

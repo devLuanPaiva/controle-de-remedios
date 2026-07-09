@@ -38,11 +38,11 @@ import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanyFilte
 import com.devluanpaiva.controle_de_remedios.modules.company.mapper.CompanyMapper;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
 import com.devluanpaiva.controle_de_remedios.modules.company.service.impl.CompanyServiceImpl;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
-import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
-import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.mapper.UserMapper;
+import com.devluanpaiva.controle_de_remedios.modules.user.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
 import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
@@ -367,8 +367,8 @@ class CompanyServiceImplTest {
         void shouldAllowAdminToUpdateAnyCompany() {
             User admin = buildUser(UserRole.ADMIN);
             Company company = buildCompany();
-            UpdateCompanyRequestDTO dto =
-                    new UpdateCompanyRequestDTO("New Name", "https://new.example.com/pic.png", false);
+            UpdateCompanyRequestDTO dto = new UpdateCompanyRequestDTO("New Name", "https://new.example.com/pic.png",
+                    false);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));

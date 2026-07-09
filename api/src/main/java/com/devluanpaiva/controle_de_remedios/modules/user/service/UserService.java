@@ -1,16 +1,16 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.service;
+package com.devluanpaiva.controle_de_remedios.modules.user.service;
 
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.ChangePasswordRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.CreateUserRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.ResetPasswordRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UpdateUserRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.ChangePasswordRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.ResetPasswordRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.filter.UserFilter;
 
 public interface UserService {
     UserResponseDTO createUser(CreateUserRequestDTO createUserResponseDTO);

@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.command;
+package com.devluanpaiva.controle_de_remedios.modules.user.command;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -7,9 +7,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
-import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

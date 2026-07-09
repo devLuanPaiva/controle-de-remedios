@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.dto;
+package com.devluanpaiva.controle_de_remedios.modules.user.dto;
 
 public record UpdateUserRequestDTO(
                 String name,

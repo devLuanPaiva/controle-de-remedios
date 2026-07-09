@@ -1,9 +1,9 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.dto;
+package com.devluanpaiva.controle_de_remedios.modules.user.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
 
 public record UserResponseDTO(
         UUID id,

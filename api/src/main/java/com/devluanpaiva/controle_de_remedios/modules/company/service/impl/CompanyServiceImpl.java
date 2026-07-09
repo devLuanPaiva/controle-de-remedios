@@ -18,11 +18,11 @@ import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanySpeci
 import com.devluanpaiva.controle_de_remedios.modules.company.mapper.CompanyMapper;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
 import com.devluanpaiva.controle_de_remedios.modules.company.service.CompanyService;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
-import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
-import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.mapper.UserMapper;
+import com.devluanpaiva.controle_de_remedios.modules.user.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
 import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;

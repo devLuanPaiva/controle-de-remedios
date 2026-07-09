@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios.modules.users.service.impl;
+package com.devluanpaiva.controle_de_remedios.modules.user.service.impl;
 
 import java.util.UUID;
 
@@ -12,17 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.ChangePasswordRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.CreateUserRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.ResetPasswordRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UpdateUserRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
-import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserSpecification;
-import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
-import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
-import com.devluanpaiva.controle_de_remedios.modules.users.service.UserService;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.ChangePasswordRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.ResetPasswordRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.filter.UserFilter;
+import com.devluanpaiva.controle_de_remedios.modules.user.filter.UserSpecification;
+import com.devluanpaiva.controle_de_remedios.modules.user.mapper.UserMapper;
+import com.devluanpaiva.controle_de_remedios.modules.user.repository.UserRepository;
+import com.devluanpaiva.controle_de_remedios.modules.user.service.UserService;
 import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
 import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;

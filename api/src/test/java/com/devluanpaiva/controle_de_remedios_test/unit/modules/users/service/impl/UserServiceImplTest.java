@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios_test.unit.modules.users.service.impl;
+package com.devluanpaiva.controle_de_remedios_test.unitmodules.user.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,15 +34,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.CreateUserRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UpdateUserRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
-import com.devluanpaiva.controle_de_remedios.modules.users.filter.UserFilter;
-import com.devluanpaiva.controle_de_remedios.modules.users.mapper.UserMapper;
-import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
-import com.devluanpaiva.controle_de_remedios.modules.users.service.impl.UserServiceImpl;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.filter.UserFilter;
+import com.devluanpaiva.controle_de_remedios.modules.user.mapper.UserMapper;
+import com.devluanpaiva.controle_de_remedios.modules.user.repository.UserRepository;
+import com.devluanpaiva.controle_de_remedios.modules.user.service.impl.UserServiceImpl;
 import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
 import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
