@@ -1,17 +1,13 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, exhaustMap, map, of, switchMap, tap } from 'rxjs';
 
 import { ToastType } from '@core/ui/toast/models/toast.model';
 import { ToastService } from '@core/ui/toast/service/toast.service';
+import { extractErrorMessage } from '@shared/utils/api-error.util';
 
 import { CompanyService } from '../services/company.service';
 import * as CompanyActions from './company.actions';
-
-function errorMessage(error: HttpErrorResponse, fallback: string): string {
-    return error.error?.message || fallback;
-}
 
 @Injectable()
 export class CompanyEffects {
@@ -26,7 +22,7 @@ export class CompanyEffects {
                 this.companyService.getCompanies().pipe(
                     map((companies) => CompanyActions.loadCompaniesSuccess({ companies })),
                     catchError((error) =>
-                        of(CompanyActions.loadCompaniesFailure({ message: errorMessage(error, 'Erro ao carregar empresas.') })),
+                        of(CompanyActions.loadCompaniesFailure({ message: extractErrorMessage(error, 'Erro ao carregar empresas.') })),
                     ),
                 ),
             ),
@@ -49,7 +45,7 @@ export class CompanyEffects {
                 this.companyService.createCompany(action.payload).pipe(
                     map((company) => CompanyActions.createCompanySuccess({ company })),
                     catchError((error) =>
-                        of(CompanyActions.createCompanyFailure({ message: errorMessage(error, 'Erro ao criar empresa.') })),
+                        of(CompanyActions.createCompanyFailure({ message: extractErrorMessage(error, 'Erro ao criar empresa.') })),
                     ),
                 ),
             ),
@@ -81,7 +77,7 @@ export class CompanyEffects {
                 this.companyService.updateCompany(action.id, action.payload).pipe(
                     map((company) => CompanyActions.updateCompanySuccess({ company })),
                     catchError((error) =>
-                        of(CompanyActions.updateCompanyFailure({ message: errorMessage(error, 'Erro ao atualizar empresa.') })),
+                        of(CompanyActions.updateCompanyFailure({ message: extractErrorMessage(error, 'Erro ao atualizar empresa.') })),
                     ),
                 ),
             ),
@@ -115,7 +111,7 @@ export class CompanyEffects {
                     catchError((error) =>
                         of(
                             CompanyActions.loadCompanyUsersFailure({
-                                message: errorMessage(error, 'Erro ao carregar usuários da empresa.'),
+                                message: extractErrorMessage(error, 'Erro ao carregar usuários da empresa.'),
                             }),
                         ),
                     ),
@@ -140,7 +136,7 @@ export class CompanyEffects {
                 this.companyService.associateUser(action.companyId, action.userId).pipe(
                     map(() => CompanyActions.associateUserSuccess({ companyId: action.companyId })),
                     catchError((error) =>
-                        of(CompanyActions.associateUserFailure({ message: errorMessage(error, 'Erro ao associar usuário.') })),
+                        of(CompanyActions.associateUserFailure({ message: extractErrorMessage(error, 'Erro ao associar usuário.') })),
                     ),
                 ),
             ),
@@ -171,7 +167,7 @@ export class CompanyEffects {
                 this.companyService.removeUser(action.companyId, action.userId).pipe(
                     map(() => CompanyActions.removeUserSuccess({ companyId: action.companyId })),
                     catchError((error) =>
-                        of(CompanyActions.removeUserFailure({ message: errorMessage(error, 'Erro ao remover usuário.') })),
+                        of(CompanyActions.removeUserFailure({ message: extractErrorMessage(error, 'Erro ao remover usuário.') })),
                     ),
                 ),
             ),

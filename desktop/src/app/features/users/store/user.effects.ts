@@ -1,17 +1,13 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, exhaustMap, map, of, switchMap, tap } from 'rxjs';
 
 import { ToastType } from '@core/ui/toast/models/toast.model';
 import { ToastService } from '@core/ui/toast/service/toast.service';
+import { extractErrorMessage } from '@shared/utils/api-error.util';
 
 import { UserService } from '../services/user.service';
 import * as UsersActions from './user.actions';
-
-function errorMessage(error: HttpErrorResponse, fallback: string): string {
-    return error.error?.message || fallback;
-}
 
 @Injectable()
 export class UsersEffects {
@@ -35,7 +31,7 @@ export class UsersEffects {
                         }),
                     ),
                     catchError((error) =>
-                        of(UsersActions.loadUsersFailure({ message: errorMessage(error, 'Erro ao carregar usuários.') })),
+                        of(UsersActions.loadUsersFailure({ message: extractErrorMessage(error, 'Erro ao carregar usuários.') })),
                     ),
                 ),
             ),
@@ -58,7 +54,7 @@ export class UsersEffects {
                 this.userService.getUserById(action.id).pipe(
                     map((user) => UsersActions.loadUserSuccess({ user })),
                     catchError((error) =>
-                        of(UsersActions.loadUserFailure({ message: errorMessage(error, 'Erro ao carregar usuário.') })),
+                        of(UsersActions.loadUserFailure({ message: extractErrorMessage(error, 'Erro ao carregar usuário.') })),
                     ),
                 ),
             ),
@@ -81,7 +77,7 @@ export class UsersEffects {
                 this.userService.createUser(action.payload).pipe(
                     map((user) => UsersActions.createUserSuccess({ user })),
                     catchError((error) =>
-                        of(UsersActions.createUserFailure({ message: errorMessage(error, 'Erro ao criar usuário.') })),
+                        of(UsersActions.createUserFailure({ message: extractErrorMessage(error, 'Erro ao criar usuário.') })),
                     ),
                 ),
             ),
@@ -113,7 +109,7 @@ export class UsersEffects {
                 this.userService.updateUser(action.id, action.payload).pipe(
                     map((user) => UsersActions.updateUserSuccess({ user })),
                     catchError((error) =>
-                        of(UsersActions.updateUserFailure({ message: errorMessage(error, 'Erro ao atualizar usuário.') })),
+                        of(UsersActions.updateUserFailure({ message: extractErrorMessage(error, 'Erro ao atualizar usuário.') })),
                     ),
                 ),
             ),
@@ -145,7 +141,7 @@ export class UsersEffects {
                 this.userService.resetPassword(action.email).pipe(
                     map(() => UsersActions.resetPasswordSuccess()),
                     catchError((error) =>
-                        of(UsersActions.resetPasswordFailure({ message: errorMessage(error, 'Erro ao resetar senha.') })),
+                        of(UsersActions.resetPasswordFailure({ message: extractErrorMessage(error, 'Erro ao resetar senha.') })),
                     ),
                 ),
             ),
