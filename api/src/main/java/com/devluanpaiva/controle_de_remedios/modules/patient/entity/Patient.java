@@ -1,30 +1,31 @@
-package com.devluanpaiva.controle_de_remedios.modules.company.entity;
+package com.devluanpaiva.controle_de_remedios.modules.patient.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.devluanpaiva.controle_de_remedios.modules.patient.entity.Patient;
+import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
 
 @Entity
-@Table(name = "companies")
+@Table(name = "patients", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_patients_company_cpf", columnNames = { "company_id", "cpf" }),
+        @UniqueConstraint(name = "uk_patients_company_user", columnNames = { "company_id", "user_id" })
+})
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Company {
+public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -32,25 +33,19 @@ public class Company {
     @Column(nullable = false, length = 120)
     private String name;
 
-    @Column(nullable = false, unique = true, length = 180)
-    private String slug;
+    @Column(nullable = false, length = 11)
+    private String cpf;
 
-    @Column(nullable = false, unique = true, length = 14)
-    private String cnpj;
+    @Column(nullable = false, name = "birth_date")
+    private LocalDateTime birthdate;
 
-    @Column(nullable = true, length = 255, name = "image_url")
-    private String imageUrl;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
 
-    @Column(nullable = false, columnDefinition = "boolean default true")
-    private Boolean active;
-
-    @ManyToMany(mappedBy = "companies")
-    @Builder.Default
-    private Set<User> users = new HashSet<>();
-
-    @OneToMany(mappedBy = "company")
-    @Builder.Default
-    private Set<Patient> patients = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = true)
+    private User user;
 
     @CreatedDate
     @Column(nullable = false, updatable = false, name = "created_at")
