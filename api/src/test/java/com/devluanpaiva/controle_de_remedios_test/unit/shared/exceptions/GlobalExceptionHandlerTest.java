@@ -4,9 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Method;
+import java.util.UUID;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.ApiExceptionResponse;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
@@ -99,6 +104,49 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().errors().field()).isEqualTo("cnpj");
             assertThat(response.getBody().errors().detail()).isEqualTo("cnpj: CNPJ inválido");
+        }
+    }
+
+    @Nested
+    @DisplayName("handleTypeMismatchException")
+    class HandleTypeMismatchException {
+
+        private MethodArgumentTypeMismatchException buildException(Object value, Class<?> requiredType)
+                throws NoSuchMethodException {
+            Method method = GlobalExceptionHandlerTest.HandleTypeMismatchException.class
+                    .getDeclaredMethod("dummyEndpoint", UUID.class);
+            MethodParameter methodParameter = new MethodParameter(method, 0);
+
+            return new MethodArgumentTypeMismatchException(
+                    value, requiredType, "id", methodParameter, new IllegalArgumentException("invalid UUID"));
+        }
+
+        @Test
+        @DisplayName("should return 400 naming the offending parameter and the expected type")
+        void shouldReturnBadRequestNamingParameterAndExpectedType() throws NoSuchMethodException {
+            MethodArgumentTypeMismatchException exception = buildException("abc", UUID.class);
+
+            ResponseEntity<ApiExceptionResponse> response = handler.handleTypeMismatchException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().message()).isEqualTo("Parâmetro inválido");
+            assertThat(response.getBody().errors().code()).isEqualTo("INVALID_PARAMETER");
+            assertThat(response.getBody().errors().field()).isEqualTo("id");
+            assertThat(response.getBody().errors().detail())
+                    .isEqualTo("O valor 'abc' informado para 'id' é inválido. Era esperado um valor do tipo UUID.");
+        }
+
+        @Test
+        @DisplayName("should not throw when the required type is unknown")
+        void shouldNotThrowWhenRequiredTypeIsUnknown() throws NoSuchMethodException {
+            MethodArgumentTypeMismatchException exception = buildException("abc", null);
+
+            ResponseEntity<ApiExceptionResponse> response = handler.handleTypeMismatchException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().errors().detail()).contains("desconhecido");
         }
     }
 
