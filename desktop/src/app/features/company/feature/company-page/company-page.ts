@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { FormField, form, required } from '@angular/forms/signals';
+import { FormField, form, maxLength, required } from '@angular/forms/signals';
 import { Store } from '@ngrx/store';
 
 import { AuthSessionService } from '@features/auth/services/auth-session.service';
@@ -53,6 +53,9 @@ export class CompanyPage {
 
     readonly companyForm = form(this.model, (schema) => {
         required(schema.name, { message: 'O nome é obrigatório.' });
+        maxLength(schema.name, 120, { message: 'O nome deve ter no máximo 120 caracteres.' });
+
+        maxLength(schema.imageUrl, 255, { message: 'A URL da imagem deve ter no máximo 255 caracteres.' });
     });
 
     readonly canSubmit = computed(() => this.companyForm().valid() && !this.mutating());

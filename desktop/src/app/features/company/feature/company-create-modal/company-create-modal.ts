@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, afterNextRender, computed, inject, output, signal, viewChild } from '@angular/core';
-import { FormField, form, required, validate } from '@angular/forms/signals';
+import { FormField, form, maxLength, required, validate } from '@angular/forms/signals';
 import { Store } from '@ngrx/store';
 
 import { formatCnpj, isValidCnpj, onlyDigits } from '@shared/utils/cnpj.util';
@@ -31,9 +31,12 @@ export class CompanyCreateModal {
 
     readonly companyForm = form(this.model, (schema) => {
         required(schema.name, { message: 'O nome é obrigatório.' });
+        maxLength(schema.name, 120, { message: 'O nome deve ter no máximo 120 caracteres.' });
 
         required(schema.cnpj, { message: 'O CNPJ é obrigatório.' });
         validate(schema.cnpj, ({ value }) => (isValidCnpj(value()) ? null : { kind: 'cnpj', message: 'CNPJ inválido.' }));
+
+        maxLength(schema.imageUrl, 255, { message: 'A URL da imagem deve ter no máximo 255 caracteres.' });
     });
 
     readonly canSubmit = computed(() => this.companyForm().valid() && !this.mutating());
