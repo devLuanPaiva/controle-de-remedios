@@ -5,6 +5,7 @@ const ROLE_BADGE_CLASS: Record<UserRole, string> = {
     [UserRole.ADMIN]: 'badge-primary',
     [UserRole.MANAGER]: 'badge-warning',
     [UserRole.USER]: 'badge-outline',
+    [UserRole.PATIENT]: 'badge-success',
 };
 
 @Component({

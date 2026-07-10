@@ -1,0 +1,115 @@
+<section class="company-page">
+    <header class="company-page__header">
+        <h1 class="company-page__title">Empresa</h1>
+
+        <div class="company-page__header-actions">
+            @if (companies().length > 0) {
+                <app-company-switcher
+                    [companies]="companies()"
+                    [selectedCompanyId]="selectedCompanyId()"
+                    (companySelected)="onCompanySelected($event)"
+                />
+            }
+
+            @if (isAdmin()) {
+                <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+                    Nova empresa
+                </button>
+            }
+        </div>
+    </header>
+
+    @if (loading()) {
+        <div class="loading company-page__state">
+            <output class="spinner" aria-label="Carregando empresa"></output>
+        </div>
+    } @else if (error() && companies().length === 0) {
+        <div class="company-page__state company-page__state--error">
+            <p>{{ error() }}</p>
+        </div>
+    } @else if (!selectedCompany()) {
+        <div class="company-page__state company-page__state--empty">
+            <p>Você ainda não está associado a nenhuma empresa.</p>
+        </div>
+    } @else {
+        <div class="company-page__summary card">
+            <div class="card-body company-page__summary-body">
+                <app-avatar [name]="selectedCompany()!.name" [imageUrl]="selectedCompany()!.imageUrl" size="lg" />
+
+                <div class="company-page__summary-info">
+                    <span class="company-page__summary-name">{{ selectedCompany()!.name }}</span>
+                    <span class="company-page__summary-slug">{{ selectedCompany()!.slug }}</span>
+                    <span class="badge" [class]="selectedCompany()!.active ? 'badge-success' : 'badge-outline'">
+                        {{ selectedCompany()!.active ? 'Ativa' : 'Inativa' }}
+                    </span>
+                </div>
+
+                <button type="button" class="btn btn-outline btn-sm" (click)="openAssociationsModal()">
+                    Associações
+                </button>
+            </div>
+        </div>
+
+        <form class="company-page__form card" (submit)="onSubmit($event)" novalidate>
+            <div class="card-body company-page__form-body">
+                <app-field
+                    for="company-name"
+                    label="Nome"
+                    [touched]="companyForm.name().touched()"
+                    [invalid]="companyForm.name().invalid()"
+                    [errorMessage]="companyForm.name().errors()[0]?.message"
+                >
+                    <input
+                        id="company-name"
+                        class="input"
+                        type="text"
+                        autocomplete="organization"
+                        [formField]="companyForm.name"
+                        [attr.aria-invalid]="companyForm.name().invalid() && companyForm.name().touched()"
+                        [attr.aria-describedby]="companyForm.name().invalid() && companyForm.name().touched() ? 'company-name-error' : null"
+                    />
+                </app-field>
+
+                <app-field for="company-cnpj" label="CNPJ">
+                    <input id="company-cnpj" class="input" type="text" [value]="formatCnpj(selectedCompany()!.cnpj)" disabled />
+                </app-field>
+
+                <app-field for="company-image" label="Logo (URL, opcional)">
+                    <input
+                        id="company-image"
+                        class="input"
+                        type="text"
+                        placeholder="https://..."
+                        [formField]="companyForm.imageUrl"
+                    />
+                </app-field>
+
+                <div class="company-page__field company-page__field--checkbox">
+                    <label class="company-page__checkbox-label">
+                        <input type="checkbox" [checked]="model().active" (change)="onActiveChange($event)" />
+                        Empresa ativa
+                    </label>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
+                    @if (mutating()) {
+                        <span class="spinner spinner-sm" aria-hidden="true"></span>
+                        <span>Salvando...</span>
+                    } @else {
+                        <span>Salvar alterações</span>
+                    }
+                </button>
+            </div>
+        </form>
+    }
+</section>
+
+@if (showCreateModal()) {
+    <app-company-create-modal (closed)="closeCreateModal()" />
+}
+
+@if (showAssociationsModal() && selectedCompany()) {
+    <app-company-associations-modal [companyId]="selectedCompany()!.id" (closed)="closeAssociationsModal()" />
+}

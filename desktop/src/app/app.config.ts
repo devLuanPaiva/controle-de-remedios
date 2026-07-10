@@ -19,6 +19,8 @@ import { usersReducer } from "@features/users/store/user.reducer";
 import { UsersEffects } from "@features/users/store/user.effects";
 import { companyReducer } from "@features/company/store/company.reducer";
 import { CompanyEffects } from "@features/company/store/company.effects";
+import { patientReducer } from "@features/patient/store/patient.reducer";
+import { PatientEffects } from "@features/patient/store/patient.effects";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -36,12 +38,14 @@ export const appConfig: ApplicationConfig = {
     provideStore({
       auth: authReducer,
       users: usersReducer,
-      company: companyReducer
+      company: companyReducer,
+      patients: patientReducer
     }),
     provideEffects([
       AuthEffects,
       UsersEffects,
-      CompanyEffects
+      CompanyEffects,
+      PatientEffects
     ]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],

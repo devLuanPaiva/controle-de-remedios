@@ -1,0 +1,17 @@
+<app-modal #modalRef [titleId]="titleId()" [titleText]="titleText()" (closed)="closed.emit()">
+    <div class="modal-body">
+        <p>{{ message() }}</p>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">Cancelar</button>
+        <button
+            type="button"
+            class="btn"
+            [class]="confirmVariant() === 'danger' ? 'btn-danger' : 'btn-primary'"
+            (click)="onConfirm()"
+        >
+            {{ confirmLabel() }}
+        </button>
+    </div>
+</app-modal>

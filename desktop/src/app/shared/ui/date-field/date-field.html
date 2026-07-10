@@ -1,0 +1,20 @@
+<app-field
+    [for]="id()"
+    [label]="label()"
+    [touched]="field()().touched()"
+    [invalid]="field()().invalid()"
+    [errorMessage]="field()().errors()[0]?.message"
+>
+    <input
+        #dateInput
+        [id]="id()"
+        class="input"
+        type="date"
+        [attr.max]="max()"
+        [value]="field()().value()"
+        (input)="onInput(dateInput.value)"
+        (blur)="markTouched()"
+        [attr.aria-invalid]="field()().invalid() && field()().touched()"
+        [attr.aria-describedby]="field()().invalid() && field()().touched() ? id() + '-error' : null"
+    />
+</app-field>

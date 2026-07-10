@@ -1,0 +1,76 @@
+<app-modal #modalRef titleId="create-patient-title" titleText="Novo paciente" (closed)="closed.emit()">
+    <form (submit)="onSubmit($event, modalRef)" novalidate>
+        <div class="modal-body patient-create-modal__body">
+            <app-field
+                [for]="'create-patient-name'"
+                label="Nome"
+                [touched]="patientForm.name().touched()"
+                [invalid]="patientForm.name().invalid()"
+                [errorMessage]="patientForm.name().errors()[0]?.message"
+            >
+                <input
+                    id="create-patient-name"
+                    class="input"
+                    type="text"
+                    autocomplete="name"
+                    autofocus
+                    [formField]="patientForm.name"
+                    [attr.aria-invalid]="patientForm.name().invalid() && patientForm.name().touched()"
+                    [attr.aria-describedby]="patientForm.name().invalid() && patientForm.name().touched() ? 'create-patient-name-error' : null"
+                />
+            </app-field>
+
+            <app-cpf-field id="create-patient-cpf" [field]="patientForm.cpf" />
+
+            <app-date-field id="create-patient-birth-date" label="Data de nascimento" [field]="patientForm.birthDate" [max]="maxBirthDate" />
+
+            @if (connectedCompany(); as company) {
+                <p class="patient-create-modal__hint">
+                    Este paciente será associado à empresa conectada: <strong>{{ company.name }}</strong>.
+                </p>
+            }
+
+            <app-tabs [tabs]="tabs" [activeTabId]="activeTabId()" (tabChange)="onTabChange($event)" />
+
+            @if (model().withAccount) {
+                <div class="patient-create-modal__account" id="with-account-panel" role="tabpanel" aria-labelledby="with-account-tab">
+                    <p class="patient-create-modal__hint">
+                        A conta criada terá o perfil <app-role-badge [role]="PatientRole" />.
+                    </p>
+
+                    <app-field
+                        [for]="'create-patient-email'"
+                        label="Email"
+                        [touched]="patientForm.email().touched()"
+                        [invalid]="patientForm.email().invalid()"
+                        [errorMessage]="patientForm.email().errors()[0]?.message"
+                    >
+                        <input
+                            id="create-patient-email"
+                            class="input"
+                            type="email"
+                            autocomplete="email"
+                            [formField]="patientForm.email"
+                            [attr.aria-invalid]="patientForm.email().invalid() && patientForm.email().touched()"
+                            [attr.aria-describedby]="patientForm.email().invalid() && patientForm.email().touched() ? 'create-patient-email-error' : null"
+                        />
+                    </app-field>
+
+                    <app-password-field id="create-patient-password" [field]="patientForm.password" />
+                </div>
+            }
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline btn-sm" (click)="modalRef.requestClose()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSubmit()">
+                @if (mutating()) {
+                    <span class="spinner spinner-sm" aria-hidden="true"></span>
+                    <span>Salvando...</span>
+                } @else {
+                    <span>Salvar</span>
+                }
+            </button>
+        </div>
+    </form>
+</app-modal>
