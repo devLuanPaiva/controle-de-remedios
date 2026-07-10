@@ -116,7 +116,7 @@
                             </td>
                             <td data-label="Nome" class="user-list__col-name">{{ user.name }}</td>
                             <td data-label="E-mail" class="user-list__col-email">{{ user.email }}</td>
-                            <td data-label="CPF">{{ formatCpf(user.cpf) }}</td>
+                            <td data-label="CPF">{{ user.cpf }}</td>
                             <td data-label="Perfil">
                                 <app-role-badge [role]="user.role" />
                             </td>
