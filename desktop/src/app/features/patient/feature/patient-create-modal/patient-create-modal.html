@@ -1,0 +1,157 @@
+<dialog
+    #dialogRef
+    class="modal patient-create-modal"
+    aria-labelledby="create-patient-title"
+    (close)="closed.emit()"
+    (click)="onDialogClick($event)"
+    (keydown.escape)="requestClose()"
+>
+    <form (submit)="onSubmit($event)" novalidate>
+        <div class="modal-header">
+            <h2 class="modal-title" id="create-patient-title">Novo paciente</h2>
+
+            <button type="button" class="patient-create-modal__close" (click)="requestClose()" aria-label="Fechar">
+                &times;
+            </button>
+        </div>
+
+        <div class="modal-body patient-create-modal__body">
+            <div class="patient-create-modal__field">
+                <label class="patient-create-modal__label" for="create-patient-name">Nome</label>
+                <input
+                    id="create-patient-name"
+                    class="input"
+                    type="text"
+                    autocomplete="name"
+                    autofocus
+                    [formField]="patientForm.name"
+                    [attr.aria-invalid]="patientForm.name().invalid() && patientForm.name().touched()"
+                    [attr.aria-describedby]="patientForm.name().invalid() && patientForm.name().touched() ? 'create-patient-name-error' : null"
+                />
+                @if (patientForm.name().touched() && patientForm.name().invalid()) {
+                    <span class="patient-create-modal__error" id="create-patient-name-error">
+                        {{ patientForm.name().errors()[0]?.message }}
+                    </span>
+                }
+            </div>
+
+            <div class="patient-create-modal__field">
+                <label class="patient-create-modal__label" for="create-patient-cpf">CPF</label>
+                <input
+                    #cpfInput
+                    id="create-patient-cpf"
+                    class="input"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="14"
+                    placeholder="000.000.000-00"
+                    [value]="model().cpf"
+                    (input)="onCpfInput(cpfInput.value)"
+                    (blur)="patientForm.cpf().markAsTouched()"
+                    [attr.aria-invalid]="patientForm.cpf().invalid() && patientForm.cpf().touched()"
+                    [attr.aria-describedby]="patientForm.cpf().invalid() && patientForm.cpf().touched() ? 'create-patient-cpf-error' : null"
+                />
+                @if (patientForm.cpf().touched() && patientForm.cpf().invalid()) {
+                    <span class="patient-create-modal__error" id="create-patient-cpf-error">
+                        {{ patientForm.cpf().errors()[0]?.message }}
+                    </span>
+                }
+            </div>
+
+            <div class="patient-create-modal__field">
+                <label class="patient-create-modal__label" for="create-patient-birth-date">Data de nascimento</label>
+                <input
+                    #birthDateInput
+                    id="create-patient-birth-date"
+                    class="input"
+                    type="date"
+                    [attr.max]="maxBirthDate"
+                    [value]="model().birthDate"
+                    (input)="onBirthDateInput(birthDateInput.value)"
+                    (blur)="patientForm.birthDate().markAsTouched()"
+                    [attr.aria-invalid]="patientForm.birthDate().invalid() && patientForm.birthDate().touched()"
+                    [attr.aria-describedby]="patientForm.birthDate().invalid() && patientForm.birthDate().touched() ? 'create-patient-birth-date-error' : null"
+                />
+                @if (patientForm.birthDate().touched() && patientForm.birthDate().invalid()) {
+                    <span class="patient-create-modal__error" id="create-patient-birth-date-error">
+                        {{ patientForm.birthDate().errors()[0]?.message }}
+                    </span>
+                }
+            </div>
+
+            @if (connectedCompany(); as company) {
+                <p class="patient-create-modal__hint">
+                    Este paciente será associado à empresa conectada: <strong>{{ company.name }}</strong>.
+                </p>
+            }
+
+            <app-tabs [tabs]="tabs" [activeTabId]="activeTabId()" (tabChange)="onTabChange($event)" />
+
+            @if (model().withAccount) {
+                <div class="patient-create-modal__account" id="with-account-panel" role="tabpanel" aria-labelledby="with-account-tab">
+                    <p class="patient-create-modal__hint">
+                        A conta criada terá o perfil <app-role-badge [role]="PatientRole" />.
+                    </p>
+
+                    <div class="patient-create-modal__field">
+                        <label class="patient-create-modal__label" for="create-patient-email">Email</label>
+                        <input
+                            id="create-patient-email"
+                            class="input"
+                            type="email"
+                            autocomplete="email"
+                            [formField]="patientForm.email"
+                            [attr.aria-invalid]="patientForm.email().invalid() && patientForm.email().touched()"
+                            [attr.aria-describedby]="patientForm.email().invalid() && patientForm.email().touched() ? 'create-patient-email-error' : null"
+                        />
+                        @if (patientForm.email().touched() && patientForm.email().invalid()) {
+                            <span class="patient-create-modal__error" id="create-patient-email-error">
+                                {{ patientForm.email().errors()[0]?.message }}
+                            </span>
+                        }
+                    </div>
+
+                    <div class="patient-create-modal__field">
+                        <label class="patient-create-modal__label" for="create-patient-password">Senha</label>
+
+                        <div class="patient-create-modal__password-row">
+                            <input
+                                id="create-patient-password"
+                                class="input"
+                                [type]="showPassword() ? 'text' : 'password'"
+                                autocomplete="new-password"
+                                [formField]="patientForm.password"
+                                [attr.aria-invalid]="patientForm.password().invalid() && patientForm.password().touched()"
+                                [attr.aria-describedby]="patientForm.password().invalid() && patientForm.password().touched() ? 'create-patient-password-error' : null"
+                            />
+                            <button type="button" class="btn btn-outline btn-sm" (click)="toggleShowPassword()">
+                                {{ showPassword() ? 'Ocultar' : 'Mostrar' }}
+                            </button>
+                            <button type="button" class="btn btn-outline btn-sm" (click)="generatePassword()">
+                                Gerar senha
+                            </button>
+                        </div>
+
+                        @if (patientForm.password().touched() && patientForm.password().invalid()) {
+                            <span class="patient-create-modal__error" id="create-patient-password-error">
+                                {{ patientForm.password().errors()[0]?.message }}
+                            </span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline btn-sm" (click)="requestClose()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSubmit()">
+                @if (mutating()) {
+                    <span class="spinner spinner-sm" aria-hidden="true"></span>
+                    <span>Salvando...</span>
+                } @else {
+                    <span>Salvar</span>
+                }
+            </button>
+        </div>
+    </form>
+</dialog>
