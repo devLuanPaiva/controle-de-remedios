@@ -1,0 +1,17 @@
+<div class="card danger-card">
+    <div class="card-body danger-card__body">
+        <div>
+            <h2 class="danger-card__title">{{ title() }}</h2>
+            <p class="danger-card__subtitle">{{ subtitle() }}</p>
+        </div>
+
+        <button
+            type="button"
+            class="btn btn-sm"
+            [class]="actionVariant() === 'danger' ? 'btn-danger' : 'btn-outline'"
+            (click)="action.emit()"
+        >
+            {{ actionLabel() }}
+        </button>
+    </div>
+</div>

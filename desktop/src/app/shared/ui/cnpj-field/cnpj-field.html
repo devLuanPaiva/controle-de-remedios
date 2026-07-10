@@ -1,0 +1,22 @@
+<app-field
+    [for]="id()"
+    [label]="label()"
+    [touched]="field()().touched()"
+    [invalid]="field()().invalid()"
+    [errorMessage]="field()().errors()[0]?.message"
+>
+    <input
+        #cnpjInput
+        [id]="id()"
+        class="input"
+        type="text"
+        inputmode="numeric"
+        maxlength="18"
+        placeholder="00.000.000/0000-00"
+        [value]="field()().value()"
+        (input)="onInput(cnpjInput.value)"
+        (blur)="markTouched()"
+        [attr.aria-invalid]="field()().invalid() && field()().touched()"
+        [attr.aria-describedby]="field()().invalid() && field()().touched() ? id() + '-error' : null"
+    />
+</app-field>

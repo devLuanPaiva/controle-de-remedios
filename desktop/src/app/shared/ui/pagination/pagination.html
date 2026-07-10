@@ -1,0 +1,18 @@
+<div class="pagination">
+    <button
+        type="button"
+        class="btn btn-outline btn-sm"
+        [disabled]="!pagination().previous"
+        (click)="previousPage.emit()"
+    >
+        Anterior
+    </button>
+
+    <span class="pagination__label">
+        Página {{ pagination().currentPage }} de {{ pagination().totalPages }}
+    </span>
+
+    <button type="button" class="btn btn-outline btn-sm" [disabled]="!pagination().next" (click)="nextPage.emit()">
+        Próxima
+    </button>
+</div>
