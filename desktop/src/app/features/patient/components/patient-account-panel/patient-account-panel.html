@@ -1,0 +1,61 @@
+<div class="card patient-account-panel">
+    <div class="card-body patient-account-panel__body">
+        <h2 class="patient-account-panel__title">Conta de acesso</h2>
+
+        @if (hasAccount()) {
+            <p class="patient-account-panel__subtitle">
+                Este paciente possui uma conta de usuário do tipo <app-role-badge [role]="PatientRole" /> vinculada.
+            </p>
+
+            <button type="button" class="btn btn-outline btn-sm" (click)="openRemoveConfirm()">
+                Desassociar conta
+            </button>
+        } @else {
+            <p class="patient-account-panel__subtitle">
+                Este paciente ainda não possui uma conta. Cadastre um e-mail e senha para que ele possa acessar o sistema.
+            </p>
+
+            <form class="patient-account-panel__form" (submit)="onSubmit($event)" novalidate>
+                <app-field
+                    for="edit-patient-account-email"
+                    label="Email"
+                    [touched]="accountForm.email().touched()"
+                    [invalid]="accountForm.email().invalid()"
+                    [errorMessage]="accountForm.email().errors()[0]?.message"
+                >
+                    <input
+                        id="edit-patient-account-email"
+                        class="input"
+                        type="email"
+                        autocomplete="email"
+                        [formField]="accountForm.email"
+                        [attr.aria-invalid]="accountForm.email().invalid() && accountForm.email().touched()"
+                        [attr.aria-describedby]="accountForm.email().invalid() && accountForm.email().touched() ? 'edit-patient-account-email-error' : null"
+                    />
+                </app-field>
+
+                <app-password-field id="edit-patient-account-password" [field]="accountForm.password" />
+
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSubmit()">
+                    @if (mutating()) {
+                        <span class="spinner spinner-sm" aria-hidden="true"></span>
+                        <span>Criando...</span>
+                    } @else {
+                        <span>Criar conta</span>
+                    }
+                </button>
+            </form>
+        }
+    </div>
+</div>
+
+@if (showRemoveConfirm()) {
+    <app-confirm-dialog
+        titleId="remove-account-confirm-title"
+        titleText="Desassociar conta"
+        message="Tem certeza que deseja desassociar a conta deste paciente? Ele deixará de poder acessar o sistema."
+        confirmLabel="Confirmar"
+        (confirmed)="confirmRemove()"
+        (closed)="onRemoveConfirmClosed()"
+    />
+}

@@ -15,7 +15,7 @@ import com.devluanpaiva.controle_de_remedios.modules.company.dto.CreateCompanyRe
 import com.devluanpaiva.controle_de_remedios.modules.company.dto.UpdateCompanyRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanyFilter;
 import com.devluanpaiva.controle_de_remedios.modules.company.service.CompanyService;
-import com.devluanpaiva.controle_de_remedios.modules.users.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponse;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponseFactory;
 import com.devluanpaiva.controle_de_remedios.shared.utils.PageableFactory;

@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.http.MediaType;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.ApiError;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.ApiExceptionResponse;
 
@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter  {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String INVALID_TOKEN_MESSAGE = "Token inválido";
 
     private final JwtService jwtService;
@@ -29,22 +29,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter  {
     private final ObjectMapper objectMapper;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
 
-        if(authHeader == null || !authHeader.startsWith("Bearer ")){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
             String token = authHeader.substring(7);
-            
-            if(!jwtService.isAccessToken(token)){
+
+            if (!jwtService.isAccessToken(token)) {
                 writeUnauthorizedResponse(
                         response,
-                    INVALID_TOKEN_MESSAGE,
+                        INVALID_TOKEN_MESSAGE,
                         "O token informado não é um access token");
                 return;
             }
@@ -54,8 +55,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter  {
             User user = userRepository.findById(userId)
                     .orElse(null);
 
-            if(user != null){
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            if (user != null) {
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null,
+                        user.getAuthorities());
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {

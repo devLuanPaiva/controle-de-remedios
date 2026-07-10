@@ -1,0 +1,9 @@
+<div class="field">
+    <label class="field__label" [for]="for()">{{ label() }}</label>
+
+    <ng-content />
+
+    @if (touched() && invalid()) {
+        <span class="field__error" [id]="for() + '-error'">{{ errorMessage() }}</span>
+    }
+</div>

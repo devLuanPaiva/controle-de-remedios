@@ -27,9 +27,9 @@ import com.devluanpaiva.controle_de_remedios.modules.auth.dto.AuthResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.auth.dto.LoginRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.auth.dto.RefreshTokenRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.auth.service.AuthService;
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
-import com.devluanpaiva.controle_de_remedios.modules.users.enums.UserRole;
-import com.devluanpaiva.controle_de_remedios.modules.users.repository.UserRepository;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
+import com.devluanpaiva.controle_de_remedios.modules.user.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.security.JwtService;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 

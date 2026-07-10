@@ -1,0 +1,29 @@
+.modal {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+
+    padding: 0;
+    border: none;
+    max-height: 90vh;
+    max-width: 90vw;
+    overflow-y: auto;
+
+    &::backdrop {
+        background: rgba(0, 0, 0, 0.45);
+    }
+}
+
+.modal--wide {
+    width: min(560px, 90vw);
+}
+
+.modal__close {
+    font-size: var(--text-2xl);
+    line-height: 1;
+    color: var(--text-secondary);
+
+    &:hover {
+        color: var(--text-primary);
+    }
+}

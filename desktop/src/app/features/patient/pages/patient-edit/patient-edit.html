@@ -1,0 +1,87 @@
+<section class="patient-edit">
+    <header class="patient-edit__header">
+        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">&larr; Voltar</button>
+        <h1 class="patient-edit__title">Editar paciente</h1>
+    </header>
+
+    @if (loading()) {
+        <div class="loading patient-edit__state">
+            <output class="spinner" aria-label="Carregando paciente"></output>
+        </div>
+    } @else if (!patient()) {
+        <div class="patient-edit__state patient-edit__state--error">
+            <p>{{ error() ?? 'Paciente não encontrado.' }}</p>
+        </div>
+    } @else {
+        <div class="patient-edit__summary card">
+            <div class="card-body patient-edit__summary-body">
+                <div class="patient-edit__summary-info">
+                    <span class="patient-edit__summary-name">{{ patient()!.name }}</span>
+                    <span class="patient-edit__summary-cpf">{{ formatCpf(patient()!.cpf) }}</span>
+                </div>
+
+                <span class="badge" [class]="patient()!.userId ? 'badge-success' : 'badge-outline'">
+                    {{ patient()!.userId ? 'Com conta' : 'Sem conta' }}
+                </span>
+            </div>
+        </div>
+
+        <form class="patient-edit__form card" (submit)="onSubmit($event)" novalidate>
+            <div class="card-body patient-edit__form-body">
+                <app-field
+                    for="edit-patient-name"
+                    label="Nome"
+                    [touched]="editForm.name().touched()"
+                    [invalid]="editForm.name().invalid()"
+                    [errorMessage]="editForm.name().errors()[0]?.message"
+                >
+                    <input
+                        id="edit-patient-name"
+                        class="input"
+                        type="text"
+                        autocomplete="name"
+                        [formField]="editForm.name"
+                        [attr.aria-invalid]="editForm.name().invalid() && editForm.name().touched()"
+                        [attr.aria-describedby]="editForm.name().invalid() && editForm.name().touched() ? 'edit-patient-name-error' : null"
+                    />
+                </app-field>
+
+                <app-cpf-field id="edit-patient-cpf" [field]="editForm.cpf" />
+
+                <app-date-field id="edit-patient-birth-date" label="Data de nascimento" [field]="editForm.birthDate" [max]="maxBirthDate" />
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
+                    @if (mutating()) {
+                        <span class="spinner spinner-sm" aria-hidden="true"></span>
+                        <span>Salvando...</span>
+                    } @else {
+                        <span>Salvar alterações</span>
+                    }
+                </button>
+            </div>
+        </form>
+
+        <app-patient-account-panel [patientId]="patientId()" [hasAccount]="!!patient()!.userId" />
+
+        <app-danger-card
+            title="Excluir paciente"
+            subtitle="Remove definitivamente este paciente da empresa."
+            actionLabel="Excluir paciente"
+            (action)="openDeleteConfirm()"
+        />
+    }
+</section>
+
+@if (showDeleteConfirm()) {
+    <app-confirm-dialog
+        titleId="delete-confirm-title"
+        titleText="Confirmar exclusão"
+        message="Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita."
+        confirmLabel="Excluir"
+        confirmVariant="danger"
+        (confirmed)="confirmDelete()"
+        (closed)="onDeleteConfirmClosed()"
+    />
+}

@@ -1,0 +1,68 @@
+<app-modal
+    #modalRef
+    titleId="company-associations-title"
+    titleText="Usuários associados"
+    panelClass="modal--wide"
+    (closed)="onDialogClosed()"
+>
+    <div class="modal-body company-associations-modal__body">
+        @if (candidateUsers().length > 0) {
+            <div class="company-associations-modal__add">
+                <select
+                    #candidateSelect
+                    class="input"
+                    aria-label="Selecionar usuário para associar"
+                    [value]="selectedCandidateId()"
+                    (change)="onCandidateChange(candidateSelect.value)"
+                >
+                    <option value="">Selecione um usuário</option>
+                    @for (candidate of candidateUsers(); track candidate.id) {
+                        <option [value]="candidate.id">{{ candidate.name }} ({{ candidate.email }})</option>
+                    }
+                </select>
+
+                <button
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    [disabled]="!selectedCandidateId() || associatedUsersMutating()"
+                    (click)="associateSelectedUser()"
+                >
+                    Adicionar
+                </button>
+            </div>
+        }
+
+        <input
+            #searchBox
+            type="search"
+            class="input company-associations-modal__search"
+            placeholder="Buscar por nome ou e-mail"
+            aria-label="Buscar usuários associados"
+            (input)="onSearchTermChange(searchBox.value)"
+        />
+
+        @if (associatedUsersLoading()) {
+            <div class="loading company-associations-modal__state">
+                <output class="spinner" aria-label="Carregando usuários associados"></output>
+            </div>
+        } @else {
+            <ul class="company-associations-modal__list">
+                @for (member of filteredAssociatedUsers(); track member.id) {
+                    <li
+                        app-associated-user-item
+                        [user]="member"
+                        [canRemove]="canRemove(member.role)"
+                        [removing]="associatedUsersMutating()"
+                        (remove)="removeUser(member.id)"
+                    ></li>
+                } @empty {
+                    <li class="company-associations-modal__empty">Nenhum usuário associado.</li>
+                }
+            </ul>
+        }
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="modalRef.requestClose()">Fechar</button>
+    </div>
+</app-modal>

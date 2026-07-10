@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.http.HttpStatus;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 
 @Component

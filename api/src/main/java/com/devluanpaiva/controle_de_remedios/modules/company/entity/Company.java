@@ -9,12 +9,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.patient.entity.Patient;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
 
 @Entity
 @Table(name = "companies")
@@ -47,6 +47,10 @@ public class Company {
     @ManyToMany(mappedBy = "companies")
     @Builder.Default
     private Set<User> users = new HashSet<>();
+
+    @OneToMany(mappedBy = "company")
+    @Builder.Default
+    private Set<Patient> patients = new HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false, name = "created_at")

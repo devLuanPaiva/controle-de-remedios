@@ -6,7 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.devluanpaiva.controle_de_remedios.modules.users.entity.User;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
 
 import javax.crypto.SecretKey;
 import java.util.Date;

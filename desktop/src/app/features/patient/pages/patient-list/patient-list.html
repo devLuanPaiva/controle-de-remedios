@@ -1,0 +1,99 @@
+<section class="patient-list">
+    <header class="patient-list__header">
+        <h1 class="patient-list__title">Pacientes</h1>
+
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+            Novo paciente
+        </button>
+    </header>
+
+    <form class="patient-list__filters" (submit)="applyFilters($event)">
+        <div class="patient-list__filter-field">
+            <label class="patient-list__filter-label" for="filter-name">Nome</label>
+            <input
+                id="filter-name"
+                #nameInput
+                type="text"
+                class="input"
+                [value]="filterForm().name"
+                (input)="onFilterNameChange(nameInput.value)"
+            />
+        </div>
+
+        <div class="patient-list__filter-field">
+            <label class="patient-list__filter-label" for="filter-cpf">CPF</label>
+            <input
+                id="filter-cpf"
+                #cpfInput
+                type="text"
+                inputmode="numeric"
+                maxlength="14"
+                class="input"
+                [value]="filterForm().cpf"
+                (input)="onFilterCpfChange(cpfInput.value)"
+            />
+        </div>
+
+        <div class="patient-list__filter-actions">
+            <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+            <button type="button" class="btn btn-outline btn-sm" (click)="clearFilters()">Limpar filtros</button>
+        </div>
+    </form>
+
+    @if (loading()) {
+        <div class="loading patient-list__state">
+            <output class="spinner" aria-label="Carregando pacientes"></output>
+        </div>
+    } @else if (error()) {
+        <div class="patient-list__state patient-list__state--error">
+            <p>{{ error() }}</p>
+            <button type="button" class="btn btn-outline" (click)="retry()">
+                Tentar novamente
+            </button>
+        </div>
+    } @else {
+        <div class="table-responsive">
+            <table class="table patient-list__table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Data de nascimento</th>
+                        <th>Conta</th>
+                        <th class="patient-list__col-actions">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (patient of patients(); track patient.id) {
+                        <tr>
+                            <td data-label="Nome" class="patient-list__col-name">{{ patient.name }}</td>
+                            <td data-label="CPF">{{ patient.cpf }}</td>
+                            <td data-label="Data de nascimento">{{ patient.birthDate | date: 'dd/MM/yyyy' }}</td>
+                            <td data-label="Conta">
+                                <span class="badge" [class]="patient.userId ? 'badge-success' : 'badge-outline'">
+                                    {{ patient.userId ? 'Com conta' : 'Sem conta' }}
+                                </span>
+                            </td>
+                            <td data-label="Ações" class="patient-list__col-actions">
+                                <a class="btn btn-outline btn-sm" [routerLink]="['/patients', patient.id, 'edit']">
+                                    Editar
+                                </a>
+                            </td>
+                        </tr>
+                    } @empty {
+                        <tr class="patient-list__empty-row">
+                            <td colspan="5">Nenhum paciente encontrado.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <app-pagination [pagination]="pagination()" (previousPage)="goToPreviousPage()" (nextPage)="goToNextPage()" />
+    }
+</section>
+
+@if (showCreateModal()) {
+    <app-patient-create-modal (closed)="closeCreateModal()" />
+}

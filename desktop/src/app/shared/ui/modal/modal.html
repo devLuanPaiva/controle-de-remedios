@@ -1,0 +1,19 @@
+<dialog
+    #dialogRef
+    class="modal"
+    [class]="panelClass()"
+    [attr.aria-labelledby]="titleId()"
+    (close)="closed.emit()"
+    (click)="onDialogClick($event)"
+    (keydown.escape)="requestClose()"
+>
+    <div class="modal-header">
+        <h2 class="modal-title" [id]="titleId()">{{ titleText() }}</h2>
+
+        <button type="button" class="modal__close" (click)="requestClose()" aria-label="Fechar">
+            &times;
+        </button>
+    </div>
+
+    <ng-content />
+</dialog>

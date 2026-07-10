@@ -1,13 +1,15 @@
 export enum UserRole {
     ADMIN,
     USER,
-    MANAGER
+    MANAGER,
+    PATIENT
 }
 
 export const UserRoleLabels: Record<UserRole, string> = {
     [UserRole.ADMIN]: 'Administrador',
     [UserRole.USER]: 'Usuário',
-    [UserRole.MANAGER]: 'Gerente'
+    [UserRole.MANAGER]: 'Gerente',
+    [UserRole.PATIENT]: 'Paciente'
 };
 
 export interface IUser {
@@ -38,9 +40,9 @@ export function normalizeUserRole(raw: unknown): UserRole | null {
 export function getManageableRoles(currentUserRole: UserRole | null | undefined): UserRole[] {
     switch (currentUserRole) {
         case UserRole.ADMIN:
-            return [UserRole.MANAGER, UserRole.USER];
+            return [UserRole.MANAGER, UserRole.USER, UserRole.PATIENT];
         case UserRole.MANAGER:
-            return [UserRole.USER];
+            return [UserRole.USER, UserRole.PATIENT];
         default:
             return [];
     }

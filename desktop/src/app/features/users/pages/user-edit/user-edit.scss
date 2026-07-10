@@ -1,0 +1,56 @@
+.user-edit {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    width: 100%;
+}
+
+.user-edit__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.user-edit__title {
+    font-size: var(--text-2xl);
+    color: var(--color-primary-600);
+}
+
+.user-edit__state {
+    padding: var(--space-10) 0;
+}
+
+.user-edit__state--error {
+    text-align: center;
+    color: var(--color-danger);
+}
+
+.user-edit__summary-body {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.user-edit__summary-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.user-edit__summary-name {
+    font-weight: 600;
+    font-size: var(--text-lg);
+}
+
+.user-edit__summary-email {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+}
+
+.user-edit__form-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}

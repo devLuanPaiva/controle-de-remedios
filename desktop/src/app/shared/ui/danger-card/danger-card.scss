@@ -1,0 +1,15 @@
+.danger-card__body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.danger-card__title {
+    font-size: var(--text-lg);
+}
+
+.danger-card__subtitle {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+}
