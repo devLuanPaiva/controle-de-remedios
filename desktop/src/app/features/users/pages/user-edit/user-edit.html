@@ -1,0 +1,92 @@
+<section class="user-edit">
+    <header class="user-edit__header">
+        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">&larr; Voltar</button>
+        <h1 class="user-edit__title">Editar usuário</h1>
+    </header>
+
+    @if (loading()) {
+        <div class="loading user-edit__state">
+            <output class="spinner" aria-label="Carregando usuário"></output>
+        </div>
+    } @else if (!user()) {
+        <div class="user-edit__state user-edit__state--error">
+            <p>{{ error() ?? 'Usuário não encontrado.' }}</p>
+        </div>
+    } @else {
+        <div class="user-edit__summary card">
+            <div class="card-body user-edit__summary-body">
+                <app-avatar [name]="user()!.name" [imageUrl]="user()!.imageUrl" size="lg" />
+
+                <div class="user-edit__summary-info">
+                    <span class="user-edit__summary-name">{{ user()!.name }}</span>
+                    <span class="user-edit__summary-email">{{ user()!.email }}</span>
+                    <app-role-badge [role]="user()!.role" />
+                </div>
+            </div>
+        </div>
+
+        <form class="user-edit__form card" (submit)="onSubmit($event)" novalidate>
+            <div class="card-body user-edit__form-body">
+                <app-field
+                    for="edit-user-name"
+                    label="Nome"
+                    [touched]="editForm.name().touched()"
+                    [invalid]="editForm.name().invalid()"
+                    [errorMessage]="editForm.name().errors()[0]?.message"
+                >
+                    <input
+                        id="edit-user-name"
+                        class="input"
+                        type="text"
+                        autocomplete="name"
+                        [formField]="editForm.name"
+                        [attr.aria-invalid]="editForm.name().invalid() && editForm.name().touched()"
+                        [attr.aria-describedby]="editForm.name().invalid() && editForm.name().touched() ? 'edit-user-name-error' : null"
+                    />
+                </app-field>
+
+                <app-cpf-field id="edit-user-cpf" [field]="editForm.cpf" />
+
+                <app-field for="edit-user-image" label="Foto de perfil (URL, opcional)">
+                    <input
+                        id="edit-user-image"
+                        class="input"
+                        type="text"
+                        placeholder="https://..."
+                        [formField]="editForm.imageUrl"
+                    />
+                </app-field>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
+                    @if (mutating()) {
+                        <span class="spinner spinner-sm" aria-hidden="true"></span>
+                        <span>Salvando...</span>
+                    } @else {
+                        <span>Salvar alterações</span>
+                    }
+                </button>
+            </div>
+        </form>
+
+        <app-danger-card
+            title="Resetar senha"
+            subtitle="Envia uma nova senha para o e-mail deste usuário."
+            actionLabel="Resetar senha"
+            actionVariant="outline"
+            (action)="openResetConfirm()"
+        />
+    }
+</section>
+
+@if (showResetConfirm()) {
+    <app-confirm-dialog
+        titleId="reset-confirm-title"
+        titleText="Confirmar reset de senha"
+        message="Tem certeza que deseja resetar a senha deste usuário?"
+        confirmLabel="Confirmar"
+        (confirmed)="confirmReset()"
+        (closed)="onResetConfirmClosed()"
+    />
+}

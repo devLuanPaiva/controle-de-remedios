@@ -1,0 +1,57 @@
+.patient-edit {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    width: 100%;
+}
+
+.patient-edit__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.patient-edit__title {
+    font-size: var(--text-2xl);
+    color: var(--color-primary-600);
+}
+
+.patient-edit__state {
+    padding: var(--space-10) 0;
+}
+
+.patient-edit__state--error {
+    text-align: center;
+    color: var(--color-danger);
+}
+
+.patient-edit__summary-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.patient-edit__summary-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.patient-edit__summary-name {
+    font-weight: 600;
+    font-size: var(--text-lg);
+}
+
+.patient-edit__summary-cpf {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+}
+
+.patient-edit__form-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}

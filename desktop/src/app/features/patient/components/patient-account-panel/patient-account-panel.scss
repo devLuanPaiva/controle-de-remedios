@@ -1,0 +1,23 @@
+.patient-account-panel__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: flex-start;
+}
+
+.patient-account-panel__title {
+    font-size: var(--text-lg);
+}
+
+.patient-account-panel__subtitle {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+}
+
+.patient-account-panel__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    width: 100%;
+    max-width: 360px;
+}

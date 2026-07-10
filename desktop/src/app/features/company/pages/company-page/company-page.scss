@@ -1,0 +1,84 @@
+.company-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+
+    width: 100%;
+}
+
+.company-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.company-page__title {
+    font-size: var(--text-2xl);
+    color: var(--color-primary-600);
+}
+
+.company-page__header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.company-page__state {
+    padding: var(--space-10) 0;
+}
+
+.company-page__state--error {
+    text-align: center;
+    color: var(--color-danger);
+}
+
+.company-page__state--empty {
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.company-page__summary-body {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.company-page__summary-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+    flex: 1;
+}
+
+.company-page__summary-name {
+    font-weight: 600;
+    font-size: var(--text-lg);
+}
+
+.company-page__summary-slug {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+}
+
+.company-page__form-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.company-page__field--checkbox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.company-page__checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 600;
+    font-size: var(--text-sm);
+}

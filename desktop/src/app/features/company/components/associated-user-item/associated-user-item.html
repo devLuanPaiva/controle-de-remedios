@@ -1,0 +1,14 @@
+<app-avatar [name]="user().name" [imageUrl]="user().imageUrl" size="sm" />
+
+<div class="associated-user-item__info">
+    <span class="associated-user-item__name">{{ user().name }}</span>
+    <span class="associated-user-item__email">{{ user().email }}</span>
+</div>
+
+<app-role-badge [role]="user().role" />
+
+@if (canRemove()) {
+    <button type="button" class="btn btn-outline btn-sm" [disabled]="removing()" (click)="remove.emit()">
+        Remover
+    </button>
+}

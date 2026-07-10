@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const companyRoutes: Routes = [
     {
         path: '',
-        loadComponent: () => import('./feature/company-page/company-page').then((m) => m.CompanyPage),
+        loadComponent: () => import('./pages/company-page/company-page').then((m) => m.CompanyPage),
         title: 'Empresas',
     },
 ];

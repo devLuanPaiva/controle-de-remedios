@@ -1,0 +1,48 @@
+<app-modal #modalRef titleId="create-company-title" titleText="Nova empresa" (closed)="closed.emit()">
+    <form (submit)="onSubmit($event, modalRef)" novalidate>
+        <div class="modal-body company-create-modal__body">
+            <app-field
+                for="create-company-name"
+                label="Nome"
+                [touched]="companyForm.name().touched()"
+                [invalid]="companyForm.name().invalid()"
+                [errorMessage]="companyForm.name().errors()[0]?.message"
+            >
+                <input
+                    id="create-company-name"
+                    class="input"
+                    type="text"
+                    autocomplete="organization"
+                    autofocus
+                    [formField]="companyForm.name"
+                    [attr.aria-invalid]="companyForm.name().invalid() && companyForm.name().touched()"
+                    [attr.aria-describedby]="companyForm.name().invalid() && companyForm.name().touched() ? 'create-company-name-error' : null"
+                />
+            </app-field>
+
+            <app-cnpj-field id="create-company-cnpj" [field]="companyForm.cnpj" />
+
+            <app-field for="create-company-image" label="Logo (URL, opcional)">
+                <input
+                    id="create-company-image"
+                    class="input"
+                    type="text"
+                    placeholder="https://..."
+                    [formField]="companyForm.imageUrl"
+                />
+            </app-field>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline btn-sm" (click)="modalRef.requestClose()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSubmit()">
+                @if (mutating()) {
+                    <span class="spinner spinner-sm" aria-hidden="true"></span>
+                    <span>Salvando...</span>
+                } @else {
+                    <span>Salvar</span>
+                }
+            </button>
+        </div>
+    </form>
+</app-modal>
