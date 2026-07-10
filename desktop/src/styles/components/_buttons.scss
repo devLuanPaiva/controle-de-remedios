@@ -33,6 +33,15 @@
     color: var(--color-primary-500);
 }
 
+.btn-danger {
+    background: var(--color-danger);
+    color: white;
+
+    &:hover {
+        opacity: 0.9;
+    }
+}
+
 .btn-sm {
     padding: var(--space-1) var(--space-3);
     font-size: var(--text-sm);
