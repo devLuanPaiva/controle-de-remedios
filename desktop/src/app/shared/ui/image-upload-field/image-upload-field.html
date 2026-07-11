@@ -1,0 +1,27 @@
+<div class="image-upload-field">
+    <label class="field__label" [for]="id()">{{ label() }}</label>
+
+    @if (imageUrl()) {
+        <img class="image-upload-field__preview" [src]="imageUrl()" alt="Pré-visualização da imagem" />
+    }
+
+    <input
+        [id]="id()"
+        class="input image-upload-field__input"
+        type="file"
+        accept="image/*"
+        [disabled]="uploading()"
+        (change)="onFileSelected($event)"
+    />
+
+    @if (uploading()) {
+        <span class="image-upload-field__hint">
+            <span class="spinner spinner-sm" aria-hidden="true"></span>
+            Enviando imagem...
+        </span>
+    }
+
+    @if (error()) {
+        <span class="field__error">{{ error() }}</span>
+    }
+</div>
