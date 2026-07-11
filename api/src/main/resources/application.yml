@@ -1,11 +1,14 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
+
   application:
     name: controle-de-remedios
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/appdb}
-    username: ${DB_USERNAME:admin_controle_de_remedios}
-    password: ${DB_PASSWORD:password123}
+    url: ${DB_URL:}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
 
   jpa:
     hibernate:
