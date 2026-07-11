@@ -25,3 +25,9 @@ spring:
 
     jwt:
       secret: ${JWT_SECRET:6a7d4e8c1f9b3a5d7c8f6e1b2a4c9d7e3f8b5a0f1a6c4d9b8e8c9c5f95f0d2}
+
+aws:
+  region: ${AWS_REGION:us-east-1}
+  s3:
+    bucket: ${AWS_S3_BUCKET:}
+    public-base-url: ${AWS_S3_PUBLIC_BASE_URL:}
