@@ -1,0 +1,65 @@
+<section class="prescription-edit">
+    <header class="prescription-edit__header">
+        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">&larr; Voltar</button>
+        <h1 class="prescription-edit__title">Editar receituário</h1>
+    </header>
+
+    @if (loading()) {
+        <div class="loading prescription-edit__state">
+            <output class="spinner" aria-label="Carregando receituário"></output>
+        </div>
+    } @else if (!prescription()) {
+        <div class="prescription-edit__state prescription-edit__state--error">
+            <p>{{ error() ?? 'Receituário não encontrado.' }}</p>
+        </div>
+    } @else {
+        <div class="prescription-edit__summary card">
+            <div class="card-body prescription-edit__summary-body">
+                <div class="prescription-edit__summary-info">
+                    <span class="prescription-edit__summary-name">{{ prescription()!.patient.name }}</span>
+                    <span class="prescription-edit__summary-cpf">{{ formatCpf(prescription()!.patient.cpf) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <form class="prescription-edit__form card" (submit)="onSubmit($event)" novalidate>
+            <div class="card-body prescription-edit__form-body">
+                <div class="field">
+                    <label class="field__label" for="edit-prescription-status">Status</label>
+                    <select
+                        #statusSelect
+                        id="edit-prescription-status"
+                        class="input"
+                        [value]="model().status"
+                        (change)="onStatusChange(statusSelect.value)"
+                        (blur)="editForm.status().markAsTouched()"
+                    >
+                        @for (status of statusOptions; track status) {
+                            <option [value]="status">{{ PrescriptionStatusLabels[status] }}</option>
+                        }
+                    </select>
+                </div>
+
+                <app-date-field id="edit-prescription-issue-date" label="Data de emissão" [field]="editForm.issueDate" [max]="maxIssueDate" />
+
+                <app-image-upload-field
+                    id="edit-prescription-image"
+                    label="Imagem da receita (opcional)"
+                    [imageUrl]="model().imageUrl || undefined"
+                    (uploaded)="onImageUploaded($event)"
+                />
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
+                    @if (mutating()) {
+                        <span class="spinner spinner-sm" aria-hidden="true"></span>
+                        <span>Salvando...</span>
+                    } @else {
+                        <span>Salvar alterações</span>
+                    }
+                </button>
+            </div>
+        </form>
+    }
+</section>
