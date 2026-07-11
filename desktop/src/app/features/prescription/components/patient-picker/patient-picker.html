@@ -1,0 +1,52 @@
+<div class="patient-picker">
+    @if (selectedPatient(); as patient) {
+        <p class="patient-picker__selected">
+            Paciente selecionado: <strong>{{ patient.name }}</strong> ({{ formatCpf(patient.cpf) }})
+        </p>
+    }
+
+    <div class="patient-picker__search">
+        <input
+            #searchBox
+            type="search"
+            class="input"
+            placeholder="Buscar paciente por nome ou CPF"
+            aria-label="Buscar paciente"
+            [value]="searchTerm()"
+            (input)="onSearchTermChange(searchBox.value)"
+        />
+
+        <button type="button" class="btn btn-outline btn-sm" [disabled]="searching()" (click)="search($event)">
+            @if (searching()) {
+                <span class="spinner spinner-sm" aria-hidden="true"></span>
+            } @else {
+                <span>Buscar</span>
+            }
+        </button>
+    </div>
+
+    @if (searched() && results().length > 0) {
+        <select
+            #resultsSelect
+            class="input"
+            aria-label="Selecionar paciente encontrado"
+            [value]="selectedPatient()?.id ?? ''"
+            (change)="onResultChange(resultsSelect.value)"
+        >
+            <option value="" disabled>Selecione um paciente</option>
+            @for (candidate of results(); track candidate.id) {
+                <option [value]="candidate.id">{{ candidate.name }} ({{ formatCpf(candidate.cpf) }})</option>
+            }
+        </select>
+    } @else if (searched() && !searching()) {
+        <p class="patient-picker__empty">Nenhum paciente encontrado.</p>
+    }
+
+    <button type="button" class="btn btn-outline btn-sm patient-picker__quick-create" (click)="openQuickCreate()">
+        Cadastrar novo paciente
+    </button>
+</div>
+
+@if (showQuickCreate()) {
+    <app-patient-create-modal (closed)="closeQuickCreate()" />
+}
