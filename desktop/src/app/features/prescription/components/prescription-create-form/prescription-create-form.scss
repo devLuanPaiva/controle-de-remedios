@@ -1,0 +1,14 @@
+.prescription-create-form {
+    margin-top: var(--space-4);
+}
+.prescription-create-form__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.prescription-create-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
