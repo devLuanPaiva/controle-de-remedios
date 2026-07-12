@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, type Href } from "expo-router";
-import { AlertCircle } from "lucide-react-native";
+import { AlertCircle, ChevronLeft } from "lucide-react-native";
 
 import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
 import { usePrescriptionScan } from "@/data/contexts/PrescriptionScanContext";
@@ -94,7 +94,19 @@ export default function PrescriptionReview() {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
-                <Text style={styles.title}>Revisar receituário</Text>
+                <View style={styles.header}>
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => router.back()}
+                        hitSlop={10}
+                        accessibilityRole="button"
+                        accessibilityLabel="Voltar"
+                    >
+                        <ChevronLeft size={22} color={Colors.text} />
+                    </TouchableOpacity>
+
+                    <Text style={styles.title}>Revisar receituário</Text>
+                </View>
 
                 <ExtractionBanner extraction={extraction} />
 
@@ -150,6 +162,23 @@ const styles = StyleSheet.create({
         padding: Spacing.xl,
         paddingBottom: Spacing.xxl,
         gap: Spacing.lg,
+    },
+
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: Spacing.sm,
+    },
+
+    backButton: {
+        width: 36,
+        height: 36,
+        borderRadius: Radius.full,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: Colors.surface,
+        borderWidth: 1,
+        borderColor: Colors.border,
     },
 
     title: {
