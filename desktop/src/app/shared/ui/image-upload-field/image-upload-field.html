@@ -1,27 +1,54 @@
-<div class="image-upload-field">
-    <label class="field__label" [for]="id()">{{ label() }}</label>
+<div class="image-upload">
+    <span class="image-upload__label" [attr.id]="id() + '-label'">{{ label() }}</span>
 
-    @if (imageUrl()) {
-        <img class="image-upload-field__preview" [src]="imageUrl()" alt="Pré-visualização da imagem" />
-    }
+    <label
+        class="image-upload__dropzone"
+        [for]="inputId()"
+        [class.image-upload__dropzone--filled]="imageUrl()"
+        [class.image-upload__dropzone--dragging]="dragging()"
+        [class.image-upload__dropzone--uploading]="uploading()"
+        [class.image-upload__dropzone--error]="error()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+    >
+        @if (imageUrl(); as url) {
+            <img class="image-upload__preview" [src]="url" alt="Pré-visualização" />
 
-    <input
-        [id]="id()"
-        class="input image-upload-field__input"
-        type="file"
-        accept="image/*"
-        [disabled]="uploading()"
-        (change)="onFileSelected($event)"
-    />
+            <span class="image-upload__overlay">
+                <svg lucidePencil class="image-upload__overlay-icon" aria-hidden="true"></svg>
+                <span>Alterar imagem</span>
+            </span>
+        } @else {
+            <span class="image-upload__placeholder">
+                <svg lucideImagePlus class="image-upload__icon" aria-hidden="true"></svg>
+                <span class="image-upload__placeholder-text">Clique ou arraste uma imagem aqui</span>
+                <span class="image-upload__placeholder-hint">PNG, JPG ou WEBP</span>
+            </span>
+        }
 
-    @if (uploading()) {
-        <span class="image-upload-field__hint">
-            <span class="spinner spinner-sm" aria-hidden="true"></span>
-            Enviando imagem...
+        @if (uploading()) {
+            <span class="image-upload__uploading">
+                <span class="spinner spinner-sm" aria-hidden="true"></span>
+                Enviando imagem...
+            </span>
+        }
+
+        <input
+            [id]="inputId()"
+            class="image-upload__input"
+            type="file"
+            accept="image/*"
+            [disabled]="uploading()"
+            [attr.aria-labelledby]="id() + '-label'"
+            (change)="onFileSelected($event)"
+        />
+    </label>
+
+    @if (error(); as message) {
+        <span class="image-upload__error">
+            <svg lucideCircleAlert class="image-upload__error-icon" aria-hidden="true"></svg>
+            {{ message }}
         </span>
-    }
-
-    @if (error()) {
-        <span class="field__error">{{ error() }}</span>
     }
 </div>
