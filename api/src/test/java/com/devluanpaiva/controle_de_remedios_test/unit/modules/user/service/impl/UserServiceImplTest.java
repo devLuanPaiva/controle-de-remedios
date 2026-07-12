@@ -167,7 +167,7 @@ class UserServiceImplTest {
         }
 
         @ParameterizedTest(name = "should deny a MANAGER creating a {0}")
-        @EnumSource(value = UserRole.class, names = {"USER", "PATIENT"}, mode = EnumSource.Mode.EXCLUDE)
+        @EnumSource(value = UserRole.class, names = "USER", mode = EnumSource.Mode.EXCLUDE)
         @DisplayName("should deny creating a user with a role the actor cannot manage")
         void shouldDenyCreatingUserWithRoleActorCannotManage(UserRole requestedRole) {
             User manager = buildUser(UserRole.MANAGER);

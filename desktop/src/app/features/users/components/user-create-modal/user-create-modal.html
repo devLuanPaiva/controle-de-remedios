@@ -66,14 +66,15 @@
 
             <app-password-field id="create-user-password" [field]="userForm.password" />
 
-            <app-image-upload-field
-                id="create-user-image"
-                label="Foto de perfil (opcional)"
-                context="PROFILE"
-                [ownerName]="model().name"
-                [imageUrl]="model().imageUrl || undefined"
-                (uploaded)="onImageUploaded($event)"
-            />
+            <app-field for="create-user-image" label="Foto de perfil (URL, opcional)">
+                <input
+                    id="create-user-image"
+                    class="input"
+                    type="text"
+                    placeholder="https://..."
+                    [formField]="userForm.imageUrl"
+                />
+            </app-field>
 
             @if (connectedCompany(); as company) {
                 <p class="user-create-modal__hint">

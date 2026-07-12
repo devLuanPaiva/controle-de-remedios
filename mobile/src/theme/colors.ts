@@ -16,7 +16,3 @@ export const Colors = {
     info: "#0EA5E9",
     dark: "#1A1A1A"
 };
-
-export const Gradients = {
-    primary: [Colors.primary, Colors.primaryDark] as const,
-};

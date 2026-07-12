@@ -10,7 +10,6 @@ import { Avatar } from '@shared/ui/avatar/avatar';
 import { RoleBadge } from '@shared/ui/role-badge/role-badge';
 import { Field } from '@shared/ui/field/field';
 import { CpfField } from '@shared/ui/cpf-field/cpf-field';
-import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-field';
 import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
 import { DangerCard } from '@shared/ui/danger-card/danger-card';
 
@@ -24,7 +23,7 @@ import {
 
 @Component({
     selector: 'app-user-edit',
-    imports: [FormField, Avatar, RoleBadge, Field, CpfField, ImageUploadField, ConfirmDialog, DangerCard],
+    imports: [FormField, Avatar, RoleBadge, Field, CpfField, ConfirmDialog, DangerCard],
     templateUrl: './user-edit.html',
     styleUrl: './user-edit.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -106,10 +105,6 @@ export class UserEdit implements OnDestroy {
                 },
             }),
         );
-    }
-
-    onImageUploaded(url: string): void {
-        this.model.update((current) => ({ ...current, imageUrl: url }));
     }
 
     openResetConfirm(): void {
