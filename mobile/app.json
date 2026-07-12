@@ -32,7 +32,13 @@
           "imageWidth": 76
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "O ChegaMed precisa acessar a câmera para fotografar receitas médicas."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
