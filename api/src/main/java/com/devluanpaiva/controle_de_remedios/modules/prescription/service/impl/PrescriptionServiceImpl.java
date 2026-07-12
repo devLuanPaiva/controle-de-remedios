@@ -1,5 +1,6 @@
 package com.devluanpaiva.controle_de_remedios.modules.prescription.service.impl;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -52,7 +53,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
         Prescription prescription = Prescription.builder()
                 .status(PrescriptionStatus.PENDING)
-                .imageUrl(dto.imageUrl())
+                .imageUrls(dto.imageUrls() != null ? new ArrayList<>(dto.imageUrls()) : new ArrayList<>())
                 .issueDate(dto.issueDate())
                 .patient(patient)
                 .build();
@@ -109,8 +110,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             prescription.setStatus(dto.status());
         }
 
-        if (dto.imageUrl() != null) {
-            prescription.setImageUrl(dto.imageUrl());
+        if (dto.imageUrls() != null) {
+            prescription.setImageUrls(new ArrayList<>(dto.imageUrls()));
         }
 
         if (dto.issueDate() != null) {

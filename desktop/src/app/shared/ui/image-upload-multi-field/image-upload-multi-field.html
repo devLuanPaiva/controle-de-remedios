@@ -1,0 +1,55 @@
+<div class="image-upload-multi">
+    <span class="image-upload-multi__label" [attr.id]="id() + '-label'">{{ label() }}</span>
+
+    <div class="image-upload-multi__grid">
+        @for (url of imageUrls(); track url; let i = $index) {
+            <div class="image-upload-multi__item">
+                <img class="image-upload-multi__preview" [src]="url" alt="Imagem {{ i + 1 }} da receita" />
+
+                <button
+                    type="button"
+                    class="image-upload-multi__remove"
+                    [attr.aria-label]="'Remover imagem ' + (i + 1)"
+                    (click)="onRemove(i)"
+                >
+                    <svg lucideX class="image-upload-multi__remove-icon" aria-hidden="true"></svg>
+                </button>
+            </div>
+        }
+
+        <label
+            class="image-upload-multi__dropzone"
+            [for]="id() + '-input'"
+            [class.image-upload-multi__dropzone--dragging]="dragging()"
+            [class.image-upload-multi__dropzone--uploading]="uploading()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+        >
+            @if (uploading()) {
+                <span class="spinner spinner-sm" aria-hidden="true"></span>
+            } @else {
+                <svg lucideImagePlus class="image-upload-multi__icon" aria-hidden="true"></svg>
+            }
+            <span class="image-upload-multi__dropzone-text">Adicionar imagem</span>
+
+            <input
+                [id]="id() + '-input'"
+                class="image-upload-multi__input"
+                type="file"
+                accept="image/*"
+                multiple
+                [disabled]="uploading()"
+                [attr.aria-labelledby]="id() + '-label'"
+                (change)="onFilesSelected($event)"
+            />
+        </label>
+    </div>
+
+    @if (error(); as message) {
+        <span class="image-upload-multi__error">
+            <svg lucideCircleAlert class="image-upload-multi__error-icon" aria-hidden="true"></svg>
+            {{ message }}
+        </span>
+    }
+</div>

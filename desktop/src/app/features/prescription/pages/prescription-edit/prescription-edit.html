@@ -42,12 +42,12 @@
 
                 <app-date-field id="edit-prescription-issue-date" label="Data de emissão" [field]="editForm.issueDate" [max]="maxIssueDate" />
 
-                <app-image-upload-field
+                <app-image-upload-multi-field
                     id="edit-prescription-image"
-                    label="Imagem da receita (opcional)"
+                    label="Imagens da receita (opcional)"
                     context="PRESCRIPTION"
-                    [imageUrl]="model().imageUrl || undefined"
-                    (uploaded)="onImageUploaded($event)"
+                    [imageUrls]="model().imageUrls"
+                    (imagesChanged)="onImagesChanged($event)"
                 />
             </div>
 

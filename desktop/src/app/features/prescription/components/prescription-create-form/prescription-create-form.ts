@@ -3,7 +3,7 @@ import { form, required, validate } from '@angular/forms/signals';
 import { Store } from '@ngrx/store';
 
 import { DateField } from '@shared/ui/date-field/date-field';
-import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-field';
+import { ImageUploadMultiField } from '@shared/ui/image-upload-multi-field/image-upload-multi-field';
 import { IPatient } from '@features/patient/models/patient.model';
 import { isNotFutureDate, toDateInputValue } from '@shared/utils/date.util';
 
@@ -13,7 +13,7 @@ import { selectPrescriptionsMutating } from '../../store/prescription.selectors'
 
 @Component({
     selector: 'app-prescription-create-form',
-    imports: [DateField, ImageUploadField, PatientPicker],
+    imports: [DateField, ImageUploadMultiField, PatientPicker],
     templateUrl: './prescription-create-form.html',
     styleUrl: './prescription-create-form.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,7 +28,7 @@ export class PrescriptionCreateForm {
     readonly model = signal({
         patientId: '',
         issueDate: '',
-        imageUrl: '',
+        imageUrls: [] as string[],
     });
 
     readonly prescriptionForm = form(this.model, (schema) => {
@@ -47,8 +47,8 @@ export class PrescriptionCreateForm {
         this.prescriptionForm.patientId().markAsTouched();
     }
 
-    onImageUploaded(url: string): void {
-        this.model.update((current) => ({ ...current, imageUrl: url }));
+    onImagesChanged(imageUrls: string[]): void {
+        this.model.update((current) => ({ ...current, imageUrls }));
     }
 
     onSubmit(event: Event): void {
@@ -66,7 +66,7 @@ export class PrescriptionCreateForm {
                 payload: {
                     patientId: value.patientId,
                     issueDate: value.issueDate,
-                    imageUrl: value.imageUrl || undefined,
+                    imageUrls: value.imageUrls.length ? value.imageUrls : undefined,
                 },
             }),
         );

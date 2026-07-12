@@ -1,5 +1,7 @@
 package com.devluanpaiva.controle_de_remedios.modules.prescription.mapper;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.devluanpaiva.controle_de_remedios.modules.patient.entity.Patient;
@@ -21,7 +23,7 @@ public class PrescriptionMapper {
         return new PrescriptionResponseDTO(
                 prescription.getId(),
                 prescription.getStatus(),
-                prescription.getImageUrl(),
+                List.copyOf(prescription.getImageUrls()),
                 prescription.getIssueDate(),
                 prescription.getPatient().getId(),
                 prescription.getCreatedAt(),
@@ -32,7 +34,7 @@ public class PrescriptionMapper {
         return new PrescriptionDetailResponseDTO(
                 prescription.getId(),
                 prescription.getStatus(),
-                prescription.getImageUrl(),
+                List.copyOf(prescription.getImageUrls()),
                 prescription.getIssueDate(),
                 prescription.getPatient().getId(),
                 patientMapper.toResponseDTO(prescription.getPatient()),
@@ -46,7 +48,7 @@ public class PrescriptionMapper {
         return new PrescriptionListItemResponseDTO(
                 prescription.getId(),
                 prescription.getStatus(),
-                prescription.getImageUrl(),
+                List.copyOf(prescription.getImageUrls()),
                 prescription.getIssueDate(),
                 patient.getId(),
                 new PrescriptionPatientSummaryDTO(patient.getId(), patient.getName()),

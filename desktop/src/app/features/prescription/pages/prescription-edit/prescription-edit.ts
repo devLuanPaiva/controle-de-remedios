@@ -6,7 +6,7 @@ import { Store } from '@ngrx/store';
 import { map } from 'rxjs';
 
 import { DateField } from '@shared/ui/date-field/date-field';
-import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-field';
+import { ImageUploadMultiField } from '@shared/ui/image-upload-multi-field/image-upload-multi-field';
 import { formatCpf } from '@shared/utils/cpf.util';
 import { isNotFutureDate, toDateInputValue } from '@shared/utils/date.util';
 
@@ -21,7 +21,7 @@ import {
 
 @Component({
     selector: 'app-prescription-edit',
-    imports: [DateField, ImageUploadField],
+    imports: [DateField, ImageUploadMultiField],
     templateUrl: './prescription-edit.html',
     styleUrl: './prescription-edit.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,7 +49,7 @@ export class PrescriptionEdit implements OnDestroy {
     readonly model = signal({
         status: PrescriptionStatus.PENDING,
         issueDate: '',
-        imageUrl: '',
+        imageUrls: [] as string[],
     });
 
     readonly editForm = form(this.model, (schema) => {
@@ -77,7 +77,7 @@ export class PrescriptionEdit implements OnDestroy {
                 this.model.set({
                     status: prescription.status,
                     issueDate: toDateInputValue(prescription.issueDate),
-                    imageUrl: prescription.imageUrl ?? '',
+                    imageUrls: prescription.imageUrls,
                 });
             }
         });
@@ -91,8 +91,8 @@ export class PrescriptionEdit implements OnDestroy {
         this.model.update((current) => ({ ...current, status: status as PrescriptionStatus }));
     }
 
-    onImageUploaded(url: string): void {
-        this.model.update((current) => ({ ...current, imageUrl: url }));
+    onImagesChanged(imageUrls: string[]): void {
+        this.model.update((current) => ({ ...current, imageUrls }));
     }
 
     onSubmit(event: Event): void {
@@ -111,7 +111,7 @@ export class PrescriptionEdit implements OnDestroy {
                 payload: {
                     status: value.status,
                     issueDate: value.issueDate,
-                    imageUrl: value.imageUrl || undefined,
+                    imageUrls: value.imageUrls,
                 },
             }),
         );
