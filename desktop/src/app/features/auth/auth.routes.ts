@@ -34,11 +34,6 @@ export const authRoutes: Routes = [
                 canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER])],
                 loadChildren: () => import('@features/patient/patient.routes').then((m) => m.patientRoutes),
             },
-            {
-                path: 'prescriptions',
-                canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER])],
-                loadChildren: () => import('@features/prescription/prescription.routes').then((m) => m.prescriptionRoutes),
-            },
         ],
     },
 ];

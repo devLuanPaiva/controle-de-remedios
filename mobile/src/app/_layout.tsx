@@ -1,6 +1,5 @@
 import { Stack } from "expo-router";
 import { AuthProvider } from "@/data/contexts/AuthContext";
-import { CompanyProvider } from "@/data/contexts/CompanyContext";
 import { useFonts } from "expo-font";
 
 import {
@@ -29,22 +28,20 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <CompanyProvider>
-        <Stack>
-          <Stack.Screen
-            name="index"
-            options={{ headerShown: false, animation: "none" }}
-          />
-          <Stack.Screen
-            name="(authentication)"
-            options={{ headerShown: false, animation: "none" }}
-          />
-          <Stack.Screen
-            name="(protected)"
-            options={{ headerShown: false, animation: "none" }}
-          />
-        </Stack>
-      </CompanyProvider>
+      <Stack>
+        <Stack.Screen
+          name="index"
+          options={{ headerShown: false, animation: "none" }}
+        />
+        <Stack.Screen
+          name="(authentication)"
+          options={{ headerShown: false, animation: "none" }}
+        />
+        <Stack.Screen
+          name="(protected)"
+          options={{ headerShown: false, animation: "none" }}
+        />
+      </Stack>
     </AuthProvider>
   );
 }

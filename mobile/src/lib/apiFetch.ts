@@ -1,75 +1,39 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { BASE_URL } from "./env";
-import { AUTH_STORAGE_KEYS } from "./storageKeys";
+const base_url = process.env.EXPO_PUBLIC_BASE_URL;
 
-export interface ApiSuccessResponse<T> {
-    success: true;
-    message: string;
-    count: number | null;
-    currentPage: number | null;
-    totalPages: number | null;
-    next: string | null;
-    previous: string | null;
-    data: T;
-}
-
-interface ApiErrorPayload {
+export interface ApiError {
     code: string;
-    field: string;
     detail: string;
 }
 
-interface ApiErrorResponse {
-    status: "error";
+export interface ApiResponse<T> {
+    status: "success" | "error";
     message: string;
-    data: null;
-    errors: ApiErrorPayload | null;
+    data: T | null;
+    count: number;
+    errors: ApiError | null;
 }
 
-export class ApiRequestError extends Error {
-    constructor(
-        message: string,
-        readonly code?: string,
-        readonly field?: string,
-    ) {
-        super(message);
-        this.name = "ApiRequestError";
-    }
-}
+export async function apiFetch(endpoint: string, options: RequestInit = {}) {
+    const access = await AsyncStorage.getItem("@auth:access");
 
-async function readAccessToken(): Promise<string | null> {
-    return AsyncStorage.getItem(AUTH_STORAGE_KEYS.ACCESS);
-}
-
-function buildHeaders(accessToken: string | null, extraHeaders?: HeadersInit): Record<string, string> {
     const headers: Record<string, string> = {
         "Content-Type": "application/json",
-        ...(extraHeaders as Record<string, string> | undefined),
+        ...(options.headers as object),
     };
 
-    if (accessToken) {
-        headers.Authorization = `Bearer ${accessToken}`;
-    }
+    if (access) headers["Authorization"] = `Bearer ${access}`;
 
-    return headers;
-}
-
-function toApiRequestError(errorBody: ApiErrorResponse | null, fallbackMessage: string): ApiRequestError {
-    const message = errorBody?.message || fallbackMessage;
-    return new ApiRequestError(message, errorBody?.errors?.code, errorBody?.errors?.field);
-}
-
-export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<ApiSuccessResponse<T>> {
-    const accessToken = await readAccessToken();
-    const headers = buildHeaders(accessToken, options.headers);
-
-    const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
-    const body = await response.json().catch(() => null);
+    const response = await fetch(`${base_url}${endpoint}`, {
+        ...options,
+        headers,
+    });
 
     if (!response.ok) {
-        throw toApiRequestError(body as ApiErrorResponse | null, "Erro na requisição.");
+        const error = await response.text();
+        throw new Error(error || "Erro na requisição");
     }
 
-    return body as ApiSuccessResponse<T>;
+    return response.json();
 }
