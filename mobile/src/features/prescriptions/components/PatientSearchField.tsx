@@ -46,7 +46,7 @@ export function PatientSearchField({
                 <Search size={18} color={Colors.textSecondary} />
                 <TextInput
                     style={styles.input}
-                    placeholder="Buscar paciente por nome ou CPF"
+                    placeholder="Nome ou CPF do paciente"
                     placeholderTextColor={Colors.textSecondary}
                     value={query}
                     onChangeText={setQuery}
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         fontFamily: Typography.fonts.body,
-        fontSize: Typography.sizes.md,
+        fontSize: Typography.sizes.base,
         color: Colors.text,
         paddingVertical: 0,
     },
