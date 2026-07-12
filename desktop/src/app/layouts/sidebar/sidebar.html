@@ -45,6 +45,18 @@
         </svg>
         <span>Pacientes</span>
     </a>
+
+    <a *hasRole="[UserRole.ADMIN, UserRole.MANAGER]" class="sidebar__link" routerLink="/prescriptions"
+        routerLinkActive="sidebar__link--active" (click)="navigated.emit()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 2h6a1 1 0 0 1 1 1v2H8V3a1 1 0 0 1 1-1Z" />
+            <path d="M8 5H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+            <path d="M8 12h8" />
+            <path d="M8 16h5" />
+        </svg>
+        <span>Receituários</span>
+    </a>
 </nav>
 
 <app-sidebar-user
