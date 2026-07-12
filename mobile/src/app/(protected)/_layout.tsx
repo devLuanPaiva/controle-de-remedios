@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { Home, User } from "lucide-react-native";
 
+import { PrescriptionScanProvider } from "@/data/contexts/PrescriptionScanContext";
 import { Colors, Typography } from "@/theme";
 
 function renderHomeIcon({ color, size }: { color: string; size: number }) {
@@ -13,40 +14,43 @@ function renderProfileIcon({ color, size }: { color: string; size: number }) {
 
 export default function ProtectedLayout() {
     return (
-        <Tabs
-            screenOptions={{
-                headerShown: false,
-                tabBarActiveTintColor: Colors.primary,
-                tabBarInactiveTintColor: Colors.textSecondary,
-                tabBarStyle: {
-                    backgroundColor: Colors.surface,
-                    borderTopColor: Colors.border,
-                    height: 64,
-                    paddingTop: 8,
-                    paddingBottom: 10,
-                },
-                tabBarLabelStyle: {
-                    fontFamily: Typography.fonts.bodyMedium,
-                    fontSize: Typography.sizes.xs,
-                },
-            }}
-        >
-            <Tabs.Screen
-                name="home"
-                options={{
-                    title: "Início",
-                    tabBarIcon: renderHomeIcon,
-                    tabBarAccessibilityLabel: "Início",
+        <PrescriptionScanProvider>
+            <Tabs
+                screenOptions={{
+                    headerShown: false,
+                    tabBarActiveTintColor: Colors.primary,
+                    tabBarInactiveTintColor: Colors.textSecondary,
+                    tabBarStyle: {
+                        backgroundColor: Colors.surface,
+                        borderTopColor: Colors.border,
+                        height: 64,
+                        paddingTop: 8,
+                        paddingBottom: 10,
+                    },
+                    tabBarLabelStyle: {
+                        fontFamily: Typography.fonts.bodyMedium,
+                        fontSize: Typography.sizes.xs,
+                    },
                 }}
-            />
-            <Tabs.Screen
-                name="profile"
-                options={{
-                    title: "Perfil",
-                    tabBarIcon: renderProfileIcon,
-                    tabBarAccessibilityLabel: "Perfil",
-                }}
-            />
-        </Tabs>
+            >
+                <Tabs.Screen
+                    name="home"
+                    options={{
+                        title: "Início",
+                        tabBarIcon: renderHomeIcon,
+                        tabBarAccessibilityLabel: "Início",
+                    }}
+                />
+                <Tabs.Screen
+                    name="profile"
+                    options={{
+                        title: "Perfil",
+                        tabBarIcon: renderProfileIcon,
+                        tabBarAccessibilityLabel: "Perfil",
+                    }}
+                />
+                <Tabs.Screen name="prescriptions" options={{ href: null }} />
+            </Tabs>
+        </PrescriptionScanProvider>
     );
 }
