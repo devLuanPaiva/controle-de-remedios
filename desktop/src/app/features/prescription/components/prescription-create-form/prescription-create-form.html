@@ -16,7 +16,13 @@
             [max]="maxIssueDate"
         />
 
-        <app-image-upload-field id="create-prescription-image" label="Imagem da receita (opcional)" (uploaded)="onImageUploaded($event)" />
+        <app-image-upload-field
+            id="create-prescription-image"
+            label="Imagem da receita (opcional)"
+            context="PRESCRIPTION"
+            [imageUrl]="model().imageUrl || undefined"
+            (uploaded)="onImageUploaded($event)"
+        />
     </div>
 
     <div class="card-footer">

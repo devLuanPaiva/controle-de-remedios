@@ -45,6 +45,7 @@
                 <app-image-upload-field
                     id="edit-prescription-image"
                     label="Imagem da receita (opcional)"
+                    context="PRESCRIPTION"
                     [imageUrl]="model().imageUrl || undefined"
                     (uploaded)="onImageUploaded($event)"
                 />

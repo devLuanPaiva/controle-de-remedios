@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { environment } from '@environments/environment';
 import { ApiResponse } from '@shared/models/api-response.model';
-import { PresignedUploadRequest, PresignedUploadResponse } from '@shared/models/presigned-upload.model';
+import { PresignedUploadRequest, PresignedUploadResponse, UploadContext } from '@shared/models/presigned-upload.model';
 
 @Injectable({
     providedIn: 'root',
@@ -14,10 +14,12 @@ export class FileUploadService {
 
     private readonly apiUrl = signal(environment.api_url);
 
-    async uploadImage(file: File): Promise<string> {
+    async uploadImage(file: File, context: UploadContext, ownerName?: string): Promise<string> {
         const payload: PresignedUploadRequest = {
             fileName: file.name,
             contentType: file.type,
+            context,
+            ownerName,
         };
 
         const presigned = await firstValueFrom(
