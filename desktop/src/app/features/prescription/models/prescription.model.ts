@@ -24,7 +24,7 @@ export interface IPrescriptionPatientSummary {
 export interface IPrescription {
     id: string;
     status: PrescriptionStatus;
-    imageUrl?: string;
+    imageUrls: string[];
     issueDate: Date;
     patientId: string;
     createdAt: Date;

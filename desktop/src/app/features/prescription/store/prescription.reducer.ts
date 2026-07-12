@@ -93,7 +93,7 @@ export const prescriptionReducer = createReducer(
                 ? {
                       ...item,
                       status: prescription.status,
-                      imageUrl: prescription.imageUrl,
+                      imageUrls: prescription.imageUrls,
                       issueDate: prescription.issueDate,
                       updatedAt: prescription.updatedAt,
                   }
@@ -104,7 +104,7 @@ export const prescriptionReducer = createReducer(
                 ? {
                       ...state.selectedPrescription,
                       status: prescription.status,
-                      imageUrl: prescription.imageUrl,
+                      imageUrls: prescription.imageUrls,
                       issueDate: prescription.issueDate,
                       updatedAt: prescription.updatedAt,
                   }

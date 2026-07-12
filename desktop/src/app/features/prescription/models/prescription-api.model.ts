@@ -11,7 +11,7 @@ import {
 export interface PrescriptionApiDto {
     id: string;
     status: PrescriptionStatus;
-    imageUrl: string | null;
+    imageUrls: string[] | null;
     issueDate: string;
     patientId: string;
     createdAt: string;
@@ -27,14 +27,14 @@ export interface PrescriptionDetailApiDto extends PrescriptionApiDto {
 }
 
 export interface CreatePrescriptionRequest {
-    imageUrl?: string;
+    imageUrls?: string[];
     issueDate: string;
     patientId: string;
 }
 
 export interface UpdatePrescriptionRequest {
     status?: PrescriptionStatus;
-    imageUrl?: string;
+    imageUrls?: string[];
     issueDate?: string;
 }
 
@@ -59,7 +59,7 @@ export function toPrescription(dto: PrescriptionApiDto): IPrescription {
     return {
         id: dto.id,
         status: dto.status,
-        imageUrl: dto.imageUrl ?? undefined,
+        imageUrls: dto.imageUrls ?? [],
         issueDate: new Date(dto.issueDate),
         patientId: dto.patientId,
         createdAt: new Date(dto.createdAt),
