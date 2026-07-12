@@ -7,9 +7,12 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -37,8 +40,13 @@ public class Prescription {
     @Column(nullable = false, columnDefinition = "prescription_status")
     private PrescriptionStatus status;
 
-    @Column(nullable = true, length = 255, name = "image_url")
-    private String imageUrl;
+    @ElementCollection
+    @CollectionTable(name = "prescription_images", joinColumns = @JoinColumn(name = "prescription_id"))
+    @OrderColumn(name = "position")
+    @Column(name = "image_url", length = 255, nullable = false)
+    @BatchSize(size = 50)
+    @Builder.Default
+    private List<String> imageUrls = new ArrayList<>();
 
     @Column(nullable = false, name = "issue_date")
     private LocalDate issueDate;
