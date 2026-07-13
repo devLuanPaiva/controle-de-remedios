@@ -18,7 +18,9 @@ import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.entity.PrescriptionItem;
 
 @Entity
-@Table(name = "medicines")
+@Table(name = "medicines", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_medicines_company_ean_code", columnNames = { "company_id", "ean_code" })
+})
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
@@ -33,7 +35,7 @@ public class Medicine {
     @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(nullable = false, length = 14, name = "ean_code")
+    @Column(length = 14, name = "ean_code")
     private String eanCode;
 
     @Column(nullable = false, length = 200, name = "image_url")

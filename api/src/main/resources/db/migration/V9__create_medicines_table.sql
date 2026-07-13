@@ -1,7 +1,7 @@
 CREATE TABLE medicines (
     id UUID PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
-    ean_code VARCHAR(14) NOT NULL,
+    ean_code VARCHAR(14),
     image_url VARCHAR(200) NOT NULL,
     company_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -10,7 +10,10 @@ CREATE TABLE medicines (
     CONSTRAINT fk_medicines_company
         FOREIGN KEY (company_id)
         REFERENCES companies(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+
+    CONSTRAINT uk_medicines_company_ean_code
+        UNIQUE (company_id, ean_code)
 );
 
 ALTER TABLE prescription_items
