@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.type.SqlTypes;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -71,10 +70,10 @@ public class PrescriptionItem {
     @Column(nullable = false)
     private Integer treatmentDays;
 
-    @Column(nullable = false, length = 200)
+    @Column(length = 200)
     private String observations;
 
-    @Column(nullable = false, name = "start_date")
+    @Column(name = "start_date")
     private LocalDate startDate;
 
     @Column(nullable = false, name = "received_quantity")
@@ -85,7 +84,7 @@ public class PrescriptionItem {
 
     @Column(name = "requested_at")
     private LocalDateTime requestedAt;
-    
+
     @CreatedDate
     @Column(nullable = false, updatable = false, name = "created_at")
     private LocalDateTime createdAt;
