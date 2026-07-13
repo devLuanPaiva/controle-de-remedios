@@ -2,16 +2,22 @@ package com.devluanpaiva.controle_de_remedios.modules.prescription_item.mapper;
 
 import org.springframework.stereotype.Component;
 
+import com.devluanpaiva.controle_de_remedios.modules.medicine.mapper.MedicineMapper;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.PrescriptionItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.entity.PrescriptionItem;
 
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class PrescriptionItemMapper {
+    private final MedicineMapper medicineMapper;
 
     public PrescriptionItemResponseDTO toResponseDTO(PrescriptionItem item) {
         return new PrescriptionItemResponseDTO(
                 item.getId(),
                 item.getPrescription().getId(),
+                medicineMapper.toResponseDTO(item.getMedicine()),
                 item.getStatus(),
                 item.getDosage(),
                 item.getPrescribedQuantity(),
