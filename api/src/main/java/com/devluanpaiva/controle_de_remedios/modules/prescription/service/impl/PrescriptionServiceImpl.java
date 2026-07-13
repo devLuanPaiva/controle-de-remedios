@@ -10,8 +10,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.service.MedicineResolutionService;
 import com.devluanpaiva.controle_de_remedios.modules.patient.entity.Patient;
 import com.devluanpaiva.controle_de_remedios.modules.patient.repository.PatientRepository;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.dto.CreatePrescriptionRequestDTO;
@@ -26,6 +31,7 @@ import com.devluanpaiva.controle_de_remedios.modules.prescription.filter.Prescri
 import com.devluanpaiva.controle_de_remedios.modules.prescription.mapper.PrescriptionMapper;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.repository.PrescriptionRepository;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.service.PrescriptionService;
+import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.CreatePrescriptionItemMedicineRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.CreatePrescriptionItemRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.entity.PrescriptionItem;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
@@ -42,6 +48,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final PrescriptionRepository prescriptionRepository;
     private final PatientRepository patientRepository;
     private final CompanyRepository companyRepository;
+    private final MedicineRepository medicineRepository;
+    private final MedicineResolutionService medicineResolutionService;
     private final PrescriptionMapper prescriptionMapper;
     private final SecurityContextHelper securityContextHelper;
     private final AuthorizationPolicy authorizationPolicy;
@@ -62,7 +70,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .build();
 
         List<PrescriptionItem> items = dto.items().stream()
-                .map(itemDto -> buildPrescriptionItem(itemDto, prescription))
+                .map(itemDto -> buildPrescriptionItem(itemDto, prescription, patient.getCompany()))
                 .toList();
         prescription.getItems().addAll(items);
 
@@ -70,9 +78,13 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         return prescriptionMapper.toResponseDTO(savedPrescription);
     }
 
-    private PrescriptionItem buildPrescriptionItem(CreatePrescriptionItemRequestDTO dto, Prescription prescription) {
+    private PrescriptionItem buildPrescriptionItem(
+            CreatePrescriptionItemRequestDTO dto, Prescription prescription, Company company) {
+        Medicine medicine = resolveMedicine(dto, company);
+
         return PrescriptionItem.builder()
                 .prescription(prescription)
+                .medicine(medicine)
                 .status(PrescriptionStatus.PENDING)
                 .dosage(dto.dosage())
                 .prescribedQuantity(dto.prescribedQuantity())
@@ -84,6 +96,46 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .receivedQuantity(0)
                 .deliveredQuantity(0)
                 .build();
+    }
+
+    private Medicine resolveMedicine(CreatePrescriptionItemRequestDTO dto, Company company) {
+        if (dto.medicineId() != null) {
+            return findMedicineOrThrow(dto.medicineId(), company.getId());
+        }
+
+        if (dto.medicine() == null || !StringUtils.hasText(dto.medicine().name())) {
+            throw new BusinessException(
+                    HttpStatus.UNPROCESSABLE_CONTENT,
+                    "Medicamento inválido",
+                    "MEDICINE_REQUIRED",
+                    "medicineId",
+                    "Informe o ID de um medicamento existente ou os dados para cadastrar um novo.");
+        }
+
+        CreatePrescriptionItemMedicineRequestDTO medicine = dto.medicine();
+        return medicineResolutionService.resolveOrCreate(
+                company, medicine.name(), medicine.eanCode(), medicine.imageUrl());
+    }
+
+    private Medicine findMedicineOrThrow(UUID id, UUID companyId) {
+        Medicine medicine = medicineRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        HttpStatus.NOT_FOUND,
+                        "Medicamento não encontrado",
+                        "MEDICINE_NOT_FOUND",
+                        "medicine.id",
+                        "Não foi possível encontrar um medicamento com o ID '" + id + "'."));
+
+        if (!medicine.getCompany().getId().equals(companyId)) {
+            throw new BusinessException(
+                    HttpStatus.UNPROCESSABLE_CONTENT,
+                    "Medicamento inválido",
+                    "MEDICINE_COMPANY_MISMATCH",
+                    "medicine.id",
+                    "O medicamento informado não pertence à empresa do paciente.");
+        }
+
+        return medicine;
     }
 
     @Override
