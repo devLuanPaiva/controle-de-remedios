@@ -29,6 +29,7 @@ public class StorageServiceImpl implements StorageService {
 
     private static final String PROFILES_PREFIX = "profiles/";
     private static final String PRESCRIPTIONS_PREFIX = "prescriptions/";
+    private static final String MEDICINES_PREFIX = "medicines/";
 
     private static final String RANDOM_KEY_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
     private static final int RANDOM_KEY_LENGTH = 6;
@@ -99,6 +100,7 @@ public class StorageServiceImpl implements StorageService {
         return switch (dto.context()) {
             case PROFILE -> PROFILES_PREFIX + slugify(requireOwnerName(dto)) + "-" + randomKey + extension;
             case PRESCRIPTION -> PRESCRIPTIONS_PREFIX + "prescription-" + randomKey + extension;
+            case MEDICINE -> MEDICINES_PREFIX + slugify(requireOwnerName(dto)) + "-" + randomKey + extension;
         };
     }
 
