@@ -15,6 +15,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.entity.Prescription;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.enums.PrescriptionStatus;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.enums.FrequencyType;
@@ -37,6 +38,10 @@ public class PrescriptionItem {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "prescription_id", nullable = false)
     private Prescription prescription;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "medicine_id", nullable = false)
+    private Medicine medicine;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
