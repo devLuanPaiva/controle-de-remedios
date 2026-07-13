@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.MedicineResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.enums.PrescriptionStatus;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.enums.FrequencyType;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.enums.TreatmentType;
@@ -12,6 +13,7 @@ import com.devluanpaiva.controle_de_remedios.modules.prescription_item.enums.Uni
 public record PrescriptionItemResponseDTO(
         UUID id,
         UUID prescriptionId,
+        MedicineResponseDTO medicine,
         PrescriptionStatus status,
         String dosage,
         Integer prescribedQuantity,
