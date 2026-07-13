@@ -1,6 +1,7 @@
 package com.devluanpaiva.controle_de_remedios.modules.prescription.service.impl;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -25,6 +26,8 @@ import com.devluanpaiva.controle_de_remedios.modules.prescription.filter.Prescri
 import com.devluanpaiva.controle_de_remedios.modules.prescription.mapper.PrescriptionMapper;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.repository.PrescriptionRepository;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.service.PrescriptionService;
+import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.CreatePrescriptionItemRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.prescription_item.entity.PrescriptionItem;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
 import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
 import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
@@ -58,8 +61,29 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .patient(patient)
                 .build();
 
+        List<PrescriptionItem> items = dto.items().stream()
+                .map(itemDto -> buildPrescriptionItem(itemDto, prescription))
+                .toList();
+        prescription.getItems().addAll(items);
+
         Prescription savedPrescription = prescriptionRepository.save(prescription);
         return prescriptionMapper.toResponseDTO(savedPrescription);
+    }
+
+    private PrescriptionItem buildPrescriptionItem(CreatePrescriptionItemRequestDTO dto, Prescription prescription) {
+        return PrescriptionItem.builder()
+                .prescription(prescription)
+                .status(PrescriptionStatus.PENDING)
+                .dosage(dto.dosage())
+                .prescribedQuantity(dto.prescribedQuantity())
+                .unityType(dto.unityType())
+                .frequency(dto.frequency())
+                .frequencyType(dto.frequencyType())
+                .treatmentType(dto.treatmentType())
+                .treatmentDays(dto.treatmentDays())
+                .receivedQuantity(0)
+                .deliveredQuantity(0)
+                .build();
     }
 
     @Override
