@@ -1,0 +1,136 @@
+<section class="prescription-view">
+    <header class="prescription-view__header">
+        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">&larr; Voltar</button>
+        <h1 class="prescription-view__title">Receituário</h1>
+
+        @if (prescription()) {
+            <div class="prescription-view__header-actions">
+                <button type="button" class="btn btn-outline btn-sm" (click)="goToEdit()">Editar</button>
+                <button type="button" class="btn btn-danger btn-sm" (click)="openDeleteConfirm()">Excluir</button>
+            </div>
+        }
+    </header>
+
+    @if (loading()) {
+        <div class="loading prescription-view__state">
+            <output class="spinner" aria-label="Carregando receituário"></output>
+        </div>
+    } @else if (!prescription()) {
+        <div class="prescription-view__state prescription-view__state--error">
+            <p>{{ error() ?? 'Receituário não encontrado.' }}</p>
+        </div>
+    } @else {
+        <div class="prescription-view__patient card">
+            <div class="card-body prescription-view__patient-body">
+                <div class="prescription-view__patient-info">
+                    <span class="prescription-view__patient-name">{{ prescription()!.patient.name }}</span>
+                    <span class="prescription-view__patient-detail">
+                        Nascimento: {{ prescription()!.patient.birthDate | date: 'dd/MM/yyyy' }}
+                    </span>
+                    <span class="prescription-view__patient-detail">CPF: {{ formatCpf(prescription()!.patient.cpf) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="prescription-view__info card">
+            <div class="card-body prescription-view__info-body">
+                <app-prescription-status-badge [status]="prescription()!.status" />
+                <span class="prescription-view__info-detail">
+                    Emitida em {{ prescription()!.issueDate | date: 'dd/MM/yyyy' }}
+                </span>
+            </div>
+
+            @if (prescription()!.imageUrls.length > 0) {
+                <div class="card-body prescription-view__images">
+                    @for (imageUrl of prescription()!.imageUrls; track imageUrl) {
+                        <a [href]="imageUrl" target="_blank" rel="noopener">
+                            <img class="prescription-view__image-thumb" [src]="imageUrl" alt="Imagem da receita" />
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+
+        <section class="prescription-view__items">
+            <div class="prescription-view__items-header">
+                <h2 class="prescription-view__items-title">Itens do receituário</h2>
+                <app-view-toggle [value]="viewMode()" (valueChange)="onViewModeChange($event)" />
+            </div>
+
+            @if (viewMode() === 'cards') {
+                <div class="prescription-view__items-grid">
+                    @for (item of prescription()!.items; track item.id) {
+                        <div class="prescription-view__item-card card">
+                            <div class="card-header prescription-view__item-card-header">
+                                @if (item.medicine.imageUrl) {
+                                    <img class="prescription-view__item-image" [src]="item.medicine.imageUrl" [alt]="item.medicine.name" />
+                                }
+
+                                <div class="prescription-view__item-medicine-info">
+                                    <span class="prescription-view__item-medicine-name">{{ item.medicine.name }}</span>
+                                    <span class="prescription-view__item-medicine-ean">EAN: {{ item.medicine.eanCode ?? '—' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="card-body prescription-view__item-card-body">
+                                <app-prescription-status-badge [status]="item.status" />
+                                <span>Dosagem: {{ item.dosage }}</span>
+                                <span>Quantidade: {{ item.prescribedQuantity }} {{ UnityTypeLabels[item.unityType] }}</span>
+                                <span>Frequência: {{ item.frequency }}x {{ FrequencyTypeLabels[item.frequencyType] }}</span>
+                                <span>Tratamento: {{ TreatmentTypeLabels[item.treatmentType] }} ({{ item.treatmentDays }} dias)</span>
+                            </div>
+                        </div>
+                    } @empty {
+                        <p class="prescription-view__items-empty">Nenhum item cadastrado.</p>
+                    }
+                </div>
+            } @else {
+                <div class="table-responsive">
+                    <table class="table prescription-view__items-table">
+                        <thead>
+                            <tr>
+                                <th>Medicamento</th>
+                                <th>Dosagem</th>
+                                <th>Quantidade</th>
+                                <th>Frequência</th>
+                                <th>Tratamento</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (item of prescription()!.items; track item.id) {
+                                <tr>
+                                    <td data-label="Medicamento">
+                                        {{ item.medicine.name }} ({{ item.medicine.eanCode ?? 'sem EAN' }})
+                                    </td>
+                                    <td data-label="Dosagem">{{ item.dosage }}</td>
+                                    <td data-label="Quantidade">{{ item.prescribedQuantity }} {{ UnityTypeLabels[item.unityType] }}</td>
+                                    <td data-label="Frequência">{{ item.frequency }}x {{ FrequencyTypeLabels[item.frequencyType] }}</td>
+                                    <td data-label="Tratamento">{{ TreatmentTypeLabels[item.treatmentType] }} ({{ item.treatmentDays }}d)</td>
+                                    <td data-label="Status"><app-prescription-status-badge [status]="item.status" /></td>
+                                </tr>
+                            } @empty {
+                                <tr>
+                                    <td colspan="6">Nenhum item cadastrado.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    }
+</section>
+
+@if (showDeleteConfirm()) {
+    <app-confirm-dialog
+        titleId="delete-prescription-confirm-title"
+        titleText="Confirmar exclusão"
+        message="Tem certeza que deseja excluir este receituário? Esta ação não pode ser desfeita."
+        confirmLabel="Excluir"
+        confirmVariant="danger"
+        (confirmed)="confirmDelete()"
+        (closed)="onDeleteConfirmClosed()"
+    />
+}
