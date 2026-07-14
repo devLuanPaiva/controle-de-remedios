@@ -1,0 +1,111 @@
+<div class="item-row card">
+    <div class="card-body item-row__body">
+        <div class="item-row__header">
+            <span class="item-row__title">Item {{ index() + 1 }}</span>
+
+            @if (canRemove()) {
+                <button type="button" class="btn btn-outline btn-sm" (click)="onRemove()">Remover item</button>
+            }
+        </div>
+
+        <app-medicine-picker (medicineSelected)="onMedicineSelected($event)" (cleared)="onMedicineCleared()" />
+
+        <div class="item-row__grid">
+            <div class="field">
+                <label class="field__label" for="item-{{ index() }}-dosage">Dosagem</label>
+                <input
+                    id="item-{{ index() }}-dosage"
+                    #dosageInput
+                    type="text"
+                    class="input"
+                    [value]="model().dosage"
+                    (input)="onDosageChange(dosageInput.value)"
+                />
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-{{ index() }}-prescribed-quantity">Quantidade prescrita</label>
+                <input
+                    id="item-{{ index() }}-prescribed-quantity"
+                    #prescribedQuantityInput
+                    type="number"
+                    min="1"
+                    class="input"
+                    [value]="model().prescribedQuantity"
+                    (input)="onPrescribedQuantityChange(prescribedQuantityInput.value)"
+                />
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-{{ index() }}-unity-type">Unidade</label>
+                <select
+                    id="item-{{ index() }}-unity-type"
+                    #unityTypeSelect
+                    class="input"
+                    [value]="model().unityType"
+                    (change)="onUnityTypeChange(unityTypeSelect.value)"
+                >
+                    @for (unity of unityOptions; track unity) {
+                        <option [value]="unity">{{ UnityTypeLabels[unity] }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-{{ index() }}-frequency">Frequência</label>
+                <input
+                    id="item-{{ index() }}-frequency"
+                    #frequencyInput
+                    type="number"
+                    min="1"
+                    class="input"
+                    [value]="model().frequency"
+                    (input)="onFrequencyChange(frequencyInput.value)"
+                />
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-{{ index() }}-frequency-type">Tipo de frequência</label>
+                <select
+                    id="item-{{ index() }}-frequency-type"
+                    #frequencyTypeSelect
+                    class="input"
+                    [value]="model().frequencyType"
+                    (change)="onFrequencyTypeChange(frequencyTypeSelect.value)"
+                >
+                    @for (frequencyType of frequencyOptions; track frequencyType) {
+                        <option [value]="frequencyType">{{ FrequencyTypeLabels[frequencyType] }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-{{ index() }}-treatment-type">Tipo de tratamento</label>
+                <select
+                    id="item-{{ index() }}-treatment-type"
+                    #treatmentTypeSelect
+                    class="input"
+                    [value]="model().treatmentType"
+                    (change)="onTreatmentTypeChange(treatmentTypeSelect.value)"
+                >
+                    @for (treatmentType of treatmentOptions; track treatmentType) {
+                        <option [value]="treatmentType">{{ TreatmentTypeLabels[treatmentType] }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-{{ index() }}-treatment-days">Dias de tratamento</label>
+                <input
+                    id="item-{{ index() }}-treatment-days"
+                    #treatmentDaysInput
+                    type="number"
+                    min="1"
+                    class="input"
+                    [value]="model().treatmentDays"
+                    (input)="onTreatmentDaysChange(treatmentDaysInput.value)"
+                />
+            </div>
+        </div>
+    </div>
+</div>

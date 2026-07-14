@@ -38,6 +38,11 @@ import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanyFilte
 import com.devluanpaiva.controle_de_remedios.modules.company.mapper.CompanyMapper;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
 import com.devluanpaiva.controle_de_remedios.modules.company.service.impl.CompanyServiceImpl;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.MedicineResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.filter.MedicineFilter;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.mapper.MedicineMapper;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
 import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
@@ -65,6 +70,9 @@ class CompanyServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
+    private MedicineRepository medicineRepository;
+
+    @Mock
     private SecurityContextHelper securityContextHelper;
 
     private CompanyServiceImpl companyService;
@@ -72,8 +80,8 @@ class CompanyServiceImplTest {
     @BeforeEach
     void setUp() {
         companyService = new CompanyServiceImpl(
-                companyRepository, userRepository, new CompanyMapper(), new UserMapper(),
-                securityContextHelper, new AuthorizationPolicy());
+                companyRepository, userRepository, medicineRepository, new CompanyMapper(), new UserMapper(),
+                new MedicineMapper(), securityContextHelper, new AuthorizationPolicy());
     }
 
     private Company buildCompany() {
@@ -617,6 +625,110 @@ class CompanyServiceImplTest {
             when(companyRepository.findById(id)).thenReturn(Optional.empty());
 
             assertNotFound(() -> companyService.getCompanyUsers(id, pageable), "COMPANY_NOT_FOUND");
+        }
+    }
+
+    @Nested
+    @DisplayName("getCompanyMedicines")
+    class GetCompanyMedicines {
+
+        private final MedicineFilter noFilter = new MedicineFilter(null, null);
+
+        private Medicine buildMedicine(Company company) {
+            return Medicine.builder()
+                    .id(UUID.randomUUID())
+                    .name("Dipirona")
+                    .eanCode("7891234567895")
+                    .imageUrl("https://example.com/dipirona.png")
+                    .company(company)
+                    .build();
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("should allow an ADMIN to list medicines of any company")
+        void shouldAllowAdminToListMedicinesOfAnyCompany() {
+            User admin = buildUser(UserRole.ADMIN);
+            Company company = buildCompany();
+            Pageable pageable = PageRequest.of(0, 20);
+            Page<Medicine> page = new PageImpl<>(List.of(buildMedicine(company)), pageable, 1);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+            when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
+            when(medicineRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
+
+            Page<MedicineResponseDTO> result = companyService.getCompanyMedicines(company.getId(), noFilter, pageable);
+
+            assertThat(result.getTotalElements()).isEqualTo(1);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("should allow a member to list medicines of their own company")
+        void shouldAllowMemberToListMedicinesOfOwnCompany() {
+            User manager = buildUser(UserRole.MANAGER);
+            Company company = buildCompany();
+            Pageable pageable = PageRequest.of(0, 20);
+            Page<Medicine> page = new PageImpl<>(List.of(), pageable, 0);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(manager);
+            when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
+            when(companyRepository.existsByIdAndUsers_Id(company.getId(), manager.getId())).thenReturn(true);
+            when(medicineRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
+
+            Page<MedicineResponseDTO> result = companyService.getCompanyMedicines(company.getId(), noFilter, pageable);
+
+            assertThat(result.getContent()).isEmpty();
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("should deny a non-member from listing the company's medicines")
+        void shouldDenyNonMemberFromListingCompanyMedicines() {
+            User manager = buildUser(UserRole.MANAGER);
+            Company company = buildCompany();
+            Pageable pageable = PageRequest.of(0, 20);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(manager);
+            when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
+            when(companyRepository.existsByIdAndUsers_Id(company.getId(), manager.getId())).thenReturn(false);
+
+            assertForbidden(() -> companyService.getCompanyMedicines(company.getId(), noFilter, pageable));
+
+            verify(medicineRepository, never()).findAll(any(Specification.class), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("should throw 404 when the company does not exist")
+        void shouldThrowNotFoundWhenCompanyDoesNotExist() {
+            User admin = buildUser(UserRole.ADMIN);
+            UUID id = UUID.randomUUID();
+            Pageable pageable = PageRequest.of(0, 20);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+            when(companyRepository.findById(id)).thenReturn(Optional.empty());
+
+            assertNotFound(() -> companyService.getCompanyMedicines(id, noFilter, pageable), "COMPANY_NOT_FOUND");
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("should filter by name and eanCode when provided")
+        void shouldFilterByNameAndEanCodeWhenProvided() {
+            User admin = buildUser(UserRole.ADMIN);
+            Company company = buildCompany();
+            Pageable pageable = PageRequest.of(0, 20);
+            Page<Medicine> page = new PageImpl<>(List.of(buildMedicine(company)), pageable, 1);
+            MedicineFilter filter = new MedicineFilter("Dipirona", "7891234567895");
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+            when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
+            when(medicineRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
+
+            Page<MedicineResponseDTO> result = companyService.getCompanyMedicines(company.getId(), filter, pageable);
+
+            assertThat(result.getTotalElements()).isEqualTo(1);
+            verify(medicineRepository).findAll(any(Specification.class), eq(pageable));
         }
     }
 

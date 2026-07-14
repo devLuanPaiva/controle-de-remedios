@@ -55,3 +55,13 @@
     flex-direction: column;
     gap: var(--space-4);
 }
+
+.prescription-edit__items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.prescription-edit__items-title {
+    font-size: var(--text-xl);
+}
