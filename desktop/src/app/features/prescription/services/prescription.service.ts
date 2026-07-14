@@ -18,6 +18,12 @@ import {
     UpdatePrescriptionRequest,
 } from '../models/prescription-api.model';
 import { IPrescription, IPrescriptionDetail } from '../models/prescription.model';
+import {
+    PrescriptionItemApiDto,
+    toPrescriptionItem,
+    UpdatePrescriptionItemRequest,
+} from '../models/prescription-item-api.model';
+import { IPrescriptionItem } from '../models/prescription-item.model';
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -84,5 +90,11 @@ export class PrescriptionService {
         return this.http
             .delete<ApiResponse<null>>(`${this.apiUrl()}/prescriptions/${id}`)
             .pipe(map(() => undefined));
+    }
+
+    updatePrescriptionItem(id: string, payload: UpdatePrescriptionItemRequest): Observable<IPrescriptionItem> {
+        return this.http
+            .patch<ApiResponse<PrescriptionItemApiDto>>(`${this.apiUrl()}/prescription-items/${id}`, payload)
+            .pipe(map((response) => toPrescriptionItem(response.data)));
     }
 }

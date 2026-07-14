@@ -97,6 +97,9 @@
                                 <td data-label="Data de emissão">{{ prescription.issueDate | date: 'dd/MM/yyyy' }}</td>
                                 <td data-label="Status"><app-prescription-status-badge [status]="prescription.status" /></td>
                                 <td data-label="Ações" class="prescription-list__col-actions">
+                                    <a class="btn btn-outline btn-sm" [routerLink]="['/prescriptions', prescription.id]">
+                                        Ver
+                                    </a>
                                     <a class="btn btn-outline btn-sm" [routerLink]="['/prescriptions', prescription.id, 'edit']">
                                         Editar
                                     </a>

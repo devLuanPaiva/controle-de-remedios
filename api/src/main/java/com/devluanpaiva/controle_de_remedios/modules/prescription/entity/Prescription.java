@@ -21,6 +21,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.devluanpaiva.controle_de_remedios.modules.patient.entity.Patient;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.enums.PrescriptionStatus;
+import com.devluanpaiva.controle_de_remedios.modules.prescription_item.entity.PrescriptionItem;
 
 @Entity
 @Table(name = "prescriptions")
@@ -54,6 +55,11 @@ public class Prescription {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
+
+    @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @BatchSize(size = 50)
+    @Builder.Default
+    private List<PrescriptionItem> items = new ArrayList<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false, name = "created_at")

@@ -6,6 +6,8 @@ import {
     UpdatePrescriptionRequest,
 } from '../models/prescription-api.model';
 import { IPrescription, IPrescriptionDetail, IPrescriptionListItem } from '../models/prescription.model';
+import { UpdatePrescriptionItemRequest } from '../models/prescription-item-api.model';
+import { IPrescriptionItem } from '../models/prescription-item.model';
 
 export const loadPrescriptions = createAction(
     '[Prescriptions] Load Prescriptions',
@@ -91,4 +93,19 @@ export const deletePrescriptionFailure = createAction(
 
 export const clearSelectedPrescription = createAction(
     '[Prescriptions] Clear Selected Prescription',
+);
+
+export const updatePrescriptionItem = createAction(
+    '[Prescriptions] Update Prescription Item',
+    props<{ id: string; payload: UpdatePrescriptionItemRequest }>(),
+);
+
+export const updatePrescriptionItemSuccess = createAction(
+    '[Prescriptions] Update Prescription Item Success',
+    props<{ item: IPrescriptionItem }>(),
+);
+
+export const updatePrescriptionItemFailure = createAction(
+    '[Prescriptions] Update Prescription Item Failure',
+    props<{ id: string; message: string }>(),
 );

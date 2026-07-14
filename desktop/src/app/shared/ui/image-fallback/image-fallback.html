@@ -1,0 +1,17 @@
+@if (showImage()) {
+    <img [src]="src()" [alt]="alt()" (error)="onError()" />
+} @else {
+    <span class="image-fallback__placeholder" role="img" [attr.aria-label]="alt() || 'Sem imagem'">
+        @switch (icon()) {
+            @case ('medicine') {
+                <svg lucidePill class="image-fallback__icon" aria-hidden="true"></svg>
+            }
+            @case ('prescription') {
+                <svg lucideFileText class="image-fallback__icon" aria-hidden="true"></svg>
+            }
+            @default {
+                <svg lucideImageOff class="image-fallback__icon" aria-hidden="true"></svg>
+            }
+        }
+    </span>
+}
