@@ -1,0 +1,110 @@
+<div class="medicine-picker">
+    @if (selection(); as current) {
+        <div class="medicine-picker__selected">
+            @if (current.type === 'existing') {
+                <p>
+                    Medicamento selecionado: <strong>{{ current.medicine.name }}</strong>
+                    @if (current.medicine.eanCode) {
+                        (EAN {{ current.medicine.eanCode }})
+                    }
+                </p>
+            } @else {
+                <p>Novo medicamento: <strong>{{ current.name }}</strong></p>
+            }
+
+            <button type="button" class="btn btn-outline btn-sm" (click)="clearSelection()">Trocar medicamento</button>
+        </div>
+    } @else {
+        <div class="medicine-picker__search">
+            <input
+                #searchBox
+                type="search"
+                class="input"
+                placeholder="Buscar medicamento por nome ou EAN"
+                aria-label="Buscar medicamento"
+                [value]="searchTerm()"
+                (input)="onSearchTermChange(searchBox.value)"
+            />
+
+            <button type="button" class="btn btn-outline btn-sm" [disabled]="searching()" (click)="search($event)">
+                @if (searching()) {
+                    <span class="spinner spinner-sm" aria-hidden="true"></span>
+                } @else {
+                    <span>Buscar</span>
+                }
+            </button>
+        </div>
+
+        @if (searched() && results().length > 0) {
+            <select
+                #resultsSelect
+                class="input"
+                aria-label="Selecionar medicamento encontrado"
+                value=""
+                (change)="onResultChange(resultsSelect.value)"
+            >
+                <option value="" disabled selected>Selecione um medicamento</option>
+                @for (candidate of results(); track candidate.id) {
+                    <option [value]="candidate.id">
+                        {{ candidate.name }} @if (candidate.eanCode) { (EAN {{ candidate.eanCode }}) }
+                    </option>
+                }
+            </select>
+        } @else if (searched() && !searching()) {
+            <p class="medicine-picker__empty">Nenhum medicamento encontrado.</p>
+        }
+
+        @if (!showQuickCreate()) {
+            <button type="button" class="btn btn-outline btn-sm medicine-picker__quick-create" (click)="openQuickCreate()">
+                Cadastrar novo medicamento
+            </button>
+        } @else {
+            <div class="medicine-picker__quick-create-panel">
+                <app-field for="medicine-picker-new-name" label="Nome do medicamento">
+                    <input
+                        id="medicine-picker-new-name"
+                        #newNameInput
+                        type="text"
+                        class="input"
+                        [value]="newMedicineName()"
+                        (input)="onNewMedicineNameChange(newNameInput.value)"
+                    />
+                </app-field>
+
+                <app-field for="medicine-picker-new-ean-code" label="Código EAN (opcional)">
+                    <input
+                        id="medicine-picker-new-ean-code"
+                        #newEanInput
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="14"
+                        class="input"
+                        [value]="newMedicineEanCode()"
+                        (input)="onNewMedicineEanCodeChange(newEanInput.value)"
+                    />
+                </app-field>
+
+                <app-image-upload-field
+                    id="medicine-picker-new-image"
+                    label="Imagem do medicamento"
+                    context="MEDICINE"
+                    [ownerName]="newMedicineName()"
+                    [imageUrl]="newMedicineImageUrl() ?? undefined"
+                    (uploaded)="onNewMedicineImageUploaded($event)"
+                />
+
+                <div class="medicine-picker__quick-create-actions">
+                    <button type="button" class="btn btn-outline btn-sm" (click)="closeQuickCreate()">Cancelar</button>
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm"
+                        [disabled]="!canConfirmQuickCreate"
+                        (click)="confirmQuickCreate()"
+                    >
+                        Usar este medicamento
+                    </button>
+                </div>
+            </div>
+        }
+    }
+</div>

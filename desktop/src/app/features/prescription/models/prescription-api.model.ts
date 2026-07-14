@@ -7,6 +7,7 @@ import {
     IPrescriptionPatientSummary,
     PrescriptionStatus,
 } from './prescription.model';
+import { CreatePrescriptionItemRequest, PrescriptionItemApiDto, toPrescriptionItem } from './prescription-item-api.model';
 
 export interface PrescriptionApiDto {
     id: string;
@@ -24,12 +25,14 @@ export interface PrescriptionListItemApiDto extends PrescriptionApiDto {
 
 export interface PrescriptionDetailApiDto extends PrescriptionApiDto {
     patient: PatientApiDto;
+    items: PrescriptionItemApiDto[];
 }
 
 export interface CreatePrescriptionRequest {
     imageUrls?: string[];
     issueDate: string;
     patientId: string;
+    items: CreatePrescriptionItemRequest[];
 }
 
 export interface UpdatePrescriptionRequest {
@@ -78,5 +81,6 @@ export function toPrescriptionDetail(dto: PrescriptionDetailApiDto): IPrescripti
     return {
         ...toPrescription(dto),
         patient: toPatient(dto.patient),
+        items: dto.items.map(toPrescriptionItem),
     };
 }

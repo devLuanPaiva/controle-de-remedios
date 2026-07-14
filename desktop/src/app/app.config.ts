@@ -23,6 +23,8 @@ import { patientReducer } from "@features/patient/store/patient.reducer";
 import { PatientEffects } from "@features/patient/store/patient.effects";
 import { prescriptionReducer } from "@features/prescription/store/prescription.reducer";
 import { PrescriptionEffects } from "@features/prescription/store/prescription.effects";
+import { medicineReducer } from "@features/medicine/store/medicine.reducer";
+import { MedicineEffects } from "@features/medicine/store/medicine.effects";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -42,14 +44,16 @@ export const appConfig: ApplicationConfig = {
       users: usersReducer,
       company: companyReducer,
       patients: patientReducer,
-      prescriptions: prescriptionReducer
+      prescriptions: prescriptionReducer,
+      medicines: medicineReducer
     }),
     provideEffects([
       AuthEffects,
       UsersEffects,
       CompanyEffects,
       PatientEffects,
-      PrescriptionEffects
+      PrescriptionEffects,
+      MedicineEffects
     ]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],

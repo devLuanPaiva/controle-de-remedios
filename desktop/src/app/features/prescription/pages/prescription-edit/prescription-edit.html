@@ -62,5 +62,17 @@
                 </button>
             </div>
         </form>
+
+        <section class="prescription-edit__items">
+            <h2 class="prescription-edit__items-title">Itens do receituário</h2>
+
+            @for (item of prescription()!.items; track item.id) {
+                <app-prescription-item-edit-card
+                    [item]="item"
+                    [saving]="mutatingItemIds().includes(item.id)"
+                    (save)="onItemSave(item.id, $event)"
+                />
+            }
+        </section>
     }
 </section>
