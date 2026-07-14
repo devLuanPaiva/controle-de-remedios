@@ -11,4 +11,9 @@ export const prescriptionRoutes: Routes = [
         loadComponent: () => import('./pages/prescription-edit/prescription-edit').then((m) => m.PrescriptionEdit),
         title: 'Editar receituário',
     },
+    {
+        path: ':id',
+        loadComponent: () => import('./pages/prescription-view/prescription-view').then((m) => m.PrescriptionView),
+        title: 'Receituário',
+    },
 ];
