@@ -1,0 +1,192 @@
+<div class="item-edit-card card">
+    <div class="card-header item-edit-card__header">
+        <app-image-fallback
+            class="item-edit-card__medicine-image"
+            [src]="item().medicine.imageUrl"
+            [alt]="item().medicine.name"
+            icon="medicine"
+        />
+
+        <div class="item-edit-card__medicine-info">
+            <span class="item-edit-card__medicine-name">{{ item().medicine.name }}</span>
+            <span class="item-edit-card__medicine-ean">EAN: {{ item().medicine.eanCode ?? '—' }}</span>
+        </div>
+    </div>
+
+    <form class="item-edit-card__body" (submit)="onSave($event)" novalidate>
+        <div class="card-body item-edit-card__grid">
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-status">Status</label>
+                <select
+                    id="item-edit-{{ item().id }}-status"
+                    #statusSelect
+                    class="input"
+                    [value]="model().status"
+                    (change)="onStatusChange(statusSelect.value)"
+                >
+                    @for (status of statusOptions; track status) {
+                        <option [value]="status">{{ PrescriptionStatusLabels[status] }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-dosage">Dosagem</label>
+                <input
+                    id="item-edit-{{ item().id }}-dosage"
+                    #dosageInput
+                    type="text"
+                    class="input"
+                    [value]="model().dosage"
+                    (input)="onDosageChange(dosageInput.value)"
+                />
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-prescribed-quantity">Quantidade prescrita</label>
+                <input
+                    id="item-edit-{{ item().id }}-prescribed-quantity"
+                    #prescribedQuantityInput
+                    type="number"
+                    min="1"
+                    class="input"
+                    [value]="model().prescribedQuantity"
+                    (input)="onPrescribedQuantityChange(prescribedQuantityInput.value)"
+                />
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-unity-type">Unidade</label>
+                <select
+                    id="item-edit-{{ item().id }}-unity-type"
+                    #unityTypeSelect
+                    class="input"
+                    [value]="model().unityType"
+                    (change)="onUnityTypeChange(unityTypeSelect.value)"
+                >
+                    @for (unity of unityOptions; track unity) {
+                        <option [value]="unity">{{ UnityTypeLabels[unity] }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-frequency">Frequência</label>
+                <input
+                    id="item-edit-{{ item().id }}-frequency"
+                    #frequencyInput
+                    type="number"
+                    min="1"
+                    class="input"
+                    [value]="model().frequency"
+                    (input)="onFrequencyChange(frequencyInput.value)"
+                />
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-frequency-type">Tipo de frequência</label>
+                <select
+                    id="item-edit-{{ item().id }}-frequency-type"
+                    #frequencyTypeSelect
+                    class="input"
+                    [value]="model().frequencyType"
+                    (change)="onFrequencyTypeChange(frequencyTypeSelect.value)"
+                >
+                    @for (frequencyType of frequencyOptions; track frequencyType) {
+                        <option [value]="frequencyType">{{ FrequencyTypeLabels[frequencyType] }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-treatment-type">Tipo de tratamento</label>
+                <select
+                    id="item-edit-{{ item().id }}-treatment-type"
+                    #treatmentTypeSelect
+                    class="input"
+                    [value]="model().treatmentType"
+                    (change)="onTreatmentTypeChange(treatmentTypeSelect.value)"
+                >
+                    @for (treatmentType of treatmentOptions; track treatmentType) {
+                        <option [value]="treatmentType">{{ TreatmentTypeLabels[treatmentType] }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-treatment-days">Dias de tratamento</label>
+                <input
+                    id="item-edit-{{ item().id }}-treatment-days"
+                    #treatmentDaysInput
+                    type="number"
+                    min="1"
+                    class="input"
+                    [value]="model().treatmentDays"
+                    (input)="onTreatmentDaysChange(treatmentDaysInput.value)"
+                />
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-start-date">Data de início</label>
+                <input
+                    id="item-edit-{{ item().id }}-start-date"
+                    #startDateInput
+                    type="date"
+                    class="input"
+                    [value]="model().startDate"
+                    (input)="onStartDateChange(startDateInput.value)"
+                />
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-received-quantity">Quantidade recebida</label>
+                <input
+                    id="item-edit-{{ item().id }}-received-quantity"
+                    #receivedQuantityInput
+                    type="number"
+                    min="0"
+                    class="input"
+                    [value]="model().receivedQuantity"
+                    (input)="onReceivedQuantityChange(receivedQuantityInput.value)"
+                />
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="item-edit-{{ item().id }}-delivered-quantity">Quantidade entregue</label>
+                <input
+                    id="item-edit-{{ item().id }}-delivered-quantity"
+                    #deliveredQuantityInput
+                    type="number"
+                    min="0"
+                    class="input"
+                    [value]="model().deliveredQuantity"
+                    (input)="onDeliveredQuantityChange(deliveredQuantityInput.value)"
+                />
+            </div>
+
+            <div class="field item-edit-card__observations">
+                <label class="field__label" for="item-edit-{{ item().id }}-observations">Observações</label>
+                <textarea
+                    id="item-edit-{{ item().id }}-observations"
+                    #observationsInput
+                    class="input"
+                    rows="2"
+                    maxlength="200"
+                    [value]="model().observations"
+                    (input)="onObservationsChange(observationsInput.value)"
+                ></textarea>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSave()">
+                @if (saving()) {
+                    <span class="spinner spinner-sm" aria-hidden="true"></span>
+                    <span>Salvando...</span>
+                } @else {
+                    <span>Salvar item</span>
+                }
+            </button>
+        </div>
+    </form>
+</div>

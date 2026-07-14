@@ -15,6 +15,7 @@ const initialState: PrescriptionState = {
     previous: null,
     selectedPrescription: null,
     selectedPrescriptionLoading: false,
+    mutatingItemIds: [],
 };
 
 export const prescriptionReducer = createReducer(
@@ -139,5 +140,27 @@ export const prescriptionReducer = createReducer(
     on(PrescriptionActions.clearSelectedPrescription, (state) => ({
         ...state,
         selectedPrescription: null,
+    })),
+
+    on(PrescriptionActions.updatePrescriptionItem, (state, { id }) => ({
+        ...state,
+        mutatingItemIds: [...state.mutatingItemIds, id],
+    })),
+
+    on(PrescriptionActions.updatePrescriptionItemSuccess, (state, { item }) => ({
+        ...state,
+        mutatingItemIds: state.mutatingItemIds.filter((id) => id !== item.id),
+        selectedPrescription: state.selectedPrescription
+            ? {
+                  ...state.selectedPrescription,
+                  items: state.selectedPrescription.items.map((current) => (current.id === item.id ? item : current)),
+              }
+            : state.selectedPrescription,
+    })),
+
+    on(PrescriptionActions.updatePrescriptionItemFailure, (state, { id, message }) => ({
+        ...state,
+        mutatingItemIds: state.mutatingItemIds.filter((mutatingId) => mutatingId !== id),
+        error: message,
     })),
 );

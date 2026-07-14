@@ -15,4 +15,6 @@ export interface PrescriptionState {
 
     selectedPrescription: IPrescriptionDetail | null;
     selectedPrescriptionLoading: boolean;
+
+    mutatingItemIds: string[];
 }

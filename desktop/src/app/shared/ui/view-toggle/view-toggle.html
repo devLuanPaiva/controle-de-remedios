@@ -1,0 +1,23 @@
+<div class="view-toggle" role="group" aria-label="Alternar modo de exibição">
+    <button
+        type="button"
+        class="view-toggle__button"
+        [class.view-toggle__button--active]="value() === 'cards'"
+        [attr.aria-pressed]="value() === 'cards'"
+        (click)="select('cards')"
+    >
+        <svg lucideLayoutGrid class="view-toggle__icon" aria-hidden="true"></svg>
+        <span>Cards</span>
+    </button>
+
+    <button
+        type="button"
+        class="view-toggle__button"
+        [class.view-toggle__button--active]="value() === 'table'"
+        [attr.aria-pressed]="value() === 'table'"
+        (click)="select('table')"
+    >
+        <svg lucideList class="view-toggle__icon" aria-hidden="true"></svg>
+        <span>Tabela</span>
+    </button>
+</div>

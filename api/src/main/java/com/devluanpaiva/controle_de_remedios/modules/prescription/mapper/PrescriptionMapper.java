@@ -11,6 +11,7 @@ import com.devluanpaiva.controle_de_remedios.modules.prescription.dto.Prescripti
 import com.devluanpaiva.controle_de_remedios.modules.prescription.dto.PrescriptionPatientSummaryDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.dto.PrescriptionResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.entity.Prescription;
+import com.devluanpaiva.controle_de_remedios.modules.prescription_item.mapper.PrescriptionItemMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PrescriptionMapper {
     private final PatientMapper patientMapper;
+    private final PrescriptionItemMapper prescriptionItemMapper;
 
     public PrescriptionResponseDTO toResponseDTO(Prescription prescription) {
         return new PrescriptionResponseDTO(
@@ -38,6 +40,7 @@ public class PrescriptionMapper {
                 prescription.getIssueDate(),
                 prescription.getPatient().getId(),
                 patientMapper.toResponseDTO(prescription.getPatient()),
+                prescription.getItems().stream().map(prescriptionItemMapper::toResponseDTO).toList(),
                 prescription.getCreatedAt(),
                 prescription.getUpdatedAt());
     }
