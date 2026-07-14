@@ -23,27 +23,6 @@
             [imageUrls]="model().imageUrls"
             (imagesChanged)="onImagesChanged($event)"
         />
-
-        <div class="prescription-create-form__items">
-            <span class="field__label">Itens do receituário</span>
-
-            @for (row of itemRows(); track $index) {
-                <app-prescription-item-create-row
-                    [index]="$index"
-                    [canRemove]="itemRows().length > 1"
-                    (itemChanged)="onItemChanged($index, $event)"
-                    (removed)="removeItemRow($index)"
-                />
-            }
-
-            <button type="button" class="btn btn-outline btn-sm prescription-create-form__add-item" (click)="addItemRow()">
-                Adicionar item
-            </button>
-
-            @if (validItems().length === 0) {
-                <span class="field__error">Adicione ao menos um item válido.</span>
-            }
-        </div>
     </div>
 
     <div class="card-footer">

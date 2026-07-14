@@ -1,4 +1,4 @@
-export type UploadContext = 'PROFILE' | 'PRESCRIPTION' | 'MEDICINE';
+export type UploadContext = 'PROFILE' | 'PRESCRIPTION';
 
 export interface PresignedUploadRequest {
     fileName: string;

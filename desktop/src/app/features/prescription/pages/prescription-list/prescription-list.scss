@@ -1,4 +1,4 @@
-@use "../../../../../styles/abstracts/breakpoints" as bp;
+@use '../../../../../styles/abstracts/breakpoints' as bp;
 
 .prescription-list__header {
     display: flex;
@@ -64,9 +64,6 @@
 .prescription-list__col-actions {
     text-align: right;
     white-space: nowrap;
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-2);
 }
 
 .prescription-list__empty-row td {
@@ -102,7 +99,7 @@
     }
 
     .prescription-list__table td[data-label]::before {
-        content: attr(data-label) ": ";
+        content: attr(data-label) ': ';
         font-weight: 600;
         color: var(--text-primary);
     }

@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import com.devluanpaiva.controle_de_remedios.modules.patient.dto.PatientResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.enums.PrescriptionStatus;
-import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.PrescriptionItemResponseDTO;
 
 public record PrescriptionDetailResponseDTO(
         UUID id,
@@ -16,7 +15,6 @@ public record PrescriptionDetailResponseDTO(
         LocalDate issueDate,
         UUID patientId,
         PatientResponseDTO patient,
-        List<PrescriptionItemResponseDTO> items,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {
 }
