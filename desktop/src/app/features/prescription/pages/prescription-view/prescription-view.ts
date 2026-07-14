@@ -6,6 +6,7 @@ import { Store } from '@ngrx/store';
 import { map } from 'rxjs';
 
 import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
+import { ImageFallback } from '@shared/ui/image-fallback/image-fallback';
 import { PrescriptionStatusBadge } from '@shared/ui/prescription-status-badge/prescription-status-badge';
 import { ViewMode, ViewToggle } from '@shared/ui/view-toggle/view-toggle';
 import { formatCpf } from '@shared/utils/cpf.util';
@@ -20,7 +21,7 @@ import {
 
 @Component({
     selector: 'app-prescription-view',
-    imports: [DatePipe, ConfirmDialog, PrescriptionStatusBadge, ViewToggle],
+    imports: [DatePipe, ConfirmDialog, PrescriptionStatusBadge, ViewToggle, ImageFallback],
     templateUrl: './prescription-view.html',
     styleUrl: './prescription-view.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

@@ -55,11 +55,7 @@
             @for (medicine of medicines(); track medicine.id) {
                 <div class="medicine-list__card card">
                     <div class="medicine-list__card-image">
-                        @if (medicine.imageUrl) {
-                            <img [src]="medicine.imageUrl" [alt]="medicine.name" />
-                        } @else {
-                            <span class="medicine-list__card-placeholder">Sem imagem</span>
-                        }
+                        <app-image-fallback [src]="medicine.imageUrl" [alt]="medicine.name" icon="medicine" />
                     </div>
 
                     <div class="card-body medicine-list__card-body">
@@ -86,11 +82,12 @@
                     @for (medicine of medicines(); track medicine.id) {
                         <tr>
                             <td data-label="Imagem" class="medicine-list__col-image">
-                                @if (medicine.imageUrl) {
-                                    <img class="medicine-list__thumb" [src]="medicine.imageUrl" [alt]="medicine.name" />
-                                } @else {
-                                    <span>—</span>
-                                }
+                                <app-image-fallback
+                                    class="medicine-list__thumb"
+                                    [src]="medicine.imageUrl"
+                                    [alt]="medicine.name"
+                                    icon="medicine"
+                                />
                             </td>
                             <td data-label="Nome" class="medicine-list__col-name">{{ medicine.name }}</td>
                             <td data-label="EAN">{{ medicine.eanCode ?? '—' }}</td>

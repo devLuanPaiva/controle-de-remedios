@@ -1,8 +1,11 @@
 <div class="item-edit-card card">
     <div class="card-header item-edit-card__header">
-        @if (item().medicine.imageUrl) {
-            <img class="item-edit-card__medicine-image" [src]="item().medicine.imageUrl" [alt]="item().medicine.name" />
-        }
+        <app-image-fallback
+            class="item-edit-card__medicine-image"
+            [src]="item().medicine.imageUrl"
+            [alt]="item().medicine.name"
+            icon="medicine"
+        />
 
         <div class="item-edit-card__medicine-info">
             <span class="item-edit-card__medicine-name">{{ item().medicine.name }}</span>

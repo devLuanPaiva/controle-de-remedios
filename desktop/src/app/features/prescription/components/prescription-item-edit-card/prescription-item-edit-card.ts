@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 
+import { ImageFallback } from '@shared/ui/image-fallback/image-fallback';
+
 import { PrescriptionStatus, PrescriptionStatusLabels } from '../../models/prescription.model';
 import { UpdatePrescriptionItemRequest } from '../../models/prescription-item-api.model';
 import {
@@ -50,6 +52,7 @@ function toModel(item: IPrescriptionItem): EditCardModel {
 
 @Component({
     selector: 'app-prescription-item-edit-card',
+    imports: [ImageFallback],
     templateUrl: './prescription-item-edit-card.html',
     styleUrl: './prescription-item-edit-card.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

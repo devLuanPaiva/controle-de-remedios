@@ -44,7 +44,12 @@
                 <div class="card-body prescription-view__images">
                     @for (imageUrl of prescription()!.imageUrls; track imageUrl) {
                         <a [href]="imageUrl" target="_blank" rel="noopener">
-                            <img class="prescription-view__image-thumb" [src]="imageUrl" alt="Imagem da receita" />
+                            <app-image-fallback
+                                class="prescription-view__image-thumb"
+                                [src]="imageUrl"
+                                alt="Receita"
+                                icon="prescription"
+                            />
                         </a>
                     }
                 </div>
@@ -62,9 +67,12 @@
                     @for (item of prescription()!.items; track item.id) {
                         <div class="prescription-view__item-card card">
                             <div class="card-header prescription-view__item-card-header">
-                                @if (item.medicine.imageUrl) {
-                                    <img class="prescription-view__item-image" [src]="item.medicine.imageUrl" [alt]="item.medicine.name" />
-                                }
+                                <app-image-fallback
+                                    class="prescription-view__item-image"
+                                    [src]="item.medicine.imageUrl"
+                                    [alt]="item.medicine.name"
+                                    icon="medicine"
+                                />
 
                                 <div class="prescription-view__item-medicine-info">
                                     <span class="prescription-view__item-medicine-name">{{ item.medicine.name }}</span>

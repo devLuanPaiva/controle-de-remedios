@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@ang
 import { Store } from '@ngrx/store';
 
 import { selectSelectedCompanyId } from '@features/company/store/company.selectors';
+import { ImageFallback } from '@shared/ui/image-fallback/image-fallback';
 import { Pagination } from '@shared/ui/pagination/pagination';
 import { ViewMode, ViewToggle } from '@shared/ui/view-toggle/view-toggle';
 
@@ -22,7 +23,7 @@ const EMPTY_FILTER_FORM: MedicineListFilterForm = {
 
 @Component({
     selector: 'app-medicine-list',
-    imports: [Pagination, ViewToggle, MedicineCreateModal],
+    imports: [Pagination, ViewToggle, MedicineCreateModal, ImageFallback],
     templateUrl: './medicine-list.html',
     styleUrl: './medicine-list.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
