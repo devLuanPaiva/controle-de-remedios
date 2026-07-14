@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, exhaustMap, map, mergeMap, of, switchMap, tap } from 'rxjs';
+import { catchError, exhaustMap, map, of, switchMap, tap } from 'rxjs';
 
 import { ToastType } from '@core/ui/toast/models/toast.model';
 import { ToastService } from '@core/ui/toast/service/toast.service';
@@ -186,43 +186,6 @@ export class PrescriptionEffects {
         () =>
             this.actions$.pipe(
                 ofType(PrescriptionActions.deletePrescriptionFailure),
-                tap((action) => this.toast.show(ToastType.Error, action.message)),
-            ),
-        { dispatch: false },
-    );
-
-    updatePrescriptionItem$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(PrescriptionActions.updatePrescriptionItem),
-            mergeMap((action) =>
-                this.prescriptionService.updatePrescriptionItem(action.id, action.payload).pipe(
-                    map((item) => PrescriptionActions.updatePrescriptionItemSuccess({ item })),
-                    catchError((error) =>
-                        of(
-                            PrescriptionActions.updatePrescriptionItemFailure({
-                                id: action.id,
-                                message: extractErrorMessage(error, 'Erro ao atualizar item da receita.'),
-                            }),
-                        ),
-                    ),
-                ),
-            ),
-        ),
-    );
-
-    updatePrescriptionItemSuccess$ = createEffect(
-        () =>
-            this.actions$.pipe(
-                ofType(PrescriptionActions.updatePrescriptionItemSuccess),
-                tap(() => this.toast.show(ToastType.Success, 'Item atualizado com sucesso!')),
-            ),
-        { dispatch: false },
-    );
-
-    updatePrescriptionItemFailure$ = createEffect(
-        () =>
-            this.actions$.pipe(
-                ofType(PrescriptionActions.updatePrescriptionItemFailure),
                 tap((action) => this.toast.show(ToastType.Error, action.message)),
             ),
         { dispatch: false },

@@ -111,10 +111,6 @@ class GlobalExceptionHandlerTest {
     @DisplayName("handleTypeMismatchException")
     class HandleTypeMismatchException {
 
-        @SuppressWarnings("unused")
-        private void dummyEndpoint(UUID id) {
-        }
-
         private MethodArgumentTypeMismatchException buildException(Object value, Class<?> requiredType)
                 throws NoSuchMethodException {
             Method method = GlobalExceptionHandlerTest.HandleTypeMismatchException.class

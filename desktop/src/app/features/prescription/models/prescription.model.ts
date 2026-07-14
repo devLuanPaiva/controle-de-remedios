@@ -1,7 +1,5 @@
 import { IPatient } from '@features/patient/models/patient.model';
 
-import { IPrescriptionItem } from './prescription-item.model';
-
 export enum PrescriptionStatus {
     PENDING = 'PENDING',
     APPROVED = 'APPROVED',
@@ -39,5 +37,4 @@ export interface IPrescriptionListItem extends IPrescription {
 
 export interface IPrescriptionDetail extends IPrescription {
     patient: IPatient;
-    items: IPrescriptionItem[];
 }

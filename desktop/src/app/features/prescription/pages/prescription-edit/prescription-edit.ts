@@ -10,12 +10,9 @@ import { ImageUploadMultiField } from '@shared/ui/image-upload-multi-field/image
 import { formatCpf } from '@shared/utils/cpf.util';
 import { isNotFutureDate, toDateInputValue } from '@shared/utils/date.util';
 
-import { PrescriptionItemEditCard } from '../../components/prescription-item-edit-card/prescription-item-edit-card';
-import { UpdatePrescriptionItemRequest } from '../../models/prescription-item-api.model';
 import { PrescriptionStatus, PrescriptionStatusLabels } from '../../models/prescription.model';
 import * as PrescriptionActions from '../../store/prescription.actions';
 import {
-    selectMutatingItemIds,
     selectPrescriptionsError,
     selectPrescriptionsMutating,
     selectSelectedPrescription,
@@ -24,7 +21,7 @@ import {
 
 @Component({
     selector: 'app-prescription-edit',
-    imports: [DateField, ImageUploadMultiField, PrescriptionItemEditCard],
+    imports: [DateField, ImageUploadMultiField],
     templateUrl: './prescription-edit.html',
     styleUrl: './prescription-edit.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,7 +45,6 @@ export class PrescriptionEdit implements OnDestroy {
     readonly loading = this.store.selectSignal(selectSelectedPrescriptionLoading);
     readonly error = this.store.selectSignal(selectPrescriptionsError);
     readonly mutating = this.store.selectSignal(selectPrescriptionsMutating);
-    readonly mutatingItemIds = this.store.selectSignal(selectMutatingItemIds);
 
     readonly model = signal({
         status: PrescriptionStatus.PENDING,
@@ -123,9 +119,5 @@ export class PrescriptionEdit implements OnDestroy {
 
     goBack(): void {
         this.router.navigate(['/prescriptions']);
-    }
-
-    onItemSave(itemId: string, payload: UpdatePrescriptionItemRequest): void {
-        this.store.dispatch(PrescriptionActions.updatePrescriptionItem({ id: itemId, payload }));
     }
 }

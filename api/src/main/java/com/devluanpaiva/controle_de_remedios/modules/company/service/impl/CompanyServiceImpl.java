@@ -18,12 +18,6 @@ import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanySpeci
 import com.devluanpaiva.controle_de_remedios.modules.company.mapper.CompanyMapper;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
 import com.devluanpaiva.controle_de_remedios.modules.company.service.CompanyService;
-import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.MedicineResponseDTO;
-import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
-import com.devluanpaiva.controle_de_remedios.modules.medicine.filter.MedicineFilter;
-import com.devluanpaiva.controle_de_remedios.modules.medicine.filter.MedicineSpecification;
-import com.devluanpaiva.controle_de_remedios.modules.medicine.mapper.MedicineMapper;
-import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
 import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
@@ -41,10 +35,8 @@ import lombok.RequiredArgsConstructor;
 public class CompanyServiceImpl implements CompanyService {
     private final CompanyRepository companyRepository;
     private final UserRepository userRepository;
-    private final MedicineRepository medicineRepository;
     private final CompanyMapper companyMapper;
     private final UserMapper userMapper;
-    private final MedicineMapper medicineMapper;
     private final SecurityContextHelper securityContextHelper;
     private final AuthorizationPolicy authorizationPolicy;
 
@@ -178,22 +170,6 @@ public class CompanyServiceImpl implements CompanyService {
 
         targetUser.unassignFromCompany(company);
         userRepository.save(targetUser);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<MedicineResponseDTO> getCompanyMedicines(UUID companyId, MedicineFilter filter, Pageable pageable) {
-        User actor = securityContextHelper.getCurrentUser();
-        Company company = findCompanyOrThrow(companyId);
-
-        assertCanView(actor, company);
-
-        Specification<Medicine> specification = MedicineSpecification.hasCompanyId(companyId)
-                .and(MedicineSpecification.hasName(filter.name()))
-                .and(MedicineSpecification.hasEanCode(filter.eanCode()));
-
-        return medicineRepository.findAll(specification, pageable)
-                .map(medicineMapper::toResponseDTO);
     }
 
     private void attachCreatorToCompany(UUID actorId, Company company) {

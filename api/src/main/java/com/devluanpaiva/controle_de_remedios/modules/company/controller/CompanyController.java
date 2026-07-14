@@ -15,8 +15,6 @@ import com.devluanpaiva.controle_de_remedios.modules.company.dto.CreateCompanyRe
 import com.devluanpaiva.controle_de_remedios.modules.company.dto.UpdateCompanyRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanyFilter;
 import com.devluanpaiva.controle_de_remedios.modules.company.service.CompanyService;
-import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.MedicineResponseDTO;
-import com.devluanpaiva.controle_de_remedios.modules.medicine.filter.MedicineFilter;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponse;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponseFactory;
@@ -107,23 +105,5 @@ public class CompanyController {
     public ApiResponse<Void> removeUser(@PathVariable UUID id, @PathVariable UUID userId) {
         companyService.removeUser(id, userId);
         return ApiResponseFactory.success("Usuário removido da empresa com sucesso", null);
-    }
-
-    @GetMapping("/{id}/medicines")
-    public ApiResponse<List<MedicineResponseDTO>> getCompanyMedicines(
-            @PathVariable UUID id,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String eanCode) {
-
-        Pageable pageable = PageableFactory.build(page, size);
-        MedicineFilter filter = new MedicineFilter(name, eanCode);
-        Page<MedicineResponseDTO> result = companyService.getCompanyMedicines(id, filter, pageable);
-
-        String next = result.hasNext() ? buildPageUri(page + 1, size) : null;
-        String previous = result.hasPrevious() ? buildPageUri(page - 1, size) : null;
-
-        return ApiResponseFactory.paginated("Medicamentos da empresa obtidos com sucesso", result, next, previous);
     }
 }

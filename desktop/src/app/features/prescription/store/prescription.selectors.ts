@@ -26,5 +26,3 @@ export const selectSelectedPrescriptionLoading = createSelector(
     selectPrescriptionState,
     (state) => state.selectedPrescriptionLoading,
 );
-
-export const selectMutatingItemIds = createSelector(selectPrescriptionState, (state) => state.mutatingItemIds);

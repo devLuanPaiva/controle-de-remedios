@@ -9,8 +9,6 @@ import com.devluanpaiva.controle_de_remedios.modules.company.dto.CompanyResponse
 import com.devluanpaiva.controle_de_remedios.modules.company.dto.CreateCompanyRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.company.dto.UpdateCompanyRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.company.filter.CompanyFilter;
-import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.MedicineResponseDTO;
-import com.devluanpaiva.controle_de_remedios.modules.medicine.filter.MedicineFilter;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
 
 public interface CompanyService {
@@ -29,6 +27,4 @@ public interface CompanyService {
     void associateUser(UUID companyId, UUID userId);
 
     void removeUser(UUID companyId, UUID userId);
-
-    Page<MedicineResponseDTO> getCompanyMedicines(UUID companyId, MedicineFilter filter, Pageable pageable);
 }
