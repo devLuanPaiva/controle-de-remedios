@@ -10,25 +10,22 @@ import {
     useMemo,
     useCallback,
 } from "react";
-import { ApiResponse } from "@/lib/apiFetch";
-import { IUser, UserRole } from "../models/user.model";
 
-const KEYS = {
-    ACCESS: "@auth:access",
-    REFRESH: "@auth:refresh",
-} as const;
+import { BASE_URL } from "@/lib/env";
+import { AUTH_STORAGE_KEYS } from "@/lib/storageKeys";
+import { IUser, UserRole, normalizeUserRole } from "../models/user.model";
 
 const SIGN_IN_ROUTE = "/(authentication)/signIn" as Href;
 const getCurrentTimeMs = () => Date.now();
 
-interface TokenPayload {
+interface AccessTokenPayload {
+    sub: string;
     exp: number;
-    id: string;
     email: string;
     name: string;
     type: "access" | "refresh";
     role: UserRole;
-    imageUrl: string;
+    imageUrl: string | null;
 }
 
 interface AuthContextType {
@@ -47,15 +44,25 @@ export const AuthContext = createContext<AuthContextType>({
     logout: async () => { },
 });
 
-function decodeJWT(token: string): TokenPayload {
+function decodeJWT(token: string): AccessTokenPayload {
     const base64 = token.split(".")[1].replaceAll("-", "+").replaceAll("_", "/");
     const json = decodeURIComponent(
         atob(base64)
             .split("")
-            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .map((c) => "%" + ("00" + c.codePointAt(0)!.toString(16)).slice(-2))
             .join(""),
     );
     return JSON.parse(json);
+}
+
+function toUser(payload: AccessTokenPayload): Partial<IUser> {
+    return {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name,
+        role: normalizeUserRole(payload.role) ?? undefined,
+        imageUrl: payload.imageUrl ?? undefined,
+    };
 }
 
 export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
@@ -66,8 +73,6 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
     const performRefreshRef = useRef<(refreshToken: string) => Promise<void>>(async () => { });
     const router = useRouter();
 
-    const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
-
     const clearTimer = useCallback(() => {
         if (refreshTimerRef.current) {
             clearTimeout(refreshTimerRef.current);
@@ -77,13 +82,13 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
 
     const persistTokens = useCallback(async (access: string, refresh: string) => {
         await AsyncStorage.multiSet([
-            [KEYS.ACCESS, access],
-            [KEYS.REFRESH, refresh],
+            [AUTH_STORAGE_KEYS.ACCESS, access],
+            [AUTH_STORAGE_KEYS.REFRESH, refresh],
         ]);
     }, []);
 
     const removeTokens = useCallback(async () => {
-        await AsyncStorage.multiRemove([KEYS.ACCESS, KEYS.REFRESH]);
+        await AsyncStorage.multiRemove([AUTH_STORAGE_KEYS.ACCESS, AUTH_STORAGE_KEYS.REFRESH]);
     }, []);
 
     const endSession = useCallback(async () => {
@@ -108,13 +113,7 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
     const startSession = useCallback((access: string, refresh: string) => {
         const payload = decodeJWT(access);
 
-        setUser({
-            id: payload.id,
-            email: payload.email,
-            name: payload.name,
-            role: payload.role,
-            imageUrl: payload.imageUrl,
-        });
+        setUser(toUser(payload));
         setIsLoggedIn(true);
         scheduleRefresh(access, refresh);
     }, [scheduleRefresh]);
@@ -141,7 +140,7 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
             await endSession();
             router.replace(SIGN_IN_ROUTE);
         }
-    }, [BASE_URL, endSession, persistTokens, router, startSession]);
+    }, [endSession, persistTokens, router, startSession]);
 
     useEffect(() => {
         performRefreshRef.current = performRefresh;
@@ -151,8 +150,8 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
         async function restore() {
             try {
                 const [[, access], [, refresh]] = await AsyncStorage.multiGet([
-                    KEYS.ACCESS,
-                    KEYS.REFRESH,
+                    AUTH_STORAGE_KEYS.ACCESS,
+                    AUTH_STORAGE_KEYS.REFRESH,
                 ]);
 
                 if (!access || !refresh) return;
@@ -199,7 +198,7 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
             await persistTokens(access, refresh);
             startSession(access, refresh);
         },
-        [BASE_URL, persistTokens, startSession],
+        [persistTokens, startSession],
     );
 
     const logout = useCallback(async () => {

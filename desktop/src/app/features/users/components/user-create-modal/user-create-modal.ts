@@ -6,6 +6,7 @@ import { selectSelectedCompany } from '@features/company/store/company.selectors
 import { Field } from '@shared/ui/field/field';
 import { CpfField } from '@shared/ui/cpf-field/cpf-field';
 import { PasswordField } from '@shared/ui/password-field/password-field';
+import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-field';
 import { Modal } from '@shared/ui/modal/modal';
 import { isValidCpf, onlyDigits } from '@shared/utils/cpf.util';
 
@@ -15,7 +16,7 @@ import { UserRole, UserRoleLabels } from '../../models/user.model';
 
 @Component({
     selector: 'app-user-create-modal',
-    imports: [FormField, Field, CpfField, PasswordField, Modal],
+    imports: [FormField, Field, CpfField, PasswordField, ImageUploadField, Modal],
     templateUrl: './user-create-modal.html',
     styleUrl: './user-create-modal.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,6 +67,10 @@ export class UserCreateModal {
     onRoleChange(rawValue: string): void {
         const role = rawValue === '' ? null : Number(rawValue);
         this.model.update((current) => ({ ...current, role }));
+    }
+
+    onImageUploaded(url: string): void {
+        this.model.update((current) => ({ ...current, imageUrl: url }));
     }
 
     onSubmit(event: Event, modal: Modal): void {

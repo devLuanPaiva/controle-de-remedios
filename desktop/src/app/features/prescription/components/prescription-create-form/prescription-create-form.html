@@ -1,0 +1,38 @@
+<form class="prescription-create-form card" (submit)="onSubmit($event)" novalidate>
+    <div class="card-body prescription-create-form__body">
+        <div class="prescription-create-form__field">
+            <span class="field__label">Paciente</span>
+            <app-patient-picker (patientSelected)="onPatientSelected($event)" />
+
+            @if (prescriptionForm.patientId().invalid() && prescriptionForm.patientId().touched()) {
+                <span class="field__error">{{ prescriptionForm.patientId().errors()[0]?.message }}</span>
+            }
+        </div>
+
+        <app-date-field
+            id="create-prescription-issue-date"
+            label="Data de emissão"
+            [field]="prescriptionForm.issueDate"
+            [max]="maxIssueDate"
+        />
+
+        <app-image-upload-multi-field
+            id="create-prescription-image"
+            label="Imagens da receita (opcional)"
+            context="PRESCRIPTION"
+            [imageUrls]="model().imageUrls"
+            (imagesChanged)="onImagesChanged($event)"
+        />
+    </div>
+
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
+            @if (mutating()) {
+                <span class="spinner spinner-sm" aria-hidden="true"></span>
+                <span>Salvando...</span>
+            } @else {
+                <span>Cadastrar receituário</span>
+            }
+        </button>
+    </div>
+</form>
