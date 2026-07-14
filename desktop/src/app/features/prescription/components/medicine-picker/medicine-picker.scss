@@ -1,0 +1,51 @@
+.medicine-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.medicine-picker__selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
+    background: var(--bg-secondary);
+}
+
+.medicine-picker__search {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.medicine-picker__search .input {
+    flex: 1;
+}
+
+.medicine-picker__empty {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.medicine-picker__quick-create {
+    align-self: flex-start;
+}
+
+.medicine-picker__quick-create-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+
+    padding: var(--space-4);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-lg);
+}
+
+.medicine-picker__quick-create-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+}
