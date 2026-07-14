@@ -1,0 +1,40 @@
+.view-toggle {
+    display: inline-flex;
+    gap: var(--space-1);
+
+    padding: var(--space-1);
+    border-radius: var(--radius-lg);
+    background: var(--bg-secondary);
+}
+
+.view-toggle__button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    padding: var(--space-1) var(--space-3);
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.view-toggle__button:hover {
+    color: var(--text-primary);
+}
+
+.view-toggle__button--active {
+    background: var(--color-primary-500);
+    color: white;
+}
+
+.view-toggle__icon {
+    width: 16px;
+    height: 16px;
+}
