@@ -5,6 +5,16 @@
 
         @if (prescription()) {
             <div class="prescription-view__header-actions">
+                @if (hasDeliverableItems()) {
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm"
+                        [disabled]="deliveryMutating()"
+                        (click)="openTotalDeliveryConfirm()"
+                    >
+                        Entrega total
+                    </button>
+                }
                 <button type="button" class="btn btn-outline btn-sm" (click)="goToEdit()">Editar</button>
                 <button type="button" class="btn btn-danger btn-sm" (click)="openDeleteConfirm()">Excluir</button>
             </div>
@@ -86,6 +96,17 @@
                                 <span>Quantidade: {{ item.prescribedQuantity }} {{ UnityTypeLabels[item.unityType] }}</span>
                                 <span>Frequência: {{ item.frequency }}x {{ FrequencyTypeLabels[item.frequencyType] }}</span>
                                 <span>Tratamento: {{ TreatmentTypeLabels[item.treatmentType] }} ({{ item.treatmentDays }} dias)</span>
+
+                                @if (isDeliverableStatus(item.status)) {
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline btn-sm"
+                                        [disabled]="deliveryMutating()"
+                                        (click)="openQuantityPrompt(item)"
+                                    >
+                                        Entregar
+                                    </button>
+                                }
                             </div>
                         </div>
                     } @empty {
@@ -103,6 +124,7 @@
                                 <th>Frequência</th>
                                 <th>Tratamento</th>
                                 <th>Status</th>
+                                <th class="prescription-view__col-actions">Ações</th>
                             </tr>
                         </thead>
 
@@ -117,10 +139,22 @@
                                     <td data-label="Frequência">{{ item.frequency }}x {{ FrequencyTypeLabels[item.frequencyType] }}</td>
                                     <td data-label="Tratamento">{{ TreatmentTypeLabels[item.treatmentType] }} ({{ item.treatmentDays }}d)</td>
                                     <td data-label="Status"><app-prescription-status-badge [status]="item.status" /></td>
+                                    <td data-label="Ações" class="prescription-view__col-actions">
+                                        @if (isDeliverableStatus(item.status)) {
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline btn-sm"
+                                                [disabled]="deliveryMutating()"
+                                                (click)="openQuantityPrompt(item)"
+                                            >
+                                                Entregar
+                                            </button>
+                                        }
+                                    </td>
                                 </tr>
                             } @empty {
                                 <tr>
-                                    <td colspan="6">Nenhum item cadastrado.</td>
+                                    <td colspan="7">Nenhum item cadastrado.</td>
                                 </tr>
                             }
                         </tbody>
@@ -140,5 +174,25 @@
         confirmVariant="danger"
         (confirmed)="confirmDelete()"
         (closed)="onDeleteConfirmClosed()"
+    />
+}
+
+@if (showTotalDeliveryConfirm()) {
+    <app-confirm-dialog
+        titleId="total-delivery-confirm-title"
+        titleText="Confirmar entrega total"
+        message="Tem certeza que deseja entregar a quantidade total de todos os itens pendentes desta receita?"
+        confirmLabel="Entregar"
+        (confirmed)="confirmTotalDelivery()"
+        (closed)="onTotalDeliveryConfirmClosed()"
+    />
+}
+
+@if (quantityPromptItem(); as item) {
+    <app-deliver-quantity-modal
+        [medicineName]="item.medicine.name"
+        [mutating]="deliveryMutating()"
+        (quantitySubmitted)="onQuantitySubmitted(item, $event)"
+        (closed)="closeQuantityPrompt()"
     />
 }
