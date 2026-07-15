@@ -1,0 +1,123 @@
+<section class="delivery-list">
+    <header class="delivery-list__header">
+        <h1 class="delivery-list__title">Entregas</h1>
+    </header>
+
+    <app-tabs [tabs]="tabs" [activeTabId]="activeTabId()" (tabChange)="onTabChange($event)" />
+
+    @if (activeTabId() === 'list') {
+        <div class="delivery-list__toolbar">
+            <form class="delivery-list__filters" (submit)="applyFilters($event)">
+                <div class="delivery-list__filter-field">
+                    <label class="delivery-list__filter-label" for="filter-patient-name">Nome do paciente</label>
+                    <input
+                        id="filter-patient-name"
+                        #nameInput
+                        type="text"
+                        class="input"
+                        [value]="filterForm().patientName"
+                        (input)="onFilterPatientNameChange(nameInput.value)"
+                    />
+                </div>
+
+                <div class="delivery-list__filter-field">
+                    <label class="delivery-list__filter-label" for="filter-patient-cpf">CPF do paciente</label>
+                    <input
+                        id="filter-patient-cpf"
+                        #cpfInput
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="14"
+                        class="input"
+                        [value]="filterForm().patientCpf"
+                        (input)="onFilterPatientCpfChange(cpfInput.value)"
+                    />
+                </div>
+
+                <div class="delivery-list__filter-field">
+                    <label class="delivery-list__filter-label" for="filter-medicine-name">Medicamento</label>
+                    <input
+                        id="filter-medicine-name"
+                        #medicineNameInput
+                        type="text"
+                        class="input"
+                        [value]="filterForm().medicineName"
+                        (input)="onFilterMedicineNameChange(medicineNameInput.value)"
+                    />
+                </div>
+
+                <div class="delivery-list__filter-actions">
+                    <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+                    <button type="button" class="btn btn-outline btn-sm" (click)="clearFilters()">Limpar filtros</button>
+                </div>
+            </form>
+
+            <app-view-toggle [value]="viewMode()" (valueChange)="onViewModeChange($event)" />
+        </div>
+
+        @if (loading()) {
+            <div class="loading delivery-list__state">
+                <output class="spinner" aria-label="Carregando entregas"></output>
+            </div>
+        } @else if (error()) {
+            <div class="delivery-list__state delivery-list__state--error">
+                <p>{{ error() }}</p>
+                <button type="button" class="btn btn-outline" (click)="retry()">Tentar novamente</button>
+            </div>
+        } @else if (viewMode() === 'cards') {
+            <div class="delivery-list__grid">
+                @for (delivery of deliveries(); track delivery.id) {
+                    <div class="delivery-list__card card">
+                        <div class="card-body delivery-list__card-body">
+                            <span class="delivery-list__card-patient">{{ delivery.patientName }}</span>
+                            <span class="delivery-list__card-medicine">{{ delivery.medicineName }}</span>
+                            <span>Entregue em {{ delivery.deliveryDate | date: 'dd/MM/yyyy' }}</span>
+                            <span>Próxima entrega em {{ delivery.nextAvailableDate | date: 'dd/MM/yyyy' }}</span>
+                            <span>Quantidade: {{ delivery.deliveryQuantity }} {{ UnityTypeLabels[delivery.unityType] }}</span>
+                        </div>
+                    </div>
+                } @empty {
+                    <p class="delivery-list__empty">Nenhuma entrega encontrada.</p>
+                }
+            </div>
+        } @else {
+            <div class="table-responsive">
+                <table class="table delivery-list__table">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Medicamento</th>
+                            <th>Data da entrega</th>
+                            <th>Próxima entrega disponível</th>
+                            <th>Quantidade entregue</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @for (delivery of deliveries(); track delivery.id) {
+                            <tr>
+                                <td data-label="Paciente">{{ delivery.patientName }}</td>
+                                <td data-label="Medicamento">{{ delivery.medicineName }}</td>
+                                <td data-label="Data da entrega">{{ delivery.deliveryDate | date: 'dd/MM/yyyy' }}</td>
+                                <td data-label="Próxima entrega disponível">{{ delivery.nextAvailableDate | date: 'dd/MM/yyyy' }}</td>
+                                <td data-label="Quantidade entregue">
+                                    {{ delivery.deliveryQuantity }} {{ UnityTypeLabels[delivery.unityType] }}
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr class="delivery-list__empty-row">
+                                <td colspan="5">Nenhuma entrega encontrada.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @if (!loading() && !error()) {
+            <app-pagination [pagination]="pagination()" (previousPage)="goToPreviousPage()" (nextPage)="goToNextPage()" />
+        }
+    } @else {
+        <app-delivery-create-form />
+    }
+</section>
