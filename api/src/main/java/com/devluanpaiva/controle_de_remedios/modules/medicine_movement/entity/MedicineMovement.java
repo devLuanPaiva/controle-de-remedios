@@ -1,4 +1,4 @@
-package com.devluanpaiva.controle_de_remedios.modules.medicine_moviment.entity;
+package com.devluanpaiva.controle_de_remedios.modules.medicine_movement.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,18 +15,18 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
-import com.devluanpaiva.controle_de_remedios.modules.medicine_moviment.enums.MovementType;
+import com.devluanpaiva.controle_de_remedios.modules.medicine_movement.enums.MovementType;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.entity.PrescriptionItem;
 
 @Entity
-@Table(name = "medicine_moviments")
+@Table(name = "medicine_movements")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MedicineMoviment {
+public class MedicineMovement {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

@@ -4,7 +4,7 @@ CREATE TYPE movement_type AS ENUM (
     'REQUESTED'
 );
 
-CREATE TABLE medicine_moviments (
+CREATE TABLE medicine_movements (
     id UUID PRIMARY KEY,
     medicine_id UUID NOT NULL,
     quantity INTEGER NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE medicine_moviments (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_medicine_moviments_medicine
+    CONSTRAINT fk_medicine_movements_medicine
         FOREIGN KEY (medicine_id)
         REFERENCES medicines(id)
         ON DELETE CASCADE
