@@ -73,7 +73,7 @@ public class PrescriptionItem {
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(nullable = false, columnDefinition = "Treatment_type")
+    @Column(nullable = false, columnDefinition = "treatment_type")
     private TreatmentType treatmentType;
 
     @Column(nullable = false)

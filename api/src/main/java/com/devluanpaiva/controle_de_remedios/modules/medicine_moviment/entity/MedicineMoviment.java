@@ -16,6 +16,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
 import com.devluanpaiva.controle_de_remedios.modules.medicine_moviment.enums.MovementType;
+import com.devluanpaiva.controle_de_remedios.modules.prescription_item.entity.PrescriptionItem;
 
 @Entity
 @Table(name = "medicine_moviments")
@@ -33,6 +34,10 @@ public class MedicineMoviment {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "medicine_id", nullable = false)
     private Medicine medicine;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "prescription_item_id")
+    private PrescriptionItem prescriptionItem;
 
     @Column(nullable = false)
     private Integer quantity;
