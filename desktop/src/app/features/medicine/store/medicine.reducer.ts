@@ -13,6 +13,8 @@ const initialState: MedicineState = {
     totalPages: 1,
     next: null,
     previous: null,
+    selectedMedicine: null,
+    selectedMedicineLoading: false,
 };
 
 export const medicineReducer = createReducer(
@@ -57,5 +59,28 @@ export const medicineReducer = createReducer(
         ...state,
         mutating: false,
         error: message,
+    })),
+
+    on(MedicineActions.loadMedicineById, (state) => ({
+        ...state,
+        selectedMedicine: null,
+        selectedMedicineLoading: true,
+    })),
+
+    on(MedicineActions.loadMedicineByIdSuccess, (state, { medicine }) => ({
+        ...state,
+        selectedMedicine: medicine,
+        selectedMedicineLoading: false,
+    })),
+
+    on(MedicineActions.loadMedicineByIdFailure, (state, { message }) => ({
+        ...state,
+        selectedMedicineLoading: false,
+        error: message,
+    })),
+
+    on(MedicineActions.clearSelectedMedicine, (state) => ({
+        ...state,
+        selectedMedicine: null,
     })),
 );
