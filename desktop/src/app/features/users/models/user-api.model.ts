@@ -52,7 +52,7 @@ export function toUser(dto: UserApiDto): IUser {
         email: dto.email,
         imageUrl: dto.imageUrl ?? undefined,
         cpf: dto.cpf,
-        role: normalizeUserRole(dto.role) ?? UserRole.USER,
+        role: normalizeUserRole(dto.role) ?? UserRole.ASSISTANT,
         createdAt: new Date(dto.createdAt),
         updatedAt: new Date(dto.updatedAt),
     };

@@ -1,0 +1,14 @@
+.user-create-form {
+    margin-top: var(--space-4);
+}
+
+.user-create-form__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.user-create-form__hint {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+}

@@ -1,0 +1,94 @@
+<form class="user-create-form card" (submit)="onSubmit($event)" novalidate>
+    <div class="card-body user-create-form__body">
+        <app-field
+            for="create-user-name"
+            label="Nome"
+            [touched]="userForm.name().touched()"
+            [invalid]="userForm.name().invalid()"
+            [errorMessage]="userForm.name().errors()[0]?.message"
+        >
+            <input
+                id="create-user-name"
+                class="input"
+                type="text"
+                autocomplete="name"
+                autofocus
+                [formField]="userForm.name"
+                [attr.aria-invalid]="userForm.name().invalid() && userForm.name().touched()"
+                [attr.aria-describedby]="userForm.name().invalid() && userForm.name().touched() ? 'create-user-name-error' : null"
+            />
+        </app-field>
+
+        <app-field
+            for="create-user-email"
+            label="Email"
+            [touched]="userForm.email().touched()"
+            [invalid]="userForm.email().invalid()"
+            [errorMessage]="userForm.email().errors()[0]?.message"
+        >
+            <input
+                id="create-user-email"
+                class="input"
+                type="email"
+                autocomplete="email"
+                [formField]="userForm.email"
+                [attr.aria-invalid]="userForm.email().invalid() && userForm.email().touched()"
+                [attr.aria-describedby]="userForm.email().invalid() && userForm.email().touched() ? 'create-user-email-error' : null"
+            />
+        </app-field>
+
+        <app-cpf-field id="create-user-cpf" [field]="userForm.cpf" />
+
+        <app-field
+            for="create-user-role"
+            label="Perfil"
+            [touched]="userForm.role().touched()"
+            [invalid]="userForm.role().invalid()"
+            [errorMessage]="userForm.role().errors()[0]?.message"
+        >
+            <select
+                #roleSelect
+                id="create-user-role"
+                class="input"
+                [value]="model().role ?? ''"
+                (change)="onRoleChange(roleSelect.value)"
+                (blur)="userForm.role().markAsTouched()"
+                [attr.aria-invalid]="userForm.role().invalid() && userForm.role().touched()"
+                [attr.aria-describedby]="userForm.role().invalid() && userForm.role().touched() ? 'create-user-role-error' : null"
+            >
+                <option value="" disabled>Selecione um perfil</option>
+                @for (role of allowedRoles(); track role) {
+                    <option [value]="role">{{ roleLabel(role) }}</option>
+                }
+            </select>
+        </app-field>
+
+        <app-password-field id="create-user-password" [field]="userForm.password" />
+
+        <app-image-upload-field
+            id="create-user-image"
+            label="Foto de perfil (opcional)"
+            context="PROFILE"
+            [ownerName]="model().name"
+            [imageUrl]="model().imageUrl || undefined"
+            (uploaded)="onImageUploaded($event)"
+        />
+
+        @if (connectedCompany(); as company) {
+            <p class="user-create-form__hint">
+                Este usuário será associado à empresa conectada: <strong>{{ company.name }}</strong>.
+            </p>
+        }
+    </div>
+
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
+            @if (mutating()) {
+                <span class="spinner spinner-sm" aria-hidden="true"></span>
+                <span>Salvando...</span>
+            } @else {
+                <span>Cadastrar usuário</span>
+            }
+        </button>
+    </div>
+</form>
