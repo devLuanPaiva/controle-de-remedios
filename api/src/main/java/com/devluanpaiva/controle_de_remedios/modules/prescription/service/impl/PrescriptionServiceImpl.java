@@ -1,5 +1,6 @@
 package com.devluanpaiva.controle_de_remedios.modules.prescription.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,9 +15,11 @@ import org.springframework.util.StringUtils;
 
 import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.service.DeliveryEligibilityService;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.service.MedicineResolutionService;
+import com.devluanpaiva.controle_de_remedios.modules.medicine_movement.service.MedicineMovementService;
 import com.devluanpaiva.controle_de_remedios.modules.patient.entity.Patient;
 import com.devluanpaiva.controle_de_remedios.modules.patient.repository.PatientRepository;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.dto.CreatePrescriptionRequestDTO;
@@ -50,6 +53,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final CompanyRepository companyRepository;
     private final MedicineRepository medicineRepository;
     private final MedicineResolutionService medicineResolutionService;
+    private final DeliveryEligibilityService deliveryEligibilityService;
+    private final MedicineMovementService medicineMovementService;
     private final PrescriptionMapper prescriptionMapper;
     private final SecurityContextHelper securityContextHelper;
     private final AuthorizationPolicy authorizationPolicy;
@@ -70,17 +75,21 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .build();
 
         List<PrescriptionItem> items = dto.items().stream()
-                .map(itemDto -> buildPrescriptionItem(itemDto, prescription, patient.getCompany()))
+                .map(itemDto -> buildPrescriptionItem(itemDto, prescription, patient))
                 .toList();
         prescription.getItems().addAll(items);
 
         Prescription savedPrescription = prescriptionRepository.save(prescription);
+        savedPrescription.getItems().forEach(medicineMovementService::recordRequested);
+
         return prescriptionMapper.toResponseDTO(savedPrescription);
     }
 
     private PrescriptionItem buildPrescriptionItem(
-            CreatePrescriptionItemRequestDTO dto, Prescription prescription, Company company) {
-        Medicine medicine = resolveMedicine(dto, company);
+            CreatePrescriptionItemRequestDTO dto, Prescription prescription, Patient patient) {
+        Medicine medicine = resolveMedicine(dto, patient.getCompany());
+
+        deliveryEligibilityService.assertEligible(patient, medicine);
 
         return PrescriptionItem.builder()
                 .prescription(prescription)
@@ -95,6 +104,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .treatmentDays(dto.treatmentDays())
                 .receivedQuantity(0)
                 .deliveredQuantity(0)
+                .requestedAt(LocalDateTime.now())
                 .build();
     }
 

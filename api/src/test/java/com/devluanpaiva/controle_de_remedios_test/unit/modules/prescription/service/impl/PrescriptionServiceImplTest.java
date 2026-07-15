@@ -3,7 +3,10 @@ package com.devluanpaiva.controle_de_remedios_test.unit.modules.prescription.ser
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
@@ -28,10 +32,12 @@ import org.springframework.http.HttpStatus;
 
 import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.service.DeliveryEligibilityService;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.mapper.MedicineMapper;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.service.MedicineResolutionService;
+import com.devluanpaiva.controle_de_remedios.modules.medicine_movement.service.MedicineMovementService;
 import com.devluanpaiva.controle_de_remedios.modules.patient.entity.Patient;
 import com.devluanpaiva.controle_de_remedios.modules.patient.mapper.PatientMapper;
 import com.devluanpaiva.controle_de_remedios.modules.patient.repository.PatientRepository;
@@ -76,6 +82,12 @@ class PrescriptionServiceImplTest {
     private MedicineResolutionService medicineResolutionService;
 
     @Mock
+    private DeliveryEligibilityService deliveryEligibilityService;
+
+    @Mock
+    private MedicineMovementService medicineMovementService;
+
+    @Mock
     private SecurityContextHelper securityContextHelper;
 
     private PrescriptionServiceImpl prescriptionService;
@@ -87,7 +99,8 @@ class PrescriptionServiceImplTest {
 
         prescriptionService = new PrescriptionServiceImpl(
                 prescriptionRepository, patientRepository, companyRepository, medicineRepository,
-                medicineResolutionService, prescriptionMapper, securityContextHelper, new AuthorizationPolicy());
+                medicineResolutionService, deliveryEligibilityService, medicineMovementService,
+                prescriptionMapper, securityContextHelper, new AuthorizationPolicy());
     }
 
     private Company buildCompany() {
@@ -268,6 +281,61 @@ class PrescriptionServiceImplTest {
                     HttpStatus.UNPROCESSABLE_CONTENT, "MEDICINE_COMPANY_MISMATCH");
 
             verify(prescriptionRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("should fail the whole prescription when one item is still within a previous treatment period")
+        void shouldFailWholePrescriptionWhenOneItemIsNotEligible() {
+            User admin = buildUser(UserRole.ADMIN);
+            Company company = buildCompany();
+            Patient patient = buildPatient(company);
+            Medicine eligibleMedicine = buildMedicine(company);
+            Medicine blockedMedicine = buildMedicine(company);
+            CreatePrescriptionRequestDTO dto = new CreatePrescriptionRequestDTO(
+                    null, LocalDate.now(), patient.getId(),
+                    List.of(buildItemDto(eligibleMedicine.getId()), buildItemDto(blockedMedicine.getId())));
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+            when(patientRepository.findById(patient.getId())).thenReturn(Optional.of(patient));
+            when(medicineRepository.findById(eligibleMedicine.getId())).thenReturn(Optional.of(eligibleMedicine));
+            when(medicineRepository.findById(blockedMedicine.getId())).thenReturn(Optional.of(blockedMedicine));
+            doNothing().when(deliveryEligibilityService).assertEligible(patient, eligibleMedicine);
+            doThrow(new BusinessException(
+                    HttpStatus.CONFLICT, "Remédio ainda está no prazo de tratamento anterior",
+                    "MEDICINE_STILL_IN_TREATMENT_PERIOD", "medicineId", "detail"))
+                    .when(deliveryEligibilityService).assertEligible(patient, blockedMedicine);
+
+            assertFailsWith(
+                    () -> prescriptionService.createPrescription(dto),
+                    HttpStatus.CONFLICT, "MEDICINE_STILL_IN_TREATMENT_PERIOD");
+
+            verify(prescriptionRepository, never()).save(any());
+            verify(medicineMovementService, never()).recordRequested(any());
+        }
+
+        @Test
+        @DisplayName("should set requestedAt and record a REQUESTED movement for each created item")
+        void shouldSetRequestedAtAndRecordRequestedMovementForEachItem() {
+            User admin = buildUser(UserRole.ADMIN);
+            Company company = buildCompany();
+            Patient patient = buildPatient(company);
+            Medicine medicine = buildMedicine(company);
+            CreatePrescriptionRequestDTO dto = new CreatePrescriptionRequestDTO(
+                    null, LocalDate.now(), patient.getId(), List.of(buildItemDto(medicine.getId())));
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+            when(patientRepository.findById(patient.getId())).thenReturn(Optional.of(patient));
+            when(medicineRepository.findById(medicine.getId())).thenReturn(Optional.of(medicine));
+            when(prescriptionRepository.save(any(Prescription.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            prescriptionService.createPrescription(dto);
+
+            ArgumentCaptor<Prescription> captor = ArgumentCaptor.forClass(Prescription.class);
+            verify(prescriptionRepository).save(captor.capture());
+            assertThat(captor.getValue().getItems()).hasSize(1);
+            assertThat(captor.getValue().getItems().get(0).getRequestedAt()).isNotNull();
+            verify(medicineMovementService, times(1)).recordRequested(any());
         }
     }
 
