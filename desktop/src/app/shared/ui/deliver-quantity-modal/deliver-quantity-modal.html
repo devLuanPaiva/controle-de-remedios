@@ -1,0 +1,41 @@
+<app-modal
+    #modalRef
+    titleId="deliver-quantity-title"
+    [titleText]="'Entregar ' + medicineName()"
+    (closed)="closed.emit()"
+>
+    <form (submit)="onSubmit($event)" novalidate>
+        <div class="modal-body deliver-quantity-modal__body">
+            <app-field
+                for="deliver-quantity"
+                label="Quantidade entregue"
+                [touched]="touched()"
+                [invalid]="touched() && invalid()"
+                [errorMessage]="touched() && invalid() ? 'Informe uma quantidade válida.' : undefined"
+            >
+                <input
+                    id="deliver-quantity"
+                    #quantityInput
+                    class="input"
+                    type="number"
+                    min="1"
+                    autofocus
+                    (input)="onQuantityChange(quantityInput.value)"
+                    (blur)="touched.set(true)"
+                />
+            </app-field>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline btn-sm" (click)="requestClose()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSubmit()">
+                @if (mutating()) {
+                    <span class="spinner spinner-sm" aria-hidden="true"></span>
+                    <span>Entregando...</span>
+                } @else {
+                    <span>Confirmar entrega</span>
+                }
+            </button>
+        </div>
+    </form>
+</app-modal>
