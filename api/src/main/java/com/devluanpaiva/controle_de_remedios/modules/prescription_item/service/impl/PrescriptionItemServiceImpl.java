@@ -1,5 +1,6 @@
 package com.devluanpaiva.controle_de_remedios.modules.prescription_item.service.impl;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -112,12 +113,18 @@ public class PrescriptionItemServiceImpl implements PrescriptionItemService {
         User actor = securityContextHelper.getCurrentUser();
         PrescriptionItem item = findPrescriptionItemOrThrow(id);
 
-        assertCanManage(actor, item.getPrescription().getPatient());
+        assertCanDelete(actor, item.getPrescription().getPatient());
 
         prescriptionItemRepository.delete(item);
     }
 
     private void assertCanManage(User actor, Patient patient) {
+        authorizationPolicy.requireAdminOrRolesWithCondition(
+                actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT),
+                () -> isMemberOf(patient.getCompany().getId(), actor));
+    }
+
+    private void assertCanDelete(User actor, Patient patient) {
         authorizationPolicy.requireAdminOrRoleWithCondition(
                 actor, UserRole.MANAGER, () -> isMemberOf(patient.getCompany().getId(), actor));
     }

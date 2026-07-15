@@ -3,6 +3,7 @@ package com.devluanpaiva.controle_de_remedios.modules.prescription.service.impl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -178,9 +179,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private Specification<Prescription> visibilityScope(User actor) {
         return switch (actor.getRole()) {
             case ADMIN -> Specification.unrestricted();
-            case MANAGER -> PrescriptionSpecification.associatedWithManager(actor.getId());
+            case MANAGER, ASSISTANT -> PrescriptionSpecification.associatedWithManager(actor.getId());
             case PATIENT -> PrescriptionSpecification.associatedWithPatientUser(actor.getId());
-            case USER -> throw authorizationPolicy.forbidden();
         };
     }
 
@@ -214,12 +214,18 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         User actor = securityContextHelper.getCurrentUser();
         Prescription prescription = findPrescriptionOrThrow(id);
 
-        assertCanManage(actor, prescription.getPatient());
+        assertCanDelete(actor, prescription.getPatient());
 
         prescriptionRepository.delete(prescription);
     }
 
     private void assertCanManage(User actor, Patient patient) {
+        authorizationPolicy.requireAdminOrRolesWithCondition(
+                actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT),
+                () -> isMemberOf(patient.getCompany().getId(), actor));
+    }
+
+    private void assertCanDelete(User actor, Patient patient) {
         authorizationPolicy.requireAdminOrRoleWithCondition(
                 actor, UserRole.MANAGER, () -> isMemberOf(patient.getCompany().getId(), actor));
     }

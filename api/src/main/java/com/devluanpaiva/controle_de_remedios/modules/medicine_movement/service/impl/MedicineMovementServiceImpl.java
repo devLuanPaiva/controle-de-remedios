@@ -2,6 +2,7 @@ package com.devluanpaiva.controle_de_remedios.modules.medicine_movement.service.
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -134,14 +135,15 @@ public class MedicineMovementServiceImpl implements MedicineMovementService {
     private Specification<MedicineMovement> visibilityScope(User actor) {
         return switch (actor.getRole()) {
             case ADMIN -> Specification.unrestricted();
-            case MANAGER -> MedicineMovementSpecification.associatedWithManager(actor.getId());
-            case USER, PATIENT -> throw authorizationPolicy.forbidden();
+            case MANAGER, ASSISTANT -> MedicineMovementSpecification.associatedWithManager(actor.getId());
+            case PATIENT -> throw authorizationPolicy.forbidden();
         };
     }
 
     private void assertCanManage(User actor, Medicine medicine) {
-        authorizationPolicy.requireAdminOrRoleWithCondition(
-                actor, UserRole.MANAGER, () -> isMemberOf(medicine.getCompany().getId(), actor));
+        authorizationPolicy.requireAdminOrRolesWithCondition(
+                actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT),
+                () -> isMemberOf(medicine.getCompany().getId(), actor));
     }
 
     private boolean isMemberOf(UUID companyId, User user) {

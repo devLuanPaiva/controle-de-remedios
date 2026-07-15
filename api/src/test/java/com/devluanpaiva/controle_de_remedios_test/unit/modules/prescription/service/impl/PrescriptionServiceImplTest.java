@@ -3,6 +3,7 @@ package com.devluanpaiva.controle_de_remedios_test.unit.modules.prescription.ser
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -25,7 +26,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -43,6 +46,7 @@ import com.devluanpaiva.controle_de_remedios.modules.patient.mapper.PatientMappe
 import com.devluanpaiva.controle_de_remedios.modules.patient.repository.PatientRepository;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.dto.CreatePrescriptionRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.dto.PrescriptionDetailResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.prescription.dto.PrescriptionListItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.dto.PrescriptionResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.dto.UpdatePrescriptionRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.entity.Prescription;
@@ -380,17 +384,20 @@ class PrescriptionServiceImplTest {
 
         @SuppressWarnings("unchecked")
         @Test
-        @DisplayName("should deny a USER role from listing prescriptions")
-        void shouldDenyUserRoleFromListingPrescriptions() {
-            User user = buildUser(UserRole.USER);
+        @DisplayName("should allow an ASSISTANT role to list prescriptions scoped to their company")
+        void shouldAllowAssistantRoleToListPrescriptions() {
+            User user = buildUser(UserRole.ASSISTANT);
             Pageable pageable = PageRequest.of(0, 20);
             PrescriptionFilter noFilter = new PrescriptionFilter(null, null, null, null, null);
+            Page<Prescription> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(user);
+            when(prescriptionRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(emptyPage);
 
-            assertForbidden(() -> prescriptionService.getPrescriptions(noFilter, pageable));
+            Page<PrescriptionListItemResponseDTO> result = prescriptionService.getPrescriptions(noFilter, pageable);
 
-            verify(prescriptionRepository, never()).findAll(any(Specification.class), any(Pageable.class));
+            assertThat(result.getContent()).isEmpty();
+            verify(prescriptionRepository).findAll(any(Specification.class), eq(pageable));
         }
     }
 

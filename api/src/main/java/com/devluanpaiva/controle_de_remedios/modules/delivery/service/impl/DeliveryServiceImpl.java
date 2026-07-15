@@ -1,6 +1,7 @@
 package com.devluanpaiva.controle_de_remedios.modules.delivery.service.impl;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -181,8 +182,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 User actor = securityContextHelper.getCurrentUser();
                 Medicine medicine = findMedicineOrThrow(medicineId);
 
-                authorizationPolicy.requireAdminOrRoleWithCondition(
-                                actor, UserRole.MANAGER, () -> isMemberOf(medicine.getCompany().getId(), actor));
+                authorizationPolicy.requireAdminOrRolesWithCondition(
+                                actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT),
+                                () -> isMemberOf(medicine.getCompany().getId(), actor));
 
                 List<PrescriptionItem> pendingItems = prescriptionItemRepository
                                 .findByMedicine_IdAndStatusInAndDeliveryIsNullOrderByCreatedAtAsc(medicineId,
@@ -205,15 +207,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         private Specification<Delivery> visibilityScope(User actor) {
                 return switch (actor.getRole()) {
                         case ADMIN -> Specification.unrestricted();
-                        case MANAGER -> DeliverySpecification.associatedWithManager(actor.getId());
+                        case MANAGER, ASSISTANT -> DeliverySpecification.associatedWithManager(actor.getId());
                         case PATIENT -> DeliverySpecification.associatedWithPatientUser(actor.getId());
-                        case USER -> throw authorizationPolicy.forbidden();
                 };
         }
 
         private void assertCanManage(User actor, Patient patient) {
-                authorizationPolicy.requireAdminOrRoleWithCondition(
-                                actor, UserRole.MANAGER, () -> isMemberOf(patient.getCompany().getId(), actor));
+                authorizationPolicy.requireAdminOrRolesWithCondition(
+                                actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT),
+                                () -> isMemberOf(patient.getCompany().getId(), actor));
         }
 
         private void assertCanView(User actor, Patient patient) {

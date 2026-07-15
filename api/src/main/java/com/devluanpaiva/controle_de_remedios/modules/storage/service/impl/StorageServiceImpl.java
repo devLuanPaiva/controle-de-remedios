@@ -3,6 +3,7 @@ package com.devluanpaiva.controle_de_remedios.modules.storage.service.impl;
 import java.security.SecureRandom;
 import java.text.Normalizer;
 import java.time.Duration;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -61,7 +62,8 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public PresignedUploadResponseDTO createPresignedUpload(PresignedUploadRequestDTO dto) {
         User actor = securityContextHelper.getCurrentUser();
-        authorizationPolicy.requireAdminOrRoleWithCondition(actor, UserRole.MANAGER, () -> true);
+        authorizationPolicy.requireAdminOrRolesWithCondition(actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT),
+                () -> true);
 
         if (!dto.contentType().startsWith("image/")) {
             throw new BusinessException(

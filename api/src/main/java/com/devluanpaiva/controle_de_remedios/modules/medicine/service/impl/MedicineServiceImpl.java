@@ -1,5 +1,6 @@
 package com.devluanpaiva.controle_de_remedios.modules.medicine.service.impl;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -46,8 +47,8 @@ public class MedicineServiceImpl implements MedicineService {
     }
 
     private void assertCanManage(User actor, UUID companyId) {
-        authorizationPolicy.requireAdminOrRoleWithCondition(
-                actor, UserRole.MANAGER, () -> isMemberOf(companyId, actor));
+        authorizationPolicy.requireAdminOrRolesWithCondition(
+                actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT), () -> isMemberOf(companyId, actor));
     }
 
     private boolean isMemberOf(UUID companyId, User user) {
