@@ -13,6 +13,7 @@ import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.CreateMedicine
 import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.MedicineResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.mapper.MedicineMapper;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.service.MedicineResolutionService;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.service.MedicineService;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MedicineServiceImpl implements MedicineService {
     private final CompanyRepository companyRepository;
+    private final MedicineRepository medicineRepository;
     private final MedicineMapper medicineMapper;
     private final MedicineResolutionService medicineResolutionService;
     private final SecurityContextHelper securityContextHelper;
@@ -42,6 +44,17 @@ public class MedicineServiceImpl implements MedicineService {
 
         Medicine medicine = medicineResolutionService.resolveOrCreate(
                 company, dto.name(), dto.eanCode(), dto.imageUrl());
+
+        return medicineMapper.toResponseDTO(medicine);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MedicineResponseDTO getMedicineById(UUID id) {
+        User actor = securityContextHelper.getCurrentUser();
+        Medicine medicine = findMedicineOrThrow(id);
+
+        assertCanManage(actor, medicine.getCompany().getId());
 
         return medicineMapper.toResponseDTO(medicine);
     }
@@ -63,5 +76,15 @@ public class MedicineServiceImpl implements MedicineService {
                         "COMPANY_NOT_FOUND",
                         "companyId",
                         "Não foi possível encontrar uma empresa com o ID '" + id + "'."));
+    }
+
+    private Medicine findMedicineOrThrow(UUID id) {
+        return medicineRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        HttpStatus.NOT_FOUND,
+                        "Medicamento não encontrado",
+                        "MEDICINE_NOT_FOUND",
+                        "medicineId",
+                        "Não foi possível encontrar um medicamento com o ID '" + id + "'."));
     }
 }

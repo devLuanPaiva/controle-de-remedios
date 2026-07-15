@@ -1,5 +1,7 @@
 package com.devluanpaiva.controle_de_remedios.modules.medicine.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,5 +24,10 @@ public class MedicineController {
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<MedicineResponseDTO> createMedicine(@RequestBody @Valid CreateMedicineRequestDTO dto) {
         return ApiResponseFactory.success("Medicamento criado com sucesso", medicineService.createMedicine(dto));
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<MedicineResponseDTO> getMedicineById(@PathVariable UUID id) {
+        return ApiResponseFactory.success("Medicamento encontrado com sucesso", medicineService.getMedicineById(id));
     }
 }
