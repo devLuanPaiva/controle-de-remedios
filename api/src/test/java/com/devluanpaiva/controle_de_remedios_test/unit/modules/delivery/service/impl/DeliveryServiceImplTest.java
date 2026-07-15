@@ -3,9 +3,12 @@ package com.devluanpaiva.controle_de_remedios_test.unit.modules.delivery.service
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,6 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 
 import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
@@ -24,6 +32,7 @@ import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.CreateDelivery
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.DeliveryResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.ReserveStockRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.entity.Delivery;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.DeliveryFilter;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.mapper.DeliveryMapper;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.repository.DeliveryRepository;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.service.impl.DeliveryServiceImpl;
@@ -239,6 +248,58 @@ class DeliveryServiceImplTest {
                         assertThat(businessException.getStatus()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
                         assertThat(businessException.getCode()).isEqualTo("RESERVATION_EXCEEDS_PRESCRIBED_QUANTITY");
                     });
+        }
+    }
+
+    @Nested
+    @DisplayName("listDeliveries")
+    class ListDeliveries {
+
+        @Test
+        @DisplayName("should throw 400 when companyId is not provided")
+        void shouldThrowWhenCompanyIdIsMissing() {
+            User admin = buildUser(UserRole.ADMIN);
+            DeliveryFilter filter = new DeliveryFilter(null, null, null, null, null, null, null);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+
+            assertThatThrownBy(() -> deliveryService.listDeliveries(filter, PageRequest.of(0, 20)))
+                    .isInstanceOf(BusinessException.class)
+                    .satisfies(ex -> {
+                        BusinessException businessException = (BusinessException) ex;
+                        assertThat(businessException.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+                        assertThat(businessException.getCode()).isEqualTo("COMPANY_ID_REQUIRED");
+                    });
+
+            verify(deliveryRepository, never()).findAll(any(Specification.class), any(Pageable.class));
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("should list deliveries scoped by the provided companyId")
+        void shouldListDeliveriesScopedByCompany() {
+            User admin = buildUser(UserRole.ADMIN);
+            Company company = buildCompany();
+            PrescriptionItem item = buildItem(company, 30, 30);
+            Delivery delivery = Delivery.builder()
+                    .id(UUID.randomUUID())
+                    .company(company)
+                    .patient(item.getPrescription().getPatient())
+                    .prescriptionItem(item)
+                    .deliveryDate(LocalDate.now())
+                    .deliveryQuantity(30)
+                    .build();
+            DeliveryFilter filter = new DeliveryFilter(company.getId(), null, null, null, null, null, null);
+            Pageable pageable = PageRequest.of(0, 20);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+            when(deliveryRepository.findAll(any(Specification.class), any(Pageable.class)))
+                    .thenReturn(new PageImpl<>(List.of(delivery)));
+
+            Page<DeliveryResponseDTO> result = deliveryService.listDeliveries(filter, pageable);
+
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.getContent().get(0).companyId()).isEqualTo(company.getId());
         }
     }
 }

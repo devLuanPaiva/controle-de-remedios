@@ -153,9 +153,23 @@ public class DeliveryServiceImpl implements DeliveryService {
         public Page<DeliveryResponseDTO> listDeliveries(DeliveryFilter filter, Pageable pageable) {
                 User actor = securityContextHelper.getCurrentUser();
 
+                if (filter.companyId() == null) {
+                        throw new BusinessException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Parâmetro obrigatório ausente",
+                                        "COMPANY_ID_REQUIRED",
+                                        "companyId",
+                                        "O parâmetro 'companyId' é obrigatório.");
+                }
+
                 Specification<Delivery> specification = visibilityScope(actor)
+                                .and(DeliverySpecification.hasCompanyId(filter.companyId()))
                                 .and(DeliverySpecification.hasPatientId(filter.patientId()))
-                                .and(DeliverySpecification.hasMedicineId(filter.medicineId()));
+                                .and(DeliverySpecification.hasMedicineId(filter.medicineId()))
+                                .and(DeliverySpecification.hasMedicineName(filter.medicineName()))
+                                .and(DeliverySpecification.hasPatientName(filter.patientName()))
+                                .and(DeliverySpecification.hasPatientEmail(filter.patientEmail()))
+                                .and(DeliverySpecification.hasPatientCpf(filter.patientCpf()));
 
                 return deliveryRepository.findAll(specification, pageable)
                                 .map(deliveryMapper::toResponseDTO);

@@ -44,11 +44,17 @@ public class DeliveryController {
     public ApiResponse<List<DeliveryResponseDTO>> getDeliveries(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) UUID companyId,
             @RequestParam(required = false) UUID patientId,
-            @RequestParam(required = false) UUID medicineId) {
+            @RequestParam(required = false) UUID medicineId,
+            @RequestParam(required = false) String medicineName,
+            @RequestParam(required = false) String patientName,
+            @RequestParam(required = false) String patientEmail,
+            @RequestParam(required = false) String patientCpf) {
 
         Pageable pageable = PageableFactory.build(page, size);
-        DeliveryFilter filter = new DeliveryFilter(patientId, medicineId);
+        DeliveryFilter filter = new DeliveryFilter(
+                companyId, patientId, medicineId, medicineName, patientName, patientEmail, patientCpf);
         Page<DeliveryResponseDTO> result = deliveryService.listDeliveries(filter, pageable);
 
         String next = result.hasNext() ? buildPageUri(page + 1, size) : null;
