@@ -1,0 +1,83 @@
+<div class="delivery-create-form">
+    <div class="delivery-create-form__search">
+        <button type="button" class="btn btn-primary" (click)="openCpfModal()">Buscar paciente</button>
+
+        @if (searchedCpf(); as cpf) {
+            <span class="delivery-create-form__searched-cpf">CPF pesquisado: {{ formatCpf(cpf) }}</span>
+        }
+    </div>
+
+    @if (loading()) {
+        <div class="loading delivery-create-form__state">
+            <output class="spinner" aria-label="Carregando receitas"></output>
+        </div>
+    } @else if (hasSearched() && prescriptions().length === 0) {
+        <p class="delivery-create-form__empty">Nenhuma receita pendente encontrada para este paciente.</p>
+    } @else if (prescriptions().length > 0) {
+        <div class="delivery-create-form__prescriptions">
+            @for (prescription of prescriptions(); track prescription.id) {
+                <div class="delivery-create-form__prescription card">
+                    <div class="card-header delivery-create-form__prescription-header">
+                        <app-image-fallback
+                            class="delivery-create-form__prescription-image"
+                            [src]="prescription.coverImageUrl"
+                            alt="Receita"
+                            icon="prescription"
+                        />
+
+                        <span class="delivery-create-form__prescription-date">
+                            Emitida em {{ prescription.issueDate | date: 'dd/MM/yyyy' }}
+                        </span>
+
+                        @if (hasDeliverableItems(prescription)) {
+                            <button
+                                type="button"
+                                class="btn btn-primary btn-sm"
+                                [disabled]="mutating()"
+                                (click)="deliverTotal(prescription.id)"
+                            >
+                                Entrega total
+                            </button>
+                        }
+                    </div>
+
+                    <div class="card-body delivery-create-form__items">
+                        @for (item of prescription.items; track item.id) {
+                            <div class="delivery-create-form__item">
+                                <div class="delivery-create-form__item-info">
+                                    <span class="delivery-create-form__item-medicine">{{ item.medicineName }}</span>
+                                    <span class="delivery-create-form__item-ean">EAN: {{ item.medicineEanCode ?? '—' }}</span>
+                                    <span>Dosagem: {{ item.dosage }}</span>
+                                    <span>Recebido: {{ item.receivedQuantity }} {{ UnityTypeLabels[item.unityType] }}</span>
+                                    <span>Entregue: {{ item.deliveredQuantity }} {{ UnityTypeLabels[item.unityType] }}</span>
+                                    <app-prescription-status-badge [status]="item.status" />
+                                </div>
+
+                                @if (isDeliverable(item)) {
+                                    <button type="button" class="btn btn-outline btn-sm" (click)="openQuantityPrompt(item)">
+                                        Entregar
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    } @else {
+        <p class="delivery-create-form__empty">Busque um paciente pelo CPF para ver suas receitas pendentes.</p>
+    }
+</div>
+
+@if (showCpfModal()) {
+    <app-patient-cpf-modal (cpfSubmitted)="onCpfSubmitted($event)" (closed)="closeCpfModal()" />
+}
+
+@if (quantityPromptItem(); as item) {
+    <app-deliver-quantity-modal
+        [medicineName]="item.medicineName"
+        [mutating]="mutating()"
+        (quantitySubmitted)="onQuantitySubmitted(item, $event)"
+        (closed)="closeQuantityPrompt()"
+    />
+}
