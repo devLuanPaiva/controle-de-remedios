@@ -1,5 +1,6 @@
 package com.devluanpaiva.controle_de_remedios.modules.delivery.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.CreateDeliveryRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.DeliveryResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.EligiblePrescriptionItemResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.EligiblePrescriptionResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.PendingQueueItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.ReserveStockRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.entity.Delivery;
@@ -26,7 +29,10 @@ import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
 import com.devluanpaiva.controle_de_remedios.modules.medicine_movement.service.MedicineMovementService;
 import com.devluanpaiva.controle_de_remedios.modules.patient.entity.Patient;
+import com.devluanpaiva.controle_de_remedios.modules.patient.repository.PatientRepository;
+import com.devluanpaiva.controle_de_remedios.modules.prescription.entity.Prescription;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.enums.PrescriptionStatus;
+import com.devluanpaiva.controle_de_remedios.modules.prescription.repository.PrescriptionRepository;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.PrescriptionItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.entity.PrescriptionItem;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.mapper.PrescriptionItemMapper;
@@ -45,8 +51,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         private static final List<PrescriptionStatus> DELIVERABLE_STATUSES = List.of(
                         PrescriptionStatus.PENDING, PrescriptionStatus.APPROVED);
 
+        private static final List<PrescriptionStatus> ELIGIBLE_PRESCRIPTION_STATUSES = List.of(
+                        PrescriptionStatus.PENDING, PrescriptionStatus.PARTIAL_DELIVERED);
+
         private final DeliveryRepository deliveryRepository;
         private final PrescriptionItemRepository prescriptionItemRepository;
+        private final PrescriptionRepository prescriptionRepository;
+        private final PatientRepository patientRepository;
         private final MedicineRepository medicineRepository;
         private final CompanyRepository companyRepository;
         private final DeliveryMapper deliveryMapper;
@@ -63,7 +74,41 @@ public class DeliveryServiceImpl implements DeliveryService {
                 Patient patient = item.getPrescription().getPatient();
 
                 assertCanManage(actor, patient);
+                assertDeliverable(item);
 
+                if (dto.deliveryQuantity() > item.getPrescribedQuantity()) {
+                        throw new BusinessException(
+                                        HttpStatus.UNPROCESSABLE_CONTENT,
+                                        "Quantidade de entrega inválida",
+                                        "DELIVERY_QUANTITY_EXCEEDS_PRESCRIBED_QUANTITY",
+                                        "deliveryQuantity",
+                                        "A quantidade entregue não pode ser maior que a quantidade prescrita.");
+                }
+
+                Delivery savedDelivery = buildAndPersistDelivery(item, patient, dto.deliveryDate(), dto.deliveryQuantity());
+
+                return deliveryMapper.toResponseDTO(savedDelivery);
+        }
+
+        @Override
+        @Transactional
+        public List<DeliveryResponseDTO> deliverAllPendingItems(UUID prescriptionId) {
+                User actor = securityContextHelper.getCurrentUser();
+                Prescription prescription = findPrescriptionOrThrow(prescriptionId);
+                Patient patient = prescription.getPatient();
+
+                assertCanManage(actor, patient);
+
+                LocalDate today = LocalDate.now();
+
+                return prescription.getItems().stream()
+                                .filter(item -> item.getDelivery() == null && DELIVERABLE_STATUSES.contains(item.getStatus()))
+                                .map(item -> buildAndPersistDelivery(item, patient, today, item.getPrescribedQuantity()))
+                                .map(deliveryMapper::toResponseDTO)
+                                .toList();
+        }
+
+        private void assertDeliverable(PrescriptionItem item) {
                 if (item.getDelivery() != null) {
                         throw new BusinessException(
                                         HttpStatus.CONFLICT,
@@ -82,36 +127,29 @@ public class DeliveryServiceImpl implements DeliveryService {
                                         "O item de receita está com status '" + item.getStatus()
                                                         + "' e não pode ser entregue.");
                 }
+        }
 
-                if (dto.deliveryQuantity() > item.getPrescribedQuantity()) {
-                        throw new BusinessException(
-                                        HttpStatus.UNPROCESSABLE_CONTENT,
-                                        "Quantidade de entrega inválida",
-                                        "DELIVERY_QUANTITY_EXCEEDS_PRESCRIBED_QUANTITY",
-                                        "deliveryQuantity",
-                                        "A quantidade entregue não pode ser maior que a quantidade prescrita.");
-                }
-
+        private Delivery buildAndPersistDelivery(PrescriptionItem item, Patient patient, LocalDate deliveryDate, int quantity) {
                 Delivery delivery = Delivery.builder()
                                 .company(patient.getCompany())
                                 .patient(patient)
                                 .prescriptionItem(item)
-                                .deliveryDate(dto.deliveryDate())
-                                .nextAvailableDate(dto.deliveryDate().plusDays(item.getTreatmentDays()))
-                                .deliveryQuantity(dto.deliveryQuantity())
+                                .deliveryDate(deliveryDate)
+                                .nextAvailableDate(deliveryDate.plusDays(item.getTreatmentDays()))
+                                .deliveryQuantity(quantity)
                                 .build();
 
                 Delivery savedDelivery = deliveryRepository.save(delivery);
 
-                item.setDeliveredQuantity(dto.deliveryQuantity());
-                item.setStatus(dto.deliveryQuantity() < item.getPrescribedQuantity()
+                item.setDeliveredQuantity(quantity);
+                item.setStatus(quantity < item.getPrescribedQuantity()
                                 ? PrescriptionStatus.PARTIAL_DELIVERED
                                 : PrescriptionStatus.DELIVERED);
                 prescriptionItemRepository.save(item);
 
                 medicineMovementService.recordDelivered(savedDelivery);
 
-                return deliveryMapper.toResponseDTO(savedDelivery);
+                return savedDelivery;
         }
 
         @Override
@@ -204,6 +242,46 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 .toList();
         }
 
+        @Override
+        @Transactional(readOnly = true)
+        public List<EligiblePrescriptionResponseDTO> getEligiblePrescriptions(UUID companyId, String cpf) {
+                User actor = securityContextHelper.getCurrentUser();
+                Patient patient = patientRepository.findByCompany_IdAndCpf(companyId, cpf)
+                                .orElseThrow(() -> new BusinessException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Paciente não encontrado",
+                                                "PATIENT_NOT_FOUND",
+                                                "cpf",
+                                                "Não foi possível encontrar um paciente com o CPF informado nesta empresa."));
+
+                assertCanManage(actor, patient);
+
+                return prescriptionRepository
+                                .findByPatient_IdAndStatusInOrderByIssueDateDesc(patient.getId(), ELIGIBLE_PRESCRIPTION_STATUSES)
+                                .stream()
+                                .map(this::toEligiblePrescriptionResponseDTO)
+                                .toList();
+        }
+
+        private EligiblePrescriptionResponseDTO toEligiblePrescriptionResponseDTO(Prescription prescription) {
+                String coverImageUrl = prescription.getImageUrls().isEmpty() ? null : prescription.getImageUrls().get(0);
+
+                List<EligiblePrescriptionItemResponseDTO> items = prescription.getItems().stream()
+                                .map(item -> new EligiblePrescriptionItemResponseDTO(
+                                                item.getId(),
+                                                item.getStatus(),
+                                                item.getDosage(),
+                                                item.getUnityType(),
+                                                item.getReceivedQuantity(),
+                                                item.getDeliveredQuantity(),
+                                                item.getMedicine().getName(),
+                                                item.getMedicine().getEanCode()))
+                                .toList();
+
+                return new EligiblePrescriptionResponseDTO(
+                                prescription.getId(), coverImageUrl, prescription.getIssueDate(), items);
+        }
+
         private Specification<Delivery> visibilityScope(User actor) {
                 return switch (actor.getRole()) {
                         case ADMIN -> Specification.unrestricted();
@@ -229,6 +307,16 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         private boolean isMemberOf(UUID companyId, User user) {
                 return companyRepository.existsByIdAndUsers_Id(companyId, user.getId());
+        }
+
+        private Prescription findPrescriptionOrThrow(UUID id) {
+                return prescriptionRepository.findById(id)
+                                .orElseThrow(() -> new BusinessException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Receita não encontrada",
+                                                "PRESCRIPTION_NOT_FOUND",
+                                                "prescriptionId",
+                                                "Não foi possível encontrar uma receita com o ID '" + id + "'."));
         }
 
         private PrescriptionItem findPrescriptionItemOrThrow(UUID id) {

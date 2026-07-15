@@ -41,8 +41,10 @@ import com.devluanpaiva.controle_de_remedios.modules.medicine.mapper.MedicineMap
 import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
 import com.devluanpaiva.controle_de_remedios.modules.medicine_movement.service.MedicineMovementService;
 import com.devluanpaiva.controle_de_remedios.modules.patient.entity.Patient;
+import com.devluanpaiva.controle_de_remedios.modules.patient.repository.PatientRepository;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.entity.Prescription;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.enums.PrescriptionStatus;
+import com.devluanpaiva.controle_de_remedios.modules.prescription.repository.PrescriptionRepository;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.PrescriptionItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.entity.PrescriptionItem;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.mapper.PrescriptionItemMapper;
@@ -64,6 +66,12 @@ class DeliveryServiceImplTest {
     private PrescriptionItemRepository prescriptionItemRepository;
 
     @Mock
+    private PrescriptionRepository prescriptionRepository;
+
+    @Mock
+    private PatientRepository patientRepository;
+
+    @Mock
     private MedicineRepository medicineRepository;
 
     @Mock
@@ -80,9 +88,10 @@ class DeliveryServiceImplTest {
     @BeforeEach
     void setUp() {
         deliveryService = new DeliveryServiceImpl(
-                deliveryRepository, prescriptionItemRepository, medicineRepository, companyRepository,
-                new DeliveryMapper(), new PrescriptionItemMapper(new MedicineMapper()), medicineMovementService,
-                securityContextHelper, new AuthorizationPolicy());
+                deliveryRepository, prescriptionItemRepository, prescriptionRepository, patientRepository,
+                medicineRepository, companyRepository, new DeliveryMapper(),
+                new PrescriptionItemMapper(new MedicineMapper()), medicineMovementService, securityContextHelper,
+                new AuthorizationPolicy());
     }
 
     private Company buildCompany() {

@@ -11,6 +11,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.CreateDeliveryRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.DeliveryResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.EligiblePrescriptionResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.PendingQueueItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.ReserveStockRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.DeliveryFilter;
@@ -74,6 +75,21 @@ public class DeliveryController {
     public ApiResponse<List<PendingQueueItemResponseDTO>> getPendingQueue(@PathVariable UUID medicineId) {
         return ApiResponseFactory.list(
                 "Fila de entregas pendentes obtida com sucesso", deliveryService.getPendingQueue(medicineId));
+    }
+
+    @GetMapping("/eligible-prescriptions")
+    public ApiResponse<List<EligiblePrescriptionResponseDTO>> getEligiblePrescriptions(
+            @RequestParam UUID companyId, @RequestParam String cpf) {
+        return ApiResponseFactory.list(
+                "Receitas elegíveis para entrega obtidas com sucesso",
+                deliveryService.getEligiblePrescriptions(companyId, cpf));
+    }
+
+    @PostMapping("/prescriptions/{prescriptionId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<List<DeliveryResponseDTO>> deliverAllPendingItems(@PathVariable UUID prescriptionId) {
+        return ApiResponseFactory.list(
+                "Receita entregue com sucesso", deliveryService.deliverAllPendingItems(prescriptionId));
     }
 
     @PatchMapping("/reservations/{prescriptionItemId}")
