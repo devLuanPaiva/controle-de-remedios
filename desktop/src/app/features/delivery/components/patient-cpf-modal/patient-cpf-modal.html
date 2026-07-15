@@ -1,0 +1,12 @@
+<app-modal #modalRef titleId="patient-cpf-title" titleText="Buscar paciente" (closed)="closed.emit()">
+    <form (submit)="onSubmit($event)" novalidate>
+        <div class="modal-body patient-cpf-modal__body">
+            <app-cpf-field id="patient-cpf" [field]="cpfForm.cpf" />
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline btn-sm" (click)="requestClose()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSubmit()">Buscar</button>
+        </div>
+    </form>
+</app-modal>
