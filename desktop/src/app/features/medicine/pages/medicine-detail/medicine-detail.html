@@ -29,38 +29,6 @@
             </div>
         </div>
 
-        @if (balance(); as balance) {
-            <div class="medicine-detail__balance-grid">
-                <div class="medicine-detail__balance-card card">
-                    <div class="card-body">
-                        <span class="medicine-detail__balance-label">Saldo disponível</span>
-                        <span class="medicine-detail__balance-value">{{ balance.availableBalance }}</span>
-                    </div>
-                </div>
-
-                <div class="medicine-detail__balance-card card">
-                    <div class="card-body">
-                        <span class="medicine-detail__balance-label">Recebido</span>
-                        <span class="medicine-detail__balance-value">{{ balance.totalReceived }}</span>
-                    </div>
-                </div>
-
-                <div class="medicine-detail__balance-card card">
-                    <div class="card-body">
-                        <span class="medicine-detail__balance-label">Entregue</span>
-                        <span class="medicine-detail__balance-value">{{ balance.totalDelivered }}</span>
-                    </div>
-                </div>
-
-                <div class="medicine-detail__balance-card card">
-                    <div class="card-body">
-                        <span class="medicine-detail__balance-label">Demanda pendente</span>
-                        <span class="medicine-detail__balance-value">{{ balance.pendingDemand }}</span>
-                    </div>
-                </div>
-            </div>
-        }
-
         <section class="medicine-detail__movements">
             <h2 class="medicine-detail__movements-title">Movimentações</h2>
 

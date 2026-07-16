@@ -13,8 +13,6 @@ import { MovementType, MovementTypeLabels } from '../../models/medicine-movement
 import * as MedicineMovementActions from '../../store/medicine-movement.actions';
 import {
     selectAllMedicineMovements,
-    selectMedicineBalance,
-    selectMedicineBalanceLoading,
     selectMedicineMovementsError,
     selectMedicineMovementsLoading,
     selectMedicineMovementsPagination,
@@ -68,9 +66,6 @@ export class MedicineDetail implements OnDestroy {
     readonly movementsError = this.store.selectSignal(selectMedicineMovementsError);
     readonly movementsPagination = this.store.selectSignal(selectMedicineMovementsPagination);
 
-    readonly balance = this.store.selectSignal(selectMedicineBalance);
-    readonly balanceLoading = this.store.selectSignal(selectMedicineBalanceLoading);
-
     readonly filterForm = signal<MovementFilterForm>({ ...EMPTY_FILTER_FORM });
 
     private readonly requestedPage = signal(0);
@@ -81,7 +76,6 @@ export class MedicineDetail implements OnDestroy {
 
             if (id) {
                 this.store.dispatch(MedicineActions.loadMedicineById({ id }));
-                this.store.dispatch(MedicineMovementActions.loadMedicineBalance({ medicineId: id }));
                 this.requestedPage.set(0);
                 this.store.dispatch(MedicineMovementActions.loadMedicineMovements({ medicineId: id, page: 0 }));
             }

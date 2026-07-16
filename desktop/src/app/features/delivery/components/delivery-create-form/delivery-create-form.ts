@@ -40,7 +40,7 @@ export class DeliveryCreateForm {
     readonly mutating = this.store.selectSignal(selectDeliveriesMutating);
     private readonly connectedCompanyId = this.store.selectSignal(selectSelectedCompanyId);
 
-    readonly showCpfModal = signal(false);
+    readonly showCpfModal = signal(true);
     readonly searchedCpf = signal<string | null>(null);
     readonly quantityPromptItem = signal<IEligiblePrescriptionItem | null>(null);
 
