@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -46,7 +47,7 @@ public class MedicineMovementController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate) {
 
-        Pageable pageable = PageableFactory.build(page, size);
+        Pageable pageable = PageableFactory.build(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         MedicineMovementFilter filter = new MedicineMovementFilter(medicineId, movementType, startDate, endDate);
         Page<MedicineMovementResponseDTO> result = medicineMovementService.listMovements(filter, pageable);
 

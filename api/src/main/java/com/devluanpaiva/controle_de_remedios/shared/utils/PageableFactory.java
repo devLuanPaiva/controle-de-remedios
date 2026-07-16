@@ -2,6 +2,7 @@ package com.devluanpaiva.controle_de_remedios.shared.utils;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
@@ -13,6 +14,10 @@ public final class PageableFactory {
     }
 
     public static Pageable build(int page, int size) {
+        return build(page, size, Sort.unsorted());
+    }
+
+    public static Pageable build(int page, int size, Sort sort) {
         if (page < 0) {
             throw new BusinessException(
                     HttpStatus.BAD_REQUEST,
@@ -31,6 +36,6 @@ public final class PageableFactory {
                     "O parâmetro 'size' deve estar entre 1 e " + MAX_PAGE_SIZE + ".");
         }
 
-        return PageRequest.of(page, size);
+        return PageRequest.of(page, size, sort);
     }
 }

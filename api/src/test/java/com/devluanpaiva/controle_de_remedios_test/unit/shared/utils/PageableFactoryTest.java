@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
@@ -92,6 +93,31 @@ class PageableFactoryTest {
         @DisplayName("should report the page violation before the size violation when both are invalid")
         void shouldReportPageViolationBeforeSizeViolation() {
             assertInvalidPagination(() -> PageableFactory.build(-1, 0), "page");
+        }
+
+        @Test
+        @DisplayName("should build a Pageable with unsorted order when no sort is given")
+        void shouldBuildPageableUnsortedByDefault() {
+            Pageable pageable = PageableFactory.build(0, 20);
+
+            assertThat(pageable.getSort().isUnsorted()).isTrue();
+        }
+
+        @Test
+        @DisplayName("should build a Pageable with the given sort")
+        void shouldBuildPageableWithGivenSort() {
+            Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+            Pageable pageable = PageableFactory.build(0, 20, sort);
+
+            assertThat(pageable.getSort()).isEqualTo(sort);
+        }
+
+        @Test
+        @DisplayName("should still validate page and size when a sort is given")
+        void shouldValidatePageAndSizeWithSort() {
+            Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+
+            assertInvalidPagination(() -> PageableFactory.build(-1, 20, sort), "page");
         }
     }
 }
