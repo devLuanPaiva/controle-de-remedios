@@ -147,9 +147,19 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 : PrescriptionStatus.DELIVERED);
                 prescriptionItemRepository.save(item);
 
+                updatePrescriptionStatus(item.getPrescription());
+
                 medicineMovementService.recordDelivered(savedDelivery);
 
                 return savedDelivery;
+        }
+
+        private void updatePrescriptionStatus(Prescription prescription) {
+                boolean allDelivered = prescription.getItems().stream()
+                                .allMatch(prescriptionItem -> prescriptionItem.getStatus() == PrescriptionStatus.DELIVERED);
+
+                prescription.setStatus(allDelivered ? PrescriptionStatus.DELIVERED : PrescriptionStatus.PARTIAL_DELIVERED);
+                prescriptionRepository.save(prescription);
         }
 
         @Override

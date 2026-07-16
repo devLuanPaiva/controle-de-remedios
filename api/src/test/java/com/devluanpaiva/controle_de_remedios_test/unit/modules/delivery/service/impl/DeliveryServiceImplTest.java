@@ -121,7 +121,7 @@ class DeliveryServiceImplTest {
                 .id(UUID.randomUUID()).name("Glifage XR").company(company).build();
         Prescription prescription = Prescription.builder().id(UUID.randomUUID()).patient(patient).build();
 
-        return PrescriptionItem.builder()
+        PrescriptionItem item = PrescriptionItem.builder()
                 .id(UUID.randomUUID())
                 .prescription(prescription)
                 .medicine(medicine)
@@ -131,6 +131,10 @@ class DeliveryServiceImplTest {
                 .receivedQuantity(0)
                 .deliveredQuantity(0)
                 .build();
+
+        prescription.getItems().add(item);
+
+        return item;
     }
 
     @Nested
@@ -155,6 +159,7 @@ class DeliveryServiceImplTest {
             assertThat(response.nextAvailableDate()).isEqualTo(deliveryDate.plusDays(30));
             assertThat(item.getStatus()).isEqualTo(PrescriptionStatus.DELIVERED);
             assertThat(item.getDeliveredQuantity()).isEqualTo(30);
+            assertThat(item.getPrescription().getStatus()).isEqualTo(PrescriptionStatus.DELIVERED);
         }
 
         @Test
@@ -172,6 +177,36 @@ class DeliveryServiceImplTest {
             deliveryService.createDelivery(dto);
 
             assertThat(item.getStatus()).isEqualTo(PrescriptionStatus.PARTIAL_DELIVERED);
+            assertThat(item.getPrescription().getStatus()).isEqualTo(PrescriptionStatus.PARTIAL_DELIVERED);
+        }
+
+        @Test
+        @DisplayName("should mark prescription as PARTIAL_DELIVERED when other items are still pending")
+        void shouldMarkPrescriptionAsPartialDeliveredWhenOtherItemsArePending() {
+            User admin = buildUser(UserRole.ADMIN);
+            Company company = buildCompany();
+            PrescriptionItem item = buildItem(company, 30, 30);
+            PrescriptionItem otherItem = PrescriptionItem.builder()
+                    .id(UUID.randomUUID())
+                    .prescription(item.getPrescription())
+                    .medicine(item.getMedicine())
+                    .status(PrescriptionStatus.PENDING)
+                    .prescribedQuantity(10)
+                    .treatmentDays(10)
+                    .receivedQuantity(0)
+                    .deliveredQuantity(0)
+                    .build();
+            item.getPrescription().getItems().add(otherItem);
+            CreateDeliveryRequestDTO dto = new CreateDeliveryRequestDTO(item.getId(), LocalDate.now(), 30);
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+            when(prescriptionItemRepository.findById(item.getId())).thenReturn(Optional.of(item));
+            when(deliveryRepository.save(any(Delivery.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            deliveryService.createDelivery(dto);
+
+            assertThat(item.getStatus()).isEqualTo(PrescriptionStatus.DELIVERED);
+            assertThat(item.getPrescription().getStatus()).isEqualTo(PrescriptionStatus.PARTIAL_DELIVERED);
         }
 
         @Test
