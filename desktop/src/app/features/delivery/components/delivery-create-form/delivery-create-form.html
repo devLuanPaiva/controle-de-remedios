@@ -34,6 +34,7 @@
                                 type="button"
                                 class="btn btn-primary btn-sm"
                                 [disabled]="mutating()"
+                                [attr.aria-label]="'Entrega total da receita emitida em ' + (prescription.issueDate | date: 'dd/MM/yyyy')"
                                 (click)="deliverTotal(prescription.id)"
                             >
                                 Entrega total
@@ -54,7 +55,12 @@
                                 </div>
 
                                 @if (isDeliverable(item)) {
-                                    <button type="button" class="btn btn-outline btn-sm" (click)="openQuantityPrompt(item)">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline btn-sm"
+                                        [attr.aria-label]="'Entregar ' + item.medicineName"
+                                        (click)="openQuantityPrompt(item)"
+                                    >
                                         Entregar
                                     </button>
                                 }

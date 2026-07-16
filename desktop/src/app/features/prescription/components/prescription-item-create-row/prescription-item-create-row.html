@@ -4,7 +4,14 @@
             <span class="item-row__title">Item {{ index() + 1 }}</span>
 
             @if (canRemove()) {
-                <button type="button" class="btn btn-outline btn-sm" (click)="onRemove()">Remover item</button>
+                <button
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                    [attr.aria-label]="'Remover item ' + (index() + 1)"
+                    (click)="onRemove()"
+                >
+                    Remover item
+                </button>
             }
         </div>
 

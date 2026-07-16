@@ -1,18 +1,25 @@
-<div class="pagination">
+<nav class="pagination" aria-label="Paginação">
     <button
         type="button"
         class="btn btn-outline btn-sm"
         [disabled]="!pagination().previous"
         (click)="previousPage.emit()"
+        aria-label="Página anterior"
     >
         Anterior
     </button>
 
-    <span class="pagination__label">
+    <span class="pagination__label" aria-live="polite">
         Página {{ pagination().currentPage }} de {{ pagination().totalPages }}
     </span>
 
-    <button type="button" class="btn btn-outline btn-sm" [disabled]="!pagination().next" (click)="nextPage.emit()">
+    <button
+        type="button"
+        class="btn btn-outline btn-sm"
+        [disabled]="!pagination().next"
+        (click)="nextPage.emit()"
+        aria-label="Próxima página"
+    >
         Próxima
     </button>
-</div>
+</nav>

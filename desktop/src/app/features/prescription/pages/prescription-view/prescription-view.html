@@ -1,6 +1,8 @@
 <section class="prescription-view">
     <header class="prescription-view__header">
-        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">&larr; Voltar</button>
+        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">
+            <span aria-hidden="true">&larr;</span> Voltar
+        </button>
         <h1 class="prescription-view__title">Receituário</h1>
 
         @if (prescription()) {
@@ -52,12 +54,17 @@
 
             @if (prescription()!.imageUrls.length > 0) {
                 <div class="card-body prescription-view__images">
-                    @for (imageUrl of prescription()!.imageUrls; track imageUrl) {
-                        <a [href]="imageUrl" target="_blank" rel="noopener">
+                    @for (imageUrl of prescription()!.imageUrls; track imageUrl; let i = $index) {
+                        <a
+                            [href]="imageUrl"
+                            target="_blank"
+                            rel="noopener"
+                            [attr.aria-label]="'Abrir imagem ' + (i + 1) + ' da receita em nova aba'"
+                        >
                             <app-image-fallback
                                 class="prescription-view__image-thumb"
                                 [src]="imageUrl"
-                                alt="Receita"
+                                [alt]="'Imagem ' + (i + 1) + ' da receita'"
                                 icon="prescription"
                             />
                         </a>
@@ -102,6 +109,7 @@
                                         type="button"
                                         class="btn btn-outline btn-sm"
                                         [disabled]="deliveryMutating()"
+                                        [attr.aria-label]="'Entregar ' + item.medicine.name"
                                         (click)="openQuantityPrompt(item)"
                                     >
                                         Entregar
@@ -145,6 +153,7 @@
                                                 type="button"
                                                 class="btn btn-outline btn-sm"
                                                 [disabled]="deliveryMutating()"
+                                                [attr.aria-label]="'Entregar ' + item.medicine.name"
                                                 (click)="openQuantityPrompt(item)"
                                             >
                                                 Entregar

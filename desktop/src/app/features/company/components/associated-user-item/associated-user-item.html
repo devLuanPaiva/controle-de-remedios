@@ -8,7 +8,13 @@
 <app-role-badge [role]="user().role" />
 
 @if (canRemove()) {
-    <button type="button" class="btn btn-outline btn-sm" [disabled]="removing()" (click)="remove.emit()">
+    <button
+        type="button"
+        class="btn btn-outline btn-sm"
+        [disabled]="removing()"
+        [attr.aria-label]="'Remover ' + user().name + ' da empresa'"
+        (click)="remove.emit()"
+    >
         Remover
     </button>
 }

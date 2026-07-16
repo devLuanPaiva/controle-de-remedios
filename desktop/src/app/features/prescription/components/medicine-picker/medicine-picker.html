@@ -12,7 +12,14 @@
                 <p>Novo medicamento: <strong>{{ current.name }}</strong></p>
             }
 
-            <button type="button" class="btn btn-outline btn-sm" (click)="clearSelection()">Trocar medicamento</button>
+            <button
+                type="button"
+                class="btn btn-outline btn-sm"
+                [attr.aria-label]="'Trocar medicamento: ' + (current.type === 'existing' ? current.medicine.name : current.name)"
+                (click)="clearSelection()"
+            >
+                Trocar medicamento
+            </button>
         </div>
     } @else {
         <div class="medicine-picker__search">

@@ -78,7 +78,11 @@
                                 </span>
                             </td>
                             <td data-label="Ações" class="patient-list__col-actions">
-                                <a class="btn btn-outline btn-sm" [routerLink]="['/patients', patient.id, 'edit']">
+                                <a
+                                    class="btn btn-outline btn-sm"
+                                    [routerLink]="['/patients', patient.id, 'edit']"
+                                    [attr.aria-label]="'Editar paciente ' + patient.name"
+                                >
                                     Editar
                                 </a>
                             </td>

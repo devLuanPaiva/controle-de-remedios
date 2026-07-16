@@ -99,10 +99,18 @@
                                 <td data-label="Data de emissão">{{ prescription.issueDate | date: 'dd/MM/yyyy' }}</td>
                                 <td data-label="Status"><app-prescription-status-badge [status]="prescription.status" /></td>
                                 <td data-label="Ações" class="prescription-list__col-actions">
-                                    <a class="btn btn-outline btn-sm" [routerLink]="['/prescriptions', prescription.id]">
+                                    <a
+                                        class="btn btn-outline btn-sm"
+                                        [routerLink]="['/prescriptions', prescription.id]"
+                                        [attr.aria-label]="'Ver receituário de ' + prescription.patient.name"
+                                    >
                                         Ver
                                     </a>
-                                    <a class="btn btn-outline btn-sm" [routerLink]="['/prescriptions', prescription.id, 'edit']">
+                                    <a
+                                        class="btn btn-outline btn-sm"
+                                        [routerLink]="['/prescriptions', prescription.id, 'edit']"
+                                        [attr.aria-label]="'Editar receituário de ' + prescription.patient.name"
+                                    >
                                         Editar
                                     </a>
                                 </td>

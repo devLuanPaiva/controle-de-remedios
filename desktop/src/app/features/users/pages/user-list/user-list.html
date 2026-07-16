@@ -123,7 +123,11 @@
                                     <app-role-badge [role]="user.role" />
                                 </td>
                                 <td data-label="Ações" class="user-list__col-actions">
-                                    <a class="btn btn-outline btn-sm" [routerLink]="['/users', user.id, 'edit']">
+                                    <a
+                                        class="btn btn-outline btn-sm"
+                                        [routerLink]="['/users', user.id, 'edit']"
+                                        [attr.aria-label]="'Editar usuário ' + user.name"
+                                    >
                                         Editar
                                     </a>
                                 </td>
