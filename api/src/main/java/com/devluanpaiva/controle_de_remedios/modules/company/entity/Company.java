@@ -13,6 +13,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.devluanpaiva.controle_de_remedios.modules.delivery.entity.Delivery;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
 import com.devluanpaiva.controle_de_remedios.modules.patient.entity.Patient;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
@@ -56,6 +57,10 @@ public class Company {
     @OneToMany(mappedBy = "company")
     @Builder.Default
     private Set<Medicine> medicines = new HashSet<>();
+
+    @OneToMany(mappedBy = "company")
+    @Builder.Default
+    private Set<Delivery> deliveries = new HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false, name = "created_at")

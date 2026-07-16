@@ -1,4 +1,4 @@
-@use '../../../../../styles/abstracts/breakpoints' as bp;
+@use "../../../../../styles/abstracts/breakpoints" as bp;
 
 .user-list__header {
     display: flex;
@@ -19,7 +19,7 @@
     flex-wrap: wrap;
     align-items: flex-end;
     gap: var(--space-3);
-
+    margin-top: var(--space-4);
     margin-bottom: var(--space-5);
 }
 
@@ -113,7 +113,7 @@
         font-weight: 600;
     }
 
-    .user-list__table td[data-label='Perfil'] {
+    .user-list__table td[data-label="Perfil"] {
         order: 3;
     }
 
@@ -125,7 +125,7 @@
         font-size: var(--text-sm);
     }
 
-    .user-list__table td[data-label='CPF'] {
+    .user-list__table td[data-label="CPF"] {
         order: 4;
         flex: 0 0 100%;
         color: var(--text-secondary);
@@ -133,7 +133,7 @@
     }
 
     .user-list__table td[data-label]::before {
-        content: attr(data-label) ': ';
+        content: attr(data-label) ": ";
         font-weight: 600;
         color: var(--text-primary);
     }

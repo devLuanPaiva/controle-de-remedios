@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 
 import { AuthSessionService } from '@features/auth/services/auth-session.service';
@@ -7,9 +9,10 @@ import { selectSelectedCompanyId } from '@features/company/store/company.selecto
 import { Avatar } from '@shared/ui/avatar/avatar';
 import { RoleBadge } from '@shared/ui/role-badge/role-badge';
 import { Pagination } from '@shared/ui/pagination/pagination';
+import { Tabs, TabConfig } from '@shared/ui/tabs/tabs';
 import { formatCpf, onlyDigits } from '@shared/utils/cpf.util';
 
-import { UserCreateModal } from '../../components/user-create-modal/user-create-modal';
+import { UserCreateForm } from '../../components/user-create-form/user-create-form';
 import * as UsersActions from '../../store/user.actions';
 import { UserFilterParams } from '../../models/user-api.model';
 import { getManageableRoles, normalizeUserRole, UserRole, UserRoleLabels } from '../../models/user.model';
@@ -38,7 +41,7 @@ const EMPTY_FILTER_FORM: UserListFilterForm = {
 
 @Component({
     selector: 'app-user-list',
-    imports: [RouterLink, Avatar, RoleBadge, UserCreateModal, Pagination],
+    imports: [RouterLink, Avatar, RoleBadge, Tabs, UserCreateForm, Pagination],
     templateUrl: './user-list.html',
     styleUrl: './user-list.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +49,7 @@ const EMPTY_FILTER_FORM: UserListFilterForm = {
 export class UserList implements OnInit {
     private readonly store = inject(Store);
     private readonly session = inject(AuthSessionService);
+    private readonly actions$ = inject(Actions);
 
     readonly formatCpf = formatCpf;
     readonly UserRoleLabels = UserRoleLabels;
@@ -59,21 +63,29 @@ export class UserList implements OnInit {
     readonly userRole = computed(() => normalizeUserRole(this.session.user()?.role));
     readonly manageableRoles = computed(() => getManageableRoles(this.userRole()));
 
-    readonly showCreateModal = signal(false);
+    readonly tabs: TabConfig[] = [
+        { id: 'list', label: 'Listagem' },
+        { id: 'create', label: 'Cadastrar novo' },
+    ];
+    readonly activeTabId = signal('list');
+
     readonly filterForm = signal<UserListFilterForm>({ ...EMPTY_FILTER_FORM });
 
     private readonly requestedPage = signal(0);
+
+    constructor() {
+        this.actions$.pipe(ofType(UsersActions.createUserSuccess), takeUntilDestroyed()).subscribe(() => {
+            this.activeTabId.set('list');
+            this.loadPage(0);
+        });
+    }
 
     ngOnInit(): void {
         this.loadPage(0);
     }
 
-    openCreateModal(): void {
-        this.showCreateModal.set(true);
-    }
-
-    closeCreateModal(): void {
-        this.showCreateModal.set(false);
+    onTabChange(tabId: string): void {
+        this.activeTabId.set(tabId);
     }
 
     onFilterRoleChange(rawValue: string): void {

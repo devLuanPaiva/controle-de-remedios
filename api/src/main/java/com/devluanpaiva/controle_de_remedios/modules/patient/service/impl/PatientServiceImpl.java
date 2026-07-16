@@ -1,5 +1,6 @@
 package com.devluanpaiva.controle_de_remedios.modules.patient.service.impl;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -82,7 +83,8 @@ public class PatientServiceImpl implements PatientService {
     @Transactional(readOnly = true)
     public Page<PatientResponseDTO> getPatients(PatientFilter filter, Pageable pageable) {
         User actor = securityContextHelper.getCurrentUser();
-        authorizationPolicy.requireCondition(!actor.getRole().manageableRoles().isEmpty());
+        authorizationPolicy.requireAdminOrRolesWithCondition(
+                actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT), () -> true);
 
         if (filter.companyId() != null) {
             assertBelongsToCompany(actor, filter.companyId());
@@ -136,7 +138,7 @@ public class PatientServiceImpl implements PatientService {
         User actor = securityContextHelper.getCurrentUser();
         Patient patient = findPatientOrThrow(id);
 
-        assertCanEdit(actor, patient);
+        assertCanDelete(actor, patient);
 
         patientRepository.delete(patient);
     }
@@ -147,7 +149,7 @@ public class PatientServiceImpl implements PatientService {
         User actor = securityContextHelper.getCurrentUser();
         Patient patient = findPatientOrThrow(patientId);
 
-        assertCanEdit(actor, patient);
+        assertCanManagePatientAccounts(actor, patient);
 
         if (patient.getUser() != null) {
             throw new BusinessException(
@@ -172,7 +174,7 @@ public class PatientServiceImpl implements PatientService {
     @Transactional
     public PatientResponseDTO createPatientWithAccount(CreatePatientWithAccountRequestDTO dto) {
         User actor = securityContextHelper.getCurrentUser();
-        assertCanManagePatients(actor);
+        assertCanManagePatientAccounts(actor);
         assertBelongsToCompany(actor, dto.companyId());
 
         Company company = findCompanyOrThrow(dto.companyId());
@@ -199,7 +201,7 @@ public class PatientServiceImpl implements PatientService {
         User actor = securityContextHelper.getCurrentUser();
         Patient patient = findPatientOrThrow(patientId);
 
-        assertCanEdit(actor, patient);
+        assertCanManagePatientAccounts(actor, patient);
 
         if (patient.getUser() == null) {
             throw new BusinessException(
@@ -250,7 +252,17 @@ public class PatientServiceImpl implements PatientService {
     }
 
     private void assertCanManagePatients(User actor) {
-        authorizationPolicy.requireManageableRole(actor, UserRole.PATIENT);
+        authorizationPolicy.requireAdminOrRolesWithCondition(
+                actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT), () -> true);
+    }
+
+    private void assertCanManagePatientAccounts(User actor) {
+        authorizationPolicy.requireAdminOrRoleWithCondition(actor, UserRole.MANAGER, () -> true);
+    }
+
+    private void assertCanManagePatientAccounts(User actor, Patient patient) {
+        authorizationPolicy.requireAdminOrRoleWithCondition(
+                actor, UserRole.MANAGER, () -> isMemberOf(patient.getCompany().getId(), actor));
     }
 
     private void assertBelongsToCompany(User actor, UUID companyId) {
@@ -268,6 +280,12 @@ public class PatientServiceImpl implements PatientService {
     }
 
     private void assertCanEdit(User actor, Patient patient) {
+        authorizationPolicy.requireAdminOrRolesWithCondition(
+                actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT),
+                () -> isMemberOf(patient.getCompany().getId(), actor));
+    }
+
+    private void assertCanDelete(User actor, Patient patient) {
         authorizationPolicy.requireAdminOrRoleWithCondition(
                 actor, UserRole.MANAGER, () -> isMemberOf(patient.getCompany().getId(), actor));
     }

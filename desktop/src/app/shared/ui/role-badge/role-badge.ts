@@ -4,7 +4,7 @@ import { UserRole, UserRoleLabels } from '@features/users/models/user.model';
 const ROLE_BADGE_CLASS: Record<UserRole, string> = {
     [UserRole.ADMIN]: 'badge-primary',
     [UserRole.MANAGER]: 'badge-warning',
-    [UserRole.USER]: 'badge-outline',
+    [UserRole.ASSISTANT]: 'badge-outline',
     [UserRole.PATIENT]: 'badge-success',
 };
 

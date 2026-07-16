@@ -1,6 +1,8 @@
 <section class="patient-edit">
     <header class="patient-edit__header">
-        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">&larr; Voltar</button>
+        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">
+            <span aria-hidden="true">&larr;</span> Voltar
+        </button>
         <h1 class="patient-edit__title">Editar paciente</h1>
     </header>
 
@@ -40,6 +42,7 @@
                         class="input"
                         type="text"
                         autocomplete="name"
+                        placeholder="Nome completo"
                         [formField]="editForm.name"
                         [attr.aria-invalid]="editForm.name().invalid() && editForm.name().touched()"
                         [attr.aria-describedby]="editForm.name().invalid() && editForm.name().touched() ? 'edit-patient-name-error' : null"

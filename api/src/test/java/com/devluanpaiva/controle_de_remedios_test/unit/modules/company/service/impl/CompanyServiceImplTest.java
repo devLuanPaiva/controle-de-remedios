@@ -336,7 +336,7 @@ class CompanyServiceImplTest {
         @Test
         @DisplayName("should return an empty page without throwing when a non-admin has no associated companies")
         void shouldReturnEmptyPageForNonAdminWithNoCompanies() {
-            User user = buildUser(UserRole.USER);
+            User user = buildUser(UserRole.ASSISTANT);
             Pageable pageable = PageRequest.of(0, 20);
             Page<Company> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
@@ -448,13 +448,13 @@ class CompanyServiceImplTest {
         }
 
         @Test
-        @DisplayName("should deny a USER from updating a company and never fetch it")
-        void shouldDenyUserFromUpdatingCompanyAndNeverFetchIt() {
-            User user = buildUser(UserRole.USER);
+        @DisplayName("should deny a ASSISTANT from updating a company and never fetch it")
+        void shouldDenyAssistentFromUpdatingCompanyAndNeverFetchIt() {
+            User assistant = buildUser(UserRole.ASSISTANT);
             UUID companyId = UUID.randomUUID();
             UpdateCompanyRequestDTO dto = new UpdateCompanyRequestDTO("New Name", null, null);
 
-            when(securityContextHelper.getCurrentUser()).thenReturn(user);
+            when(securityContextHelper.getCurrentUser()).thenReturn(assistant);
 
             assertForbidden(() -> companyService.updateCompany(companyId, dto));
 
@@ -569,7 +569,7 @@ class CompanyServiceImplTest {
             User admin = buildUser(UserRole.ADMIN);
             Company company = buildCompany();
             Pageable pageable = PageRequest.of(0, 20);
-            Page<User> page = new PageImpl<>(List.of(buildUser(UserRole.USER)), pageable, 1);
+            Page<User> page = new PageImpl<>(List.of(buildUser(UserRole.ASSISTANT)), pageable, 1);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
@@ -741,7 +741,7 @@ class CompanyServiceImplTest {
         void shouldAllowAdminToAssociateUserToAnyCompany() {
             User admin = buildUser(UserRole.ADMIN);
             Company company = buildCompany();
-            User targetUser = buildUser(UserRole.USER);
+            User targetUser = buildUser(UserRole.ASSISTANT);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
@@ -758,7 +758,7 @@ class CompanyServiceImplTest {
         void shouldAllowMemberManagerToAssociateUserToOwnCompany() {
             User manager = buildUser(UserRole.MANAGER);
             Company company = buildCompany();
-            User targetUser = buildUser(UserRole.USER);
+            User targetUser = buildUser(UserRole.ASSISTANT);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
@@ -791,7 +791,7 @@ class CompanyServiceImplTest {
         void shouldDenyNonMemberManagerFromAssociatingUser() {
             User manager = buildUser(UserRole.MANAGER);
             Company company = buildCompany();
-            User targetUser = buildUser(UserRole.USER);
+            User targetUser = buildUser(UserRole.ASSISTANT);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
@@ -806,11 +806,11 @@ class CompanyServiceImplTest {
         @Test
         @DisplayName("should deny a USER from associating anyone")
         void shouldDenyUserFromAssociatingAnyone() {
-            User user = buildUser(UserRole.USER);
+            User ASSISTANT = buildUser(UserRole.ASSISTANT);
             Company company = buildCompany();
-            User targetUser = buildUser(UserRole.USER);
+            User targetUser = buildUser(UserRole.ASSISTANT);
 
-            when(securityContextHelper.getCurrentUser()).thenReturn(user);
+            when(securityContextHelper.getCurrentUser()).thenReturn(ASSISTANT);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
             when(userRepository.findById(targetUser.getId())).thenReturn(Optional.of(targetUser));
 
@@ -853,7 +853,7 @@ class CompanyServiceImplTest {
         void shouldNotFailWhenAssociatingAlreadyMemberUser() {
             User admin = buildUser(UserRole.ADMIN);
             Company company = buildCompany();
-            User targetUser = buildUser(UserRole.USER);
+            User targetUser = buildUser(UserRole.ASSISTANT);
             targetUser.assignToCompany(company);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
@@ -876,7 +876,7 @@ class CompanyServiceImplTest {
         void shouldAllowAdminToRemoveUserFromAnyCompany() {
             User admin = buildUser(UserRole.ADMIN);
             Company company = buildCompany();
-            User targetUser = buildUser(UserRole.USER);
+            User targetUser = buildUser(UserRole.ASSISTANT);
             targetUser.assignToCompany(company);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
@@ -894,7 +894,7 @@ class CompanyServiceImplTest {
         void shouldAllowMemberManagerToRemoveUserFromOwnCompany() {
             User manager = buildUser(UserRole.MANAGER);
             Company company = buildCompany();
-            User targetUser = buildUser(UserRole.USER);
+            User targetUser = buildUser(UserRole.ASSISTANT);
             targetUser.assignToCompany(company);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
@@ -942,7 +942,7 @@ class CompanyServiceImplTest {
         void shouldDenyNonMemberManagerFromRemovingUser() {
             User manager = buildUser(UserRole.MANAGER);
             Company company = buildCompany();
-            User targetUser = buildUser(UserRole.USER);
+            User targetUser = buildUser(UserRole.ASSISTANT);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
@@ -974,7 +974,7 @@ class CompanyServiceImplTest {
         void shouldNotFailWhenRemovingNonMemberUser() {
             User admin = buildUser(UserRole.ADMIN);
             Company company = buildCompany();
-            User targetUser = buildUser(UserRole.USER);
+            User targetUser = buildUser(UserRole.ASSISTANT);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));

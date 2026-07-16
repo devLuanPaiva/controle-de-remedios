@@ -8,15 +8,15 @@ public enum UserRole {
 
 	MANAGER,
 
-	USER,
+	ASSISTANT,
 
 	PATIENT;
 
 	public Set<UserRole> manageableRoles() {
 		return switch (this) {
-			case ADMIN -> Set.of(MANAGER, USER, PATIENT);
-			case MANAGER -> Set.of(USER, PATIENT);
-			case USER -> Set.of();
+			case ADMIN -> Set.of(MANAGER, ASSISTANT, PATIENT);
+			case MANAGER -> Set.of(ASSISTANT, PATIENT);
+			case ASSISTANT -> Set.of();
 			case PATIENT -> Set.of();
 		};
 	}

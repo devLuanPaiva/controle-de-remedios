@@ -36,7 +36,7 @@
         <span>Empresas</span>
     </a>
 
-    <a *hasRole="[UserRole.ADMIN, UserRole.MANAGER]" class="sidebar__link" routerLink="/patients"
+    <a *hasRole="[UserRole.ADMIN, UserRole.MANAGER, UserRole.ASSISTANT]" class="sidebar__link" routerLink="/patients"
         routerLinkActive="sidebar__link--active" (click)="navigated.emit()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" aria-hidden="true">
@@ -46,7 +46,7 @@
         <span>Pacientes</span>
     </a>
 
-    <a *hasRole="[UserRole.ADMIN, UserRole.MANAGER]" class="sidebar__link" routerLink="/prescriptions"
+    <a *hasRole="[UserRole.ADMIN, UserRole.MANAGER, UserRole.ASSISTANT]" class="sidebar__link" routerLink="/prescriptions"
         routerLinkActive="sidebar__link--active" (click)="navigated.emit()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" aria-hidden="true">
@@ -58,7 +58,7 @@
         <span>Receituários</span>
     </a>
 
-    <a *hasRole="[UserRole.ADMIN, UserRole.MANAGER]" class="sidebar__link" routerLink="/medicines"
+    <a *hasRole="[UserRole.ADMIN, UserRole.MANAGER, UserRole.ASSISTANT]" class="sidebar__link" routerLink="/medicines"
         routerLinkActive="sidebar__link--active" (click)="navigated.emit()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" aria-hidden="true">
@@ -66,6 +66,18 @@
             <path d="m8.5 8.5 7 7" />
         </svg>
         <span>Medicamentos</span>
+    </a>
+
+    <a *hasRole="[UserRole.ADMIN, UserRole.MANAGER, UserRole.ASSISTANT]" class="sidebar__link" routerLink="/deliveries"
+        routerLinkActive="sidebar__link--active" (click)="navigated.emit()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <rect x="1" y="3" width="15" height="13" rx="1" />
+            <path d="M16 8h4l3 3v5h-7V8Z" />
+            <circle cx="5.5" cy="18.5" r="2.5" />
+            <circle cx="18.5" cy="18.5" r="2.5" />
+        </svg>
+        <span>Entregas</span>
     </a>
 </nav>
 

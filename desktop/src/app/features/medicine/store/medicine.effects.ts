@@ -86,4 +86,31 @@ export class MedicineEffects {
             ),
         { dispatch: false },
     );
+
+    loadMedicineById$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(MedicineActions.loadMedicineById),
+            switchMap((action) =>
+                this.medicineService.getMedicineById(action.id).pipe(
+                    map((medicine) => MedicineActions.loadMedicineByIdSuccess({ medicine })),
+                    catchError((error) =>
+                        of(
+                            MedicineActions.loadMedicineByIdFailure({
+                                message: extractErrorMessage(error, 'Erro ao carregar medicamento.'),
+                            }),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    );
+
+    loadMedicineByIdFailure$ = createEffect(
+        () =>
+            this.actions$.pipe(
+                ofType(MedicineActions.loadMedicineByIdFailure),
+                tap((action) => this.toast.show(ToastType.Error, action.message)),
+            ),
+        { dispatch: false },
+    );
 }

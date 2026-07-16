@@ -31,18 +31,23 @@ export const authRoutes: Routes = [
             },
             {
                 path: 'patients',
-                canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER])],
+                canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER, UserRole.ASSISTANT])],
                 loadChildren: () => import('@features/patient/patient.routes').then((m) => m.patientRoutes),
             },
             {
                 path: 'prescriptions',
-                canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER])],
+                canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER, UserRole.ASSISTANT])],
                 loadChildren: () => import('@features/prescription/prescription.routes').then((m) => m.prescriptionRoutes),
             },
             {
                 path: 'medicines',
-                canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER])],
+                canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER, UserRole.ASSISTANT])],
                 loadChildren: () => import('@features/medicine/medicine.routes').then((m) => m.medicineRoutes),
+            },
+            {
+                path: 'deliveries',
+                canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER, UserRole.ASSISTANT])],
+                loadChildren: () => import('@features/delivery/delivery.routes').then((m) => m.deliveryRoutes),
             },
         ],
     },

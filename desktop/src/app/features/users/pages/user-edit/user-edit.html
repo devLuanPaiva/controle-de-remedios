@@ -1,6 +1,8 @@
 <section class="user-edit">
     <header class="user-edit__header">
-        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">&larr; Voltar</button>
+        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">
+            <span aria-hidden="true">&larr;</span> Voltar
+        </button>
         <h1 class="user-edit__title">Editar usuário</h1>
     </header>
 
@@ -39,6 +41,7 @@
                         class="input"
                         type="text"
                         autocomplete="name"
+                        placeholder="Nome completo"
                         [formField]="editForm.name"
                         [attr.aria-invalid]="editForm.name().invalid() && editForm.name().touched()"
                         [attr.aria-describedby]="editForm.name().invalid() && editForm.name().touched() ? 'edit-user-name-error' : null"

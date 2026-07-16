@@ -89,7 +89,7 @@ describe('decodeJwtPayload', () => {
   it.each([
     ['small payload (1-character padding)', { a: 1 }],
     ['medium payload (2-character padding)', { sub: 'abc' }],
-    ['larger payload (no padding required)', { sub: 'user-123', name: 'Ana', role: UserRole.USER, iat: 1 }],
+    ['larger payload (no padding required)', { sub: 'user-123', name: 'Ana', role: UserRole.ASSISTANT, iat: 1 }],
   ])(
     'should apply Base64 padding correctly for payloads of varying sizes: %s',
     (_description, payload) => {

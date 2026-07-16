@@ -4,7 +4,14 @@
             <span class="item-row__title">Item {{ index() + 1 }}</span>
 
             @if (canRemove()) {
-                <button type="button" class="btn btn-outline btn-sm" (click)="onRemove()">Remover item</button>
+                <button
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                    [attr.aria-label]="'Remover item ' + (index() + 1)"
+                    (click)="onRemove()"
+                >
+                    Remover item
+                </button>
             }
         </div>
 
@@ -18,6 +25,7 @@
                     #dosageInput
                     type="text"
                     class="input"
+                    placeholder="Ex: 500mg"
                     [value]="model().dosage"
                     (input)="onDosageChange(dosageInput.value)"
                 />
@@ -31,6 +39,7 @@
                     type="number"
                     min="1"
                     class="input"
+                    placeholder="0"
                     [value]="model().prescribedQuantity"
                     (input)="onPrescribedQuantityChange(prescribedQuantityInput.value)"
                 />
@@ -59,6 +68,7 @@
                     type="number"
                     min="1"
                     class="input"
+                    placeholder="0"
                     [value]="model().frequency"
                     (input)="onFrequencyChange(frequencyInput.value)"
                 />
@@ -102,6 +112,7 @@
                     type="number"
                     min="1"
                     class="input"
+                    placeholder="0"
                     [value]="model().treatmentDays"
                     (input)="onTreatmentDaysChange(treatmentDaysInput.value)"
                 />

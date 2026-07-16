@@ -1,5 +1,6 @@
 package com.devluanpaiva.controle_de_remedios.security;
 
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 
 import org.springframework.http.HttpStatus;
@@ -27,11 +28,15 @@ public class AuthorizationPolicy {
     }
 
     public void requireAdminOrRoleWithCondition(User actor, UserRole allowedRole, BooleanSupplier condition) {
+        requireAdminOrRolesWithCondition(actor, Set.of(allowedRole), condition);
+    }
+
+    public void requireAdminOrRolesWithCondition(User actor, Set<UserRole> allowedRoles, BooleanSupplier condition) {
         if (isAdmin(actor)) {
             return;
         }
 
-        if (actor.getRole() == allowedRole && condition.getAsBoolean()) {
+        if (allowedRoles.contains(actor.getRole()) && condition.getAsBoolean()) {
             return;
         }
 
