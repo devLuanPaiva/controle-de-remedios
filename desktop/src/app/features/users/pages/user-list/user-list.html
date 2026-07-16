@@ -30,6 +30,7 @@
                     #nameInput
                     type="text"
                     class="input"
+                    placeholder="Buscar por nome"
                     [value]="filterForm().name"
                     (input)="onFilterNameChange(nameInput.value)"
                 />
@@ -42,6 +43,7 @@
                     #emailInput
                     type="text"
                     class="input"
+                    placeholder="Buscar por e-mail"
                     [value]="filterForm().email"
                     (input)="onFilterEmailChange(emailInput.value)"
                 />
@@ -56,6 +58,7 @@
                     inputmode="numeric"
                     maxlength="14"
                     class="input"
+                    placeholder="000.000.000-00"
                     [value]="filterForm().cpf"
                     (input)="onFilterCpfChange(cpfInput.value)"
                 />

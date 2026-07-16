@@ -12,6 +12,7 @@
                     id="create-medicine-name"
                     class="input"
                     type="text"
+                    placeholder="Nome do medicamento"
                     autofocus
                     [formField]="medicineForm.name"
                     [attr.aria-invalid]="medicineForm.name().invalid() && medicineForm.name().touched()"
@@ -31,6 +32,7 @@
                     class="input"
                     type="text"
                     inputmode="numeric"
+                    placeholder="Código de barras"
                     [formField]="medicineForm.eanCode"
                     [attr.aria-invalid]="medicineForm.eanCode().invalid() && medicineForm.eanCode().touched()"
                     [attr.aria-describedby]="medicineForm.eanCode().invalid() && medicineForm.eanCode().touched() ? 'create-medicine-ean-code-error' : null"

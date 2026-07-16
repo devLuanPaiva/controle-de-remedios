@@ -12,6 +12,7 @@
                 class="input"
                 type="text"
                 autocomplete="name"
+                placeholder="Nome completo"
                 autofocus
                 [formField]="userForm.name"
                 [attr.aria-invalid]="userForm.name().invalid() && userForm.name().touched()"
@@ -31,6 +32,7 @@
                 class="input"
                 type="email"
                 autocomplete="email"
+                placeholder="voce@exemplo.com"
                 [formField]="userForm.email"
                 [attr.aria-invalid]="userForm.email().invalid() && userForm.email().touched()"
                 [attr.aria-describedby]="userForm.email().invalid() && userForm.email().touched() ? 'create-user-email-error' : null"

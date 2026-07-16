@@ -16,6 +16,7 @@
                 #nameInput
                 type="text"
                 class="input"
+                placeholder="Buscar por nome"
                 [value]="filterForm().name"
                 (input)="onFilterNameChange(nameInput.value)"
             />
@@ -30,6 +31,7 @@
                 inputmode="numeric"
                 maxlength="14"
                 class="input"
+                placeholder="Código de barras"
                 [value]="filterForm().eanCode"
                 (input)="onFilterEanCodeChange(eanCodeInput.value)"
             />
@@ -89,7 +91,9 @@
                                     icon="medicine"
                                 />
                             </td>
-                            <td data-label="Nome" class="medicine-list__col-name">{{ medicine.name }}</td>
+                            <td data-label="Nome" class="medicine-list__col-name">
+                                <a [routerLink]="['/medicines', medicine.id]">{{ medicine.name }}</a>
+                            </td>
                             <td data-label="EAN">{{ medicine.eanCode ?? '—' }}</td>
                         </tr>
                     } @empty {

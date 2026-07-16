@@ -40,6 +40,7 @@
                         class="input"
                         type="text"
                         autocomplete="name"
+                        placeholder="Nome completo"
                         [formField]="editForm.name"
                         [attr.aria-invalid]="editForm.name().invalid() && editForm.name().touched()"
                         [attr.aria-describedby]="editForm.name().invalid() && editForm.name().touched() ? 'edit-patient-name-error' : null"

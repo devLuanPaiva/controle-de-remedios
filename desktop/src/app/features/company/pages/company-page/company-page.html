@@ -64,6 +64,7 @@
                         class="input"
                         type="text"
                         autocomplete="organization"
+                        placeholder="Nome da empresa"
                         [formField]="companyForm.name"
                         [attr.aria-invalid]="companyForm.name().invalid() && companyForm.name().touched()"
                         [attr.aria-describedby]="companyForm.name().invalid() && companyForm.name().touched() ? 'company-name-error' : null"

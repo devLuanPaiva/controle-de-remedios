@@ -15,6 +15,7 @@
                         #nameInput
                         type="text"
                         class="input"
+                        placeholder="Buscar por nome"
                         [value]="filterForm().patientName"
                         (input)="onFilterPatientNameChange(nameInput.value)"
                     />
@@ -29,6 +30,7 @@
                         inputmode="numeric"
                         maxlength="14"
                         class="input"
+                        placeholder="000.000.000-00"
                         [value]="filterForm().patientCpf"
                         (input)="onFilterPatientCpfChange(cpfInput.value)"
                     />
@@ -41,6 +43,7 @@
                         #medicineNameInput
                         type="text"
                         class="input"
+                        placeholder="Buscar por medicamento"
                         [value]="filterForm().medicineName"
                         (input)="onFilterMedicineNameChange(medicineNameInput.value)"
                     />

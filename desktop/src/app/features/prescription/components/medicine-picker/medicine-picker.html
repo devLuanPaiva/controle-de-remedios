@@ -66,6 +66,7 @@
                         #newNameInput
                         type="text"
                         class="input"
+                        placeholder="Nome do medicamento"
                         [value]="newMedicineName()"
                         (input)="onNewMedicineNameChange(newNameInput.value)"
                     />
@@ -79,6 +80,7 @@
                         inputmode="numeric"
                         maxlength="14"
                         class="input"
+                        placeholder="Código de barras"
                         [value]="newMedicineEanCode()"
                         (input)="onNewMedicineEanCodeChange(newEanInput.value)"
                     />

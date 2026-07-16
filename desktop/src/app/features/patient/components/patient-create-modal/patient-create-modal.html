@@ -13,6 +13,7 @@
                     class="input"
                     type="text"
                     autocomplete="name"
+                    placeholder="Nome completo"
                     autofocus
                     [formField]="patientForm.name"
                     [attr.aria-invalid]="patientForm.name().invalid() && patientForm.name().touched()"
@@ -50,6 +51,7 @@
                             class="input"
                             type="email"
                             autocomplete="email"
+                            placeholder="voce@exemplo.com"
                             [formField]="patientForm.email"
                             [attr.aria-invalid]="patientForm.email().invalid() && patientForm.email().touched()"
                             [attr.aria-describedby]="patientForm.email().invalid() && patientForm.email().touched() ? 'create-patient-email-error' : null"

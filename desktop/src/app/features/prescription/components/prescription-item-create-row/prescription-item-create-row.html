@@ -18,6 +18,7 @@
                     #dosageInput
                     type="text"
                     class="input"
+                    placeholder="Ex: 500mg"
                     [value]="model().dosage"
                     (input)="onDosageChange(dosageInput.value)"
                 />
@@ -31,6 +32,7 @@
                     type="number"
                     min="1"
                     class="input"
+                    placeholder="0"
                     [value]="model().prescribedQuantity"
                     (input)="onPrescribedQuantityChange(prescribedQuantityInput.value)"
                 />
@@ -59,6 +61,7 @@
                     type="number"
                     min="1"
                     class="input"
+                    placeholder="0"
                     [value]="model().frequency"
                     (input)="onFrequencyChange(frequencyInput.value)"
                 />
@@ -102,6 +105,7 @@
                     type="number"
                     min="1"
                     class="input"
+                    placeholder="0"
                     [value]="model().treatmentDays"
                     (input)="onTreatmentDaysChange(treatmentDaysInput.value)"
                 />
