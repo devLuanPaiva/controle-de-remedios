@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { environment } from '@environments/environment';
 import { ApiResponse } from '@shared/models/api-response.model';
+import { parseLocalDate } from '@shared/utils/date.util';
 import { UserApiDto } from '@features/users/models/user-api.model';
 import { IUser, UserRole } from '@features/users/models/user.model';
 
@@ -108,7 +109,7 @@ describe('PatientService', () => {
                     id: dto.id,
                     name: dto.name,
                     cpf: dto.cpf,
-                    birthDate: new Date(dto.birthDate),
+                    birthDate: parseLocalDate(dto.birthDate),
                     companyId: dto.companyId,
                     userId: undefined,
                     createdAt: new Date(dto.createdAt),

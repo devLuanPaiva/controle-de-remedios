@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, input, output, si
 
 import { ImageFallback } from '@shared/ui/image-fallback/image-fallback';
 import { diffPrimitive } from '@shared/utils/diff.util';
+import { toDateInputValue } from '@shared/utils/date.util';
 
 import { PrescriptionStatus, PrescriptionStatusLabels } from '../../models/prescription.model';
 import { UpdatePrescriptionItemRequest } from '../../models/prescription-item-api.model';
@@ -28,10 +29,6 @@ interface EditCardModel {
     startDate: string;
     receivedQuantity: number;
     deliveredQuantity: number;
-}
-
-function toDateInputValue(date: Date): string {
-    return date.toISOString().slice(0, 10);
 }
 
 function toModel(item: IPrescriptionItem): EditCardModel {

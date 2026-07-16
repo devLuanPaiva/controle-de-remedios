@@ -1,3 +1,5 @@
+import { parseLocalDate } from '@shared/utils/date.util';
+
 import { IPatient } from './patient.model';
 
 export interface PatientApiDto {
@@ -59,7 +61,7 @@ export function toPatient(dto: PatientApiDto): IPatient {
         id: dto.id,
         name: dto.name,
         cpf: dto.cpf,
-        birthDate: new Date(dto.birthDate),
+        birthDate: parseLocalDate(dto.birthDate),
         companyId: dto.companyId,
         userId: dto.userId ?? undefined,
         createdAt: new Date(dto.createdAt),

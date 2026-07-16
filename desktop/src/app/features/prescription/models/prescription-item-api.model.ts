@@ -1,4 +1,5 @@
 import { MedicineApiDto, toMedicine } from '@features/medicine/models/medicine-api.model';
+import { parseLocalDate } from '@shared/utils/date.util';
 
 import { PrescriptionStatus } from './prescription.model';
 import { FrequencyType, IPrescriptionItem, TreatmentType, UnityType } from './prescription-item.model';
@@ -71,7 +72,7 @@ export function toPrescriptionItem(dto: PrescriptionItemApiDto): IPrescriptionIt
         treatmentType: dto.treatmentType,
         treatmentDays: dto.treatmentDays,
         observations: dto.observations,
-        startDate: dto.startDate ? new Date(dto.startDate) : null,
+        startDate: dto.startDate ? parseLocalDate(dto.startDate) : null,
         receivedQuantity: dto.receivedQuantity,
         deliveredQuantity: dto.deliveredQuantity,
         requestedAt: dto.requestedAt ? new Date(dto.requestedAt) : null,

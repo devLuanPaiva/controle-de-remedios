@@ -1,3 +1,5 @@
+import { parseLocalDate } from '@shared/utils/date.util';
+
 import { IMedicineBalance, IMedicineMovement, MovementType } from './medicine-movement.model';
 
 export interface MedicineMovementApiDto {
@@ -43,7 +45,7 @@ export function toMedicineMovement(dto: MedicineMovementApiDto): IMedicineMoveme
         medicineName: dto.medicineName,
         prescriptionItemId: dto.prescriptionItemId,
         quantity: dto.quantity,
-        movementDate: dto.movementDate ? new Date(dto.movementDate) : null,
+        movementDate: dto.movementDate ? parseLocalDate(dto.movementDate) : null,
         movementType: dto.movementType,
         createdAt: new Date(dto.createdAt),
     };

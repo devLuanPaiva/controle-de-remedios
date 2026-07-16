@@ -1,5 +1,6 @@
 import { UnityType } from '@features/prescription/models/prescription-item.model';
 import { PrescriptionStatus } from '@features/prescription/models/prescription.model';
+import { parseLocalDate } from '@shared/utils/date.util';
 
 import { IDelivery, IEligiblePrescription, IEligiblePrescriptionItem } from './delivery.model';
 
@@ -69,8 +70,8 @@ export function toDelivery(dto: DeliveryApiDto): IDelivery {
         prescriptionItemId: dto.prescriptionItemId,
         medicineName: dto.medicineName,
         unityType: dto.unityType,
-        deliveryDate: new Date(dto.deliveryDate),
-        nextAvailableDate: new Date(dto.nextAvailableDate),
+        deliveryDate: parseLocalDate(dto.deliveryDate),
+        nextAvailableDate: parseLocalDate(dto.nextAvailableDate),
         deliveryQuantity: dto.deliveryQuantity,
         createdAt: new Date(dto.createdAt),
         updatedAt: new Date(dto.updatedAt),
@@ -85,7 +86,7 @@ export function toEligiblePrescription(dto: EligiblePrescriptionApiDto): IEligib
     return {
         id: dto.id,
         coverImageUrl: dto.coverImageUrl,
-        issueDate: new Date(dto.issueDate),
+        issueDate: parseLocalDate(dto.issueDate),
         items: dto.items.map(toEligiblePrescriptionItem),
     };
 }
