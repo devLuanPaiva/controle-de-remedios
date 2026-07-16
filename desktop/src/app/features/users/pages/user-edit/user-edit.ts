@@ -6,6 +6,7 @@ import { Store } from '@ngrx/store';
 import { map } from 'rxjs';
 
 import { formatCpf, isValidCpf, onlyDigits } from '@shared/utils/cpf.util';
+import { diffPrimitive } from '@shared/utils/diff.util';
 import { Avatar } from '@shared/ui/avatar/avatar';
 import { RoleBadge } from '@shared/ui/role-badge/role-badge';
 import { Field } from '@shared/ui/field/field';
@@ -14,6 +15,7 @@ import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-fie
 import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
 import { DangerCard } from '@shared/ui/danger-card/danger-card';
 
+import { UpdateUserRequest } from '../../models/user-api.model';
 import * as UsersActions from '../../store/user.actions';
 import {
     selectSelectedUser,
@@ -94,16 +96,24 @@ export class UserEdit implements OnDestroy {
             return;
         }
 
+        const original = this.user();
+
+        if (!original) {
+            return;
+        }
+
         const value = this.model();
+
+        const payload: UpdateUserRequest = {
+            name: diffPrimitive(original.name, value.name),
+            cpf: diffPrimitive(original.cpf, onlyDigits(value.cpf)),
+            imageUrl: diffPrimitive(original.imageUrl ?? '', value.imageUrl) || undefined,
+        };
 
         this.store.dispatch(
             UsersActions.updateUser({
                 id: this.userId(),
-                payload: {
-                    name: value.name,
-                    cpf: onlyDigits(value.cpf),
-                    imageUrl: value.imageUrl || undefined,
-                },
+                payload,
             }),
         );
     }

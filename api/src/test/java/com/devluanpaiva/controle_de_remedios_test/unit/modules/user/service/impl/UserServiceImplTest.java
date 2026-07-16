@@ -123,7 +123,7 @@ class UserServiceImplTest {
         private final User admin = buildUser(UserRole.ADMIN);
 
         private final CreateUserRequestDTO dto = new CreateUserRequestDTO(
-                "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER, null);
+                "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.ASSISTANT, null);
 
         @BeforeEach
         void stubActor() {
@@ -143,7 +143,7 @@ class UserServiceImplTest {
             assertThat(response.name()).isEqualTo(dto.name());
             assertThat(response.email()).isEqualTo(dto.email());
             assertThat(response.cpf()).isEqualTo(dto.cpf());
-            assertThat(response.role()).isEqualTo(UserRole.USER);
+            assertThat(response.role()).isEqualTo(UserRole.ASSISTANT);
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
             verify(userRepository).save(userCaptor.capture());
@@ -167,7 +167,7 @@ class UserServiceImplTest {
         }
 
         @ParameterizedTest(name = "should deny a MANAGER creating a {0}")
-        @EnumSource(value = UserRole.class, names = {"USER", "PATIENT"}, mode = EnumSource.Mode.EXCLUDE)
+        @EnumSource(value = UserRole.class, names = { "ASSISTANT", "PATIENT" }, mode = EnumSource.Mode.EXCLUDE)
         @DisplayName("should deny creating a user with a role the actor cannot manage")
         void shouldDenyCreatingUserWithRoleActorCannotManage(UserRole requestedRole) {
             User manager = buildUser(UserRole.MANAGER);
@@ -233,7 +233,7 @@ class UserServiceImplTest {
         void shouldAssociateUserToCompanyWhenActorIsAdmin() {
             Company company = buildCompany();
             CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
-                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER,
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.ASSISTANT,
                     company.getId());
 
             when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
@@ -257,7 +257,7 @@ class UserServiceImplTest {
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
 
             CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
-                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER,
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.ASSISTANT,
                     company.getId());
 
             when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
@@ -282,7 +282,7 @@ class UserServiceImplTest {
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
 
             CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
-                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER,
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.ASSISTANT,
                     company.getId());
 
             when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
@@ -299,7 +299,7 @@ class UserServiceImplTest {
         void shouldThrowNotFoundWhenCompanyDoesNotExist() {
             UUID companyId = UUID.randomUUID();
             CreateUserRequestDTO dtoWithCompany = new CreateUserRequestDTO(
-                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.USER, companyId);
+                    "Jane Doe", "jane@example.com", "raw-password", "12345678901", null, UserRole.ASSISTANT, companyId);
 
             when(userRepository.existsByEmail(dtoWithCompany.email())).thenReturn(false);
             when(userRepository.existsByCpf(dtoWithCompany.cpf())).thenReturn(false);
@@ -340,7 +340,7 @@ class UserServiceImplTest {
         @DisplayName("should allow an ADMIN to access a USER")
         void shouldAllowAdminToAccessUser() {
             User admin = buildUser(UserRole.ADMIN);
-            User regularUser = buildUser(UserRole.USER);
+            User regularUser = buildUser(UserRole.ASSISTANT);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(userRepository.findById(regularUser.getId())).thenReturn(Optional.of(regularUser));
@@ -354,7 +354,7 @@ class UserServiceImplTest {
         @DisplayName("should allow a MANAGER to access a USER")
         void shouldAllowManagerToAccessUser() {
             User manager = buildUser(UserRole.MANAGER);
-            User regularUser = buildUser(UserRole.USER);
+            User regularUser = buildUser(UserRole.ASSISTANT);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
             when(userRepository.findById(regularUser.getId())).thenReturn(Optional.of(regularUser));
@@ -381,8 +381,8 @@ class UserServiceImplTest {
         @Test
         @DisplayName("should deny a USER accessing another USER")
         void shouldDenyUserAccessingAnotherUser() {
-            User actor = buildUser(UserRole.USER);
-            User target = buildUser(UserRole.USER);
+            User actor = buildUser(UserRole.ASSISTANT);
+            User target = buildUser(UserRole.ASSISTANT);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(actor);
             when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
@@ -450,7 +450,7 @@ class UserServiceImplTest {
         @DisplayName("should allow a MANAGER to update a USER")
         void shouldAllowManagerToUpdateUser() {
             User manager = buildUser(UserRole.MANAGER);
-            User regularUser = buildUser(UserRole.USER);
+            User regularUser = buildUser(UserRole.ASSISTANT);
             UpdateUserRequestDTO dto = new UpdateUserRequestDTO("New Name", null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
@@ -480,8 +480,8 @@ class UserServiceImplTest {
         @Test
         @DisplayName("should deny a USER updating another USER")
         void shouldDenyUserUpdatingAnotherUser() {
-            User actor = buildUser(UserRole.USER);
-            User target = buildUser(UserRole.USER);
+            User actor = buildUser(UserRole.ASSISTANT);
+            User target = buildUser(UserRole.ASSISTANT);
             UpdateUserRequestDTO dto = new UpdateUserRequestDTO("New Name", null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(actor);
@@ -538,7 +538,7 @@ class UserServiceImplTest {
         @DisplayName("should update only the provided fields and keep the rest unchanged")
         void shouldPartiallyUpdateOnlyProvidedFields() {
             User admin = buildUser(UserRole.ADMIN);
-            User target = buildUser(UserRole.USER);
+            User target = buildUser(UserRole.ASSISTANT);
             String originalCpf = target.getCpf();
             String originalImageUrl = target.getImageUrl();
             UpdateUserRequestDTO dto = new UpdateUserRequestDTO("Updated Name", null, null);
@@ -558,7 +558,7 @@ class UserServiceImplTest {
         @DisplayName("should update all fields when all are provided")
         void shouldUpdateAllFieldsWhenAllAreProvided() {
             User admin = buildUser(UserRole.ADMIN);
-            User target = buildUser(UserRole.USER);
+            User target = buildUser(UserRole.ASSISTANT);
             UpdateUserRequestDTO dto = new UpdateUserRequestDTO(
                     "New Name", "98765432100", "https://new.example.com/pic.png");
 
@@ -577,7 +577,7 @@ class UserServiceImplTest {
         @DisplayName("should save the user unchanged when all requested fields are null (no-op update)")
         void shouldPerformNoOpUpdateWhenAllFieldsAreNull() {
             User admin = buildUser(UserRole.ADMIN);
-            User target = buildUser(UserRole.USER);
+            User target = buildUser(UserRole.ASSISTANT);
             String originalName = target.getName();
             String originalCpf = target.getCpf();
             String originalImageUrl = target.getImageUrl();
@@ -618,7 +618,7 @@ class UserServiceImplTest {
         @DisplayName("should allow a MANAGER to delete a USER")
         void shouldAllowManagerToDeleteUser() {
             User manager = buildUser(UserRole.MANAGER);
-            User regularUser = buildUser(UserRole.USER);
+            User regularUser = buildUser(UserRole.ASSISTANT);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
             when(userRepository.findById(regularUser.getId())).thenReturn(Optional.of(regularUser));
@@ -644,8 +644,8 @@ class UserServiceImplTest {
         @Test
         @DisplayName("should deny a USER deleting another USER")
         void shouldDenyUserDeletingAnotherUser() {
-            User actor = buildUser(UserRole.USER);
-            User target = buildUser(UserRole.USER);
+            User actor = buildUser(UserRole.ASSISTANT);
+            User target = buildUser(UserRole.ASSISTANT);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(actor);
             when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
@@ -706,7 +706,7 @@ class UserServiceImplTest {
             User admin = buildUser(UserRole.ADMIN);
             Pageable pageable = PageRequest.of(0, 20);
             Page<User> page = new PageImpl<>(
-                    List.of(buildUser(UserRole.MANAGER), buildUser(UserRole.USER)), pageable, 2);
+                    List.of(buildUser(UserRole.MANAGER), buildUser(UserRole.ASSISTANT)), pageable, 2);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(userRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
@@ -720,7 +720,7 @@ class UserServiceImplTest {
         @Test
         @DisplayName("should deny a USER from listing users and never query the repository")
         void shouldDenyUserFromListingUsers() {
-            User regularUser = buildUser(UserRole.USER);
+            User regularUser = buildUser(UserRole.ASSISTANT);
             Pageable pageable = PageRequest.of(0, 20);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(regularUser);

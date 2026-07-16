@@ -50,7 +50,7 @@ public final class TextSimilarity {
         return distances[first.length()][second.length()];
     }
 
-    private static String normalize(String value) {
+    public static String normalize(String value) {
         if (value == null) {
             return "";
         }
@@ -60,7 +60,7 @@ public final class TextSimilarity {
 
         return withoutAccents
                 .toLowerCase()
-                .replaceAll("[^a-z0-9\\s]", "")
+                .replaceAll("[^a-z0-9\\s]", " ")
                 .replaceAll("\\s+", " ")
                 .trim();
     }

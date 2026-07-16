@@ -60,7 +60,7 @@ class AuthServiceTest {
                 .password("encoded-password")
                 .cpf("12345678901")
                 .active(true)
-                .role(UserRole.USER)
+                .role(UserRole.ASSISTANT)
                 .imageUrl("https://example.com/avatar.png")
                 .build();
     }

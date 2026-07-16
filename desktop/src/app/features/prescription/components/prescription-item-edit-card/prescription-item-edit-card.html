@@ -37,6 +37,7 @@
                     #dosageInput
                     type="text"
                     class="input"
+                    placeholder="Ex: 500mg"
                     [value]="model().dosage"
                     (input)="onDosageChange(dosageInput.value)"
                 />
@@ -50,6 +51,7 @@
                     type="number"
                     min="1"
                     class="input"
+                    placeholder="0"
                     [value]="model().prescribedQuantity"
                     (input)="onPrescribedQuantityChange(prescribedQuantityInput.value)"
                 />
@@ -78,6 +80,7 @@
                     type="number"
                     min="1"
                     class="input"
+                    placeholder="0"
                     [value]="model().frequency"
                     (input)="onFrequencyChange(frequencyInput.value)"
                 />
@@ -121,6 +124,7 @@
                     type="number"
                     min="1"
                     class="input"
+                    placeholder="0"
                     [value]="model().treatmentDays"
                     (input)="onTreatmentDaysChange(treatmentDaysInput.value)"
                 />
@@ -146,6 +150,7 @@
                     type="number"
                     min="0"
                     class="input"
+                    placeholder="0"
                     [value]="model().receivedQuantity"
                     (input)="onReceivedQuantityChange(receivedQuantityInput.value)"
                 />
@@ -159,6 +164,7 @@
                     type="number"
                     min="0"
                     class="input"
+                    placeholder="0"
                     [value]="model().deliveredQuantity"
                     (input)="onDeliveredQuantityChange(deliveredQuantityInput.value)"
                 />
@@ -172,6 +178,7 @@
                     class="input"
                     rows="2"
                     maxlength="200"
+                    placeholder="Observações (opcional)"
                     [value]="model().observations"
                     (input)="onObservationsChange(observationsInput.value)"
                 ></textarea>
@@ -179,7 +186,12 @@
         </div>
 
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSave()">
+            <button
+                type="submit"
+                class="btn btn-primary btn-sm"
+                [disabled]="!canSave()"
+                [attr.aria-label]="'Salvar item ' + item().medicine.name"
+            >
                 @if (saving()) {
                     <span class="spinner spinner-sm" aria-hidden="true"></span>
                     <span>Salvando...</span>

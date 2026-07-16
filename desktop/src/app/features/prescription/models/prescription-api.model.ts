@@ -1,4 +1,5 @@
 import { PatientApiDto, toPatient } from '@features/patient/models/patient-api.model';
+import { parseLocalDate } from '@shared/utils/date.util';
 
 import {
     IPrescription,
@@ -63,7 +64,7 @@ export function toPrescription(dto: PrescriptionApiDto): IPrescription {
         id: dto.id,
         status: dto.status,
         imageUrls: dto.imageUrls ?? [],
-        issueDate: new Date(dto.issueDate),
+        issueDate: parseLocalDate(dto.issueDate),
         patientId: dto.patientId,
         createdAt: new Date(dto.createdAt),
         updatedAt: new Date(dto.updatedAt),

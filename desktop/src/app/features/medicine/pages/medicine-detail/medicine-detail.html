@@ -1,0 +1,134 @@
+<section class="medicine-detail">
+    <header class="medicine-detail__header">
+        <button type="button" class="btn btn-outline btn-sm" (click)="goBack()">
+            <span aria-hidden="true">&larr;</span> Voltar
+        </button>
+        <h1 class="medicine-detail__title">Medicamento</h1>
+    </header>
+
+    @if (medicineLoading()) {
+        <div class="loading medicine-detail__state">
+            <output class="spinner" aria-label="Carregando medicamento"></output>
+        </div>
+    } @else if (!medicine()) {
+        <div class="medicine-detail__state medicine-detail__state--error">
+            <p>Medicamento não encontrado.</p>
+        </div>
+    } @else {
+        <div class="medicine-detail__summary card">
+            <div class="card-body medicine-detail__summary-body">
+                <app-image-fallback
+                    class="medicine-detail__image"
+                    [src]="medicine()!.imageUrl"
+                    [alt]="medicine()!.name"
+                    icon="medicine"
+                />
+
+                <div class="medicine-detail__info">
+                    <span class="medicine-detail__name">{{ medicine()!.name }}</span>
+                    <span class="medicine-detail__ean">EAN: {{ medicine()!.eanCode ?? '—' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <section class="medicine-detail__movements">
+            <h2 class="medicine-detail__movements-title">Movimentações</h2>
+
+            <form class="medicine-detail__filters" (submit)="applyFilters($event)">
+                <div class="medicine-detail__filter-field">
+                    <label class="medicine-detail__filter-label" for="filter-movement-type">Tipo</label>
+                    <select
+                        id="filter-movement-type"
+                        #typeSelect
+                        class="input"
+                        [value]="filterForm().movementType"
+                        (change)="onFilterTypeChange(typeSelect.value)"
+                    >
+                        <option value="">Todos</option>
+                        @for (type of movementTypeOptions; track type) {
+                            <option [value]="type">{{ MovementTypeLabels[type] }}</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="medicine-detail__filter-field">
+                    <label class="medicine-detail__filter-label" for="filter-start-date">De</label>
+                    <input
+                        id="filter-start-date"
+                        #startDateInput
+                        type="date"
+                        class="input"
+                        [value]="filterForm().startDate"
+                        (input)="onFilterStartDateChange(startDateInput.value)"
+                    />
+                </div>
+
+                <div class="medicine-detail__filter-field">
+                    <label class="medicine-detail__filter-label" for="filter-end-date">Até</label>
+                    <input
+                        id="filter-end-date"
+                        #endDateInput
+                        type="date"
+                        class="input"
+                        [value]="filterForm().endDate"
+                        (input)="onFilterEndDateChange(endDateInput.value)"
+                    />
+                </div>
+
+                <div class="medicine-detail__filter-actions">
+                    <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+                    <button type="button" class="btn btn-outline btn-sm" (click)="clearFilters()">Limpar filtros</button>
+                </div>
+            </form>
+
+            @if (movementsLoading()) {
+                <div class="loading medicine-detail__state">
+                    <output class="spinner" aria-label="Carregando movimentações"></output>
+                </div>
+            } @else if (movementsError()) {
+                <div class="medicine-detail__state medicine-detail__state--error">
+                    <p>{{ movementsError() }}</p>
+                    <button type="button" class="btn btn-outline" (click)="retry()">Tentar novamente</button>
+                </div>
+            } @else {
+                <div class="table-responsive">
+                    <table class="table medicine-detail__table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Quantidade</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (movement of movements(); track movement.id) {
+                                <tr>
+                                    <td data-label="Data">
+                                        {{ (movement.movementDate ?? movement.createdAt) | date: 'dd/MM/yyyy' }}
+                                    </td>
+                                    <td data-label="Tipo">
+                                        <span class="badge" [class]="MovementTypeBadgeClass[movement.movementType]">
+                                            {{ MovementTypeLabels[movement.movementType] }}
+                                        </span>
+                                    </td>
+                                    <td data-label="Quantidade">{{ movement.quantity }}</td>
+                                </tr>
+                            } @empty {
+                                <tr class="medicine-detail__empty-row">
+                                    <td colspan="3">Nenhuma movimentação encontrada.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <app-pagination
+                    [pagination]="movementsPagination()"
+                    (previousPage)="goToPreviousPage()"
+                    (nextPage)="goToNextPage()"
+                />
+            }
+        </section>
+    }
+</section>

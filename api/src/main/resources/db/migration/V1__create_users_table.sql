@@ -1,7 +1,8 @@
 CREATE TYPE user_role AS ENUM (
     'ADMIN',
     'MANAGER',
-    'USER'
+    'PATIENT',
+    'ASSISTANT'
 );
 
 CREATE TABLE users (
@@ -9,7 +10,7 @@ CREATE TABLE users (
     name VARCHAR(120) NOT NULL,
     email VARCHAR(180) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role user_role NOT NULL DEFAULT 'USER',
+    role user_role NOT NULL DEFAULT 'ASSISTANT',
     image_url VARCHAR(255),
     cpf VARCHAR(11) UNIQUE NOT NULL,
     active BOOLEAN DEFAULT TRUE,

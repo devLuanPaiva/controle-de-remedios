@@ -5,11 +5,16 @@ import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,6 +78,95 @@ public class GlobalExceptionHandler {
 
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
+                                .body(response);
+        }
+
+        @ExceptionHandler(MissingServletRequestParameterException.class)
+        public ResponseEntity<ApiExceptionResponse> handleMissingParameterException(
+                        MissingServletRequestParameterException ex) {
+
+                ApiExceptionResponse response = new ApiExceptionResponse(
+                                "error",
+                                "Parâmetro obrigatório ausente",
+                                null,
+                                new ApiError(
+                                                "MISSING_PARAMETER",
+                                                ex.getParameterName(),
+                                                "O parâmetro '" + ex.getParameterName() + "' é obrigatório."));
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(response);
+        }
+
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ApiExceptionResponse> handleMessageNotReadableException(
+                        HttpMessageNotReadableException ex) {
+
+                ApiExceptionResponse response = new ApiExceptionResponse(
+                                "error",
+                                "Requisição inválida",
+                                null,
+                                new ApiError(
+                                                "MALFORMED_REQUEST_BODY",
+                                                null,
+                                                "O corpo da requisição está ausente ou mal formatado."));
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(response);
+        }
+
+        @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+        public ResponseEntity<ApiExceptionResponse> handleMethodNotSupportedException(
+                        HttpRequestMethodNotSupportedException ex) {
+
+                ApiExceptionResponse response = new ApiExceptionResponse(
+                                "error",
+                                "Método não permitido",
+                                null,
+                                new ApiError(
+                                                "METHOD_NOT_ALLOWED",
+                                                null,
+                                                "O método '" + ex.getMethod() + "' não é suportado para este recurso."));
+
+                return ResponseEntity
+                                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                                .body(response);
+        }
+
+        @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+        public ResponseEntity<ApiExceptionResponse> handleMediaTypeNotSupportedException(
+                        HttpMediaTypeNotSupportedException ex) {
+
+                ApiExceptionResponse response = new ApiExceptionResponse(
+                                "error",
+                                "Tipo de mídia não suportado",
+                                null,
+                                new ApiError(
+                                                "UNSUPPORTED_MEDIA_TYPE",
+                                                "Content-Type",
+                                                "O tipo de conteúdo informado não é suportado por este recurso."));
+
+                return ResponseEntity
+                                .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                                .body(response);
+        }
+
+        @ExceptionHandler(NoResourceFoundException.class)
+        public ResponseEntity<ApiExceptionResponse> handleNoResourceFoundException(NoResourceFoundException ex) {
+
+                ApiExceptionResponse response = new ApiExceptionResponse(
+                                "error",
+                                "Recurso não encontrado",
+                                null,
+                                new ApiError(
+                                                "NOT_FOUND",
+                                                null,
+                                                "Não foi possível encontrar o recurso solicitado."));
+
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
                                 .body(response);
         }
 

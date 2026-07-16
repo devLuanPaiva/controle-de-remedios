@@ -13,4 +13,6 @@ public interface MedicineRepository extends JpaRepository<Medicine, UUID>, JpaSp
     Optional<Medicine> findByCompany_IdAndEanCode(UUID companyId, String eanCode);
 
     List<Medicine> findByCompany_Id(UUID companyId);
+
+    List<Medicine> findByCompany_IdAndNameContainingIgnoreCase(UUID companyId, String name);
 }

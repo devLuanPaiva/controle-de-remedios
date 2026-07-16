@@ -64,4 +64,10 @@ export class MedicineService {
             .post<ApiResponse<MedicineApiDto>>(`${this.apiUrl()}/medicines`, payload)
             .pipe(map((response) => toMedicine(response.data)));
     }
+
+    getMedicineById(id: string): Observable<IMedicine> {
+        return this.http
+            .get<ApiResponse<MedicineApiDto>>(`${this.apiUrl()}/medicines/${id}`)
+            .pipe(map((response) => toMedicine(response.data)));
+    }
 }

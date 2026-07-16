@@ -39,3 +39,22 @@ export const createMedicineFailure = createAction(
     '[Medicines] Create Medicine Failure',
     props<{ message: string }>(),
 );
+
+export const loadMedicineById = createAction(
+    '[Medicines] Load Medicine By Id',
+    props<{ id: string }>(),
+);
+
+export const loadMedicineByIdSuccess = createAction(
+    '[Medicines] Load Medicine By Id Success',
+    props<{ medicine: IMedicine }>(),
+);
+
+export const loadMedicineByIdFailure = createAction(
+    '[Medicines] Load Medicine By Id Failure',
+    props<{ message: string }>(),
+);
+
+export const clearSelectedMedicine = createAction(
+    '[Medicines] Clear Selected Medicine',
+);

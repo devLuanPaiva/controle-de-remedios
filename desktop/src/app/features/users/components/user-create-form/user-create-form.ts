@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormField, email, form, maxLength, minLength, required, validate } from '@angular/forms/signals';
 import { Store } from '@ngrx/store';
 
@@ -7,7 +7,6 @@ import { Field } from '@shared/ui/field/field';
 import { CpfField } from '@shared/ui/cpf-field/cpf-field';
 import { PasswordField } from '@shared/ui/password-field/password-field';
 import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-field';
-import { Modal } from '@shared/ui/modal/modal';
 import { isValidCpf, onlyDigits } from '@shared/utils/cpf.util';
 
 import * as UsersActions from '../../store/user.actions';
@@ -15,17 +14,16 @@ import { selectUsersMutating } from '../../store/user.selectors';
 import { UserRole, UserRoleLabels } from '../../models/user.model';
 
 @Component({
-    selector: 'app-user-create-modal',
-    imports: [FormField, Field, CpfField, PasswordField, ImageUploadField, Modal],
-    templateUrl: './user-create-modal.html',
-    styleUrl: './user-create-modal.scss',
+    selector: 'app-user-create-form',
+    imports: [FormField, Field, CpfField, PasswordField, ImageUploadField],
+    templateUrl: './user-create-form.html',
+    styleUrl: './user-create-form.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserCreateModal {
+export class UserCreateForm {
     private readonly store = inject(Store);
 
     readonly allowedRoles = input.required<UserRole[]>();
-    readonly closed = output<void>();
 
     readonly UserRoleLabels = UserRoleLabels;
 
@@ -73,7 +71,7 @@ export class UserCreateModal {
         this.model.update((current) => ({ ...current, imageUrl: url }));
     }
 
-    onSubmit(event: Event, modal: Modal): void {
+    onSubmit(event: Event): void {
         event.preventDefault();
 
         if (!this.canSubmit()) {
@@ -96,7 +94,5 @@ export class UserCreateModal {
                 },
             }),
         );
-
-        modal.requestClose();
     }
 }

@@ -3,6 +3,7 @@ package com.devluanpaiva.controle_de_remedios_test.unit.modules.medicine.service
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,7 +90,8 @@ class MedicineResolutionServiceTest {
 
             when(medicineRepository.findByCompany_IdAndEanCode(company.getId(), "7891234567895"))
                     .thenReturn(Optional.empty());
-            when(medicineRepository.findByCompany_Id(company.getId())).thenReturn(List.of(similarWithoutEanCode));
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of(similarWithoutEanCode));
             when(medicineRepository.save(similarWithoutEanCode)).thenReturn(similarWithoutEanCode);
 
             Medicine result = medicineResolutionService.resolveOrCreate(
@@ -108,7 +110,8 @@ class MedicineResolutionServiceTest {
 
             when(medicineRepository.findByCompany_IdAndEanCode(company.getId(), "7891234567895"))
                     .thenReturn(Optional.empty());
-            when(medicineRepository.findByCompany_Id(company.getId())).thenReturn(List.of(similarWithOtherEanCode));
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of(similarWithOtherEanCode));
             when(medicineRepository.save(any(Medicine.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             Medicine result = medicineResolutionService.resolveOrCreate(
@@ -126,7 +129,8 @@ class MedicineResolutionServiceTest {
 
             when(medicineRepository.findByCompany_IdAndEanCode(company.getId(), "7891234567895"))
                     .thenReturn(Optional.empty());
-            when(medicineRepository.findByCompany_Id(company.getId())).thenReturn(List.of());
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of());
             when(medicineRepository.save(any(Medicine.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             Medicine result = medicineResolutionService.resolveOrCreate(
@@ -148,7 +152,8 @@ class MedicineResolutionServiceTest {
             Company company = buildCompany();
             Medicine similarWithEanCode = buildMedicine(company, "Dipirona", "7891234567895");
 
-            when(medicineRepository.findByCompany_Id(company.getId())).thenReturn(List.of(similarWithEanCode));
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of(similarWithEanCode));
 
             Medicine result = medicineResolutionService.resolveOrCreate(
                     company, "Dipirona", null, "https://example.com/dipirona.png");
@@ -164,7 +169,8 @@ class MedicineResolutionServiceTest {
             Company company = buildCompany();
             Medicine unrelated = buildMedicine(company, "Paracetamol", null);
 
-            when(medicineRepository.findByCompany_Id(company.getId())).thenReturn(List.of(unrelated));
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of(unrelated));
             when(medicineRepository.save(any(Medicine.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             Medicine result = medicineResolutionService.resolveOrCreate(
@@ -181,7 +187,8 @@ class MedicineResolutionServiceTest {
             Medicine firstMatch = buildMedicine(company, "Dipirona", null);
             Medicine secondMatch = buildMedicine(company, "Dipirona", null);
 
-            when(medicineRepository.findByCompany_Id(company.getId())).thenReturn(List.of(firstMatch, secondMatch));
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of(firstMatch, secondMatch));
 
             Medicine result = medicineResolutionService.resolveOrCreate(
                     company, "Dipirona", null, "https://example.com/dipirona.png");
@@ -200,7 +207,8 @@ class MedicineResolutionServiceTest {
         void shouldThrowWhenCreatingNewMedicineWithoutImageUrl() {
             Company company = buildCompany();
 
-            when(medicineRepository.findByCompany_Id(company.getId())).thenReturn(List.of());
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of());
 
             assertThatThrownBy(() -> medicineResolutionService.resolveOrCreate(company, "Dipirona", null, "   "))
                     .isInstanceOf(BusinessException.class)
@@ -218,7 +226,8 @@ class MedicineResolutionServiceTest {
         void shouldPersistAllProvidedFieldsWhenCreatingNewMedicine() {
             Company company = buildCompany();
 
-            when(medicineRepository.findByCompany_Id(company.getId())).thenReturn(List.of());
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of());
             when(medicineRepository.save(any(Medicine.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             medicineResolutionService.resolveOrCreate(
@@ -245,13 +254,64 @@ class MedicineResolutionServiceTest {
             Company company = buildCompany();
             Medicine existing = buildMedicine(company, "Ibuprofeno", null);
 
-            when(medicineRepository.findByCompany_Id(company.getId())).thenReturn(List.of(existing));
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of(existing));
 
             Medicine result = medicineResolutionService.resolveOrCreate(
                     company, "IBUPROFÊNO", null, "https://example.com/ibuprofeno.png");
 
             assertThat(result).isEqualTo(existing);
             verify(medicineRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("should match when qualifier words or the dosage unit are omitted")
+        void shouldMatchWhenQualifierWordsOrDosageUnitAreOmitted() {
+            Company company = buildCompany();
+            Medicine existing = buildMedicine(company, "ACETATO DE MEDROXIPROGESTERONA 150MG", null);
+
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of(existing));
+
+            Medicine result = medicineResolutionService.resolveOrCreate(
+                    company, "MEDROXIPROGESTERONA 150", null, "https://example.com/medicine.png");
+
+            assertThat(result).isEqualTo(existing);
+            verify(medicineRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("should not match the same substance at a different dosage")
+        void shouldNotMatchSameSubstanceAtDifferentDosage() {
+            Company company = buildCompany();
+            Medicine existing = buildMedicine(company, "ACETATO DE MEDROXIPROGESTERONA 150MG", null);
+
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of(existing));
+            when(medicineRepository.save(any(Medicine.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Medicine result = medicineResolutionService.resolveOrCreate(
+                    company, "ACETATO DE MEDROXIPROGESTERONA 250MG", null, "https://example.com/medicine.png");
+
+            assertThat(result).isNotEqualTo(existing);
+            assertThat(result.getName()).isEqualTo("ACETATO DE MEDROXIPROGESTERONA 250MG");
+        }
+
+        @Test
+        @DisplayName("should not match a different active substance that shares a common qualifier word")
+        void shouldNotMatchDifferentActiveSubstance() {
+            Company company = buildCompany();
+            Medicine existing = buildMedicine(company, "ACETATO DE MEDROXIPROGESTERONA 150MG", null);
+
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of(existing));
+            when(medicineRepository.save(any(Medicine.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Medicine result = medicineResolutionService.resolveOrCreate(
+                    company, "Acetato de Dexametasona", null, "https://example.com/medicine.png");
+
+            assertThat(result).isNotEqualTo(existing);
+            assertThat(result.getName()).isEqualTo("Acetato de Dexametasona");
         }
     }
 }

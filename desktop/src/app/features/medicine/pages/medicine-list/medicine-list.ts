@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import { selectSelectedCompanyId } from '@features/company/store/company.selectors';
@@ -23,7 +24,7 @@ const EMPTY_FILTER_FORM: MedicineListFilterForm = {
 
 @Component({
     selector: 'app-medicine-list',
-    imports: [Pagination, ViewToggle, MedicineCreateModal, ImageFallback],
+    imports: [RouterLink, Pagination, ViewToggle, MedicineCreateModal, ImageFallback],
     templateUrl: './medicine-list.html',
     styleUrl: './medicine-list.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

@@ -19,3 +19,10 @@ export const selectMedicinesPagination = createSelector(selectMedicineState, (st
     next: state.next,
     previous: state.previous,
 }));
+
+export const selectSelectedMedicine = createSelector(selectMedicineState, (state) => state.selectedMedicine);
+
+export const selectSelectedMedicineLoading = createSelector(
+    selectMedicineState,
+    (state) => state.selectedMedicineLoading,
+);

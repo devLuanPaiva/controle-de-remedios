@@ -12,13 +12,21 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpInputMessage;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.ApiExceptionResponse;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
@@ -151,6 +159,101 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().errors().detail()).contains("desconhecido");
+        }
+    }
+
+    @Nested
+    @DisplayName("handleMissingParameterException")
+    class HandleMissingParameterException {
+
+        @Test
+        @DisplayName("should return 400 naming the missing parameter")
+        void shouldReturnBadRequestNamingMissingParameter() {
+            MissingServletRequestParameterException exception = new MissingServletRequestParameterException(
+                    "companyId", "UUID");
+
+            ResponseEntity<ApiExceptionResponse> response = handler.handleMissingParameterException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().message()).isEqualTo("Parâmetro obrigatório ausente");
+            assertThat(response.getBody().errors().code()).isEqualTo("MISSING_PARAMETER");
+            assertThat(response.getBody().errors().field()).isEqualTo("companyId");
+            assertThat(response.getBody().errors().detail()).isEqualTo("O parâmetro 'companyId' é obrigatório.");
+        }
+    }
+
+    @Nested
+    @DisplayName("handleMessageNotReadableException")
+    class HandleMessageNotReadableException {
+
+        @Test
+        @DisplayName("should return 400 without leaking the raw parser message")
+        void shouldReturnBadRequestWithoutLeakingRawParserMessage() {
+            HttpMessageNotReadableException exception = new HttpMessageNotReadableException(
+                    "JSON parse error: Unexpected character", mock(HttpInputMessage.class));
+
+            ResponseEntity<ApiExceptionResponse> response = handler.handleMessageNotReadableException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().message()).isEqualTo("Requisição inválida");
+            assertThat(response.getBody().errors().code()).isEqualTo("MALFORMED_REQUEST_BODY");
+            assertThat(response.getBody().errors().detail()).doesNotContain("JSON parse error");
+        }
+    }
+
+    @Nested
+    @DisplayName("handleMethodNotSupportedException")
+    class HandleMethodNotSupportedException {
+
+        @Test
+        @DisplayName("should return 405 naming the offending method")
+        void shouldReturnMethodNotAllowedNamingMethod() {
+            HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException("PUT");
+
+            ResponseEntity<ApiExceptionResponse> response = handler.handleMethodNotSupportedException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().errors().code()).isEqualTo("METHOD_NOT_ALLOWED");
+            assertThat(response.getBody().errors().detail()).contains("PUT");
+        }
+    }
+
+    @Nested
+    @DisplayName("handleMediaTypeNotSupportedException")
+    class HandleMediaTypeNotSupportedException {
+
+        @Test
+        @DisplayName("should return 415")
+        void shouldReturnUnsupportedMediaType() {
+            HttpMediaTypeNotSupportedException exception = new HttpMediaTypeNotSupportedException(
+                    MediaType.TEXT_PLAIN, java.util.List.of(MediaType.APPLICATION_JSON));
+
+            ResponseEntity<ApiExceptionResponse> response = handler.handleMediaTypeNotSupportedException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().errors().code()).isEqualTo("UNSUPPORTED_MEDIA_TYPE");
+        }
+    }
+
+    @Nested
+    @DisplayName("handleNoResourceFoundException")
+    class HandleNoResourceFoundException {
+
+        @Test
+        @DisplayName("should return 404")
+        void shouldReturnNotFound() {
+            NoResourceFoundException exception = new NoResourceFoundException(
+                    HttpMethod.GET, "/unknown-route", "No static resource unknown-route.");
+
+            ResponseEntity<ApiExceptionResponse> response = handler.handleNoResourceFoundException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().errors().code()).isEqualTo("NOT_FOUND");
         }
     }
 

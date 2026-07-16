@@ -149,6 +149,10 @@
     overflow: hidden;
 }
 
+.prescription-view__col-actions {
+    white-space: nowrap;
+}
+
 @media (max-width: bp.$sm) {
     .prescription-view__items-table thead {
         display: none;

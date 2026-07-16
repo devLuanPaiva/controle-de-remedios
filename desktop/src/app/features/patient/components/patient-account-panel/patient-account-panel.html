@@ -28,6 +28,7 @@
                         class="input"
                         type="email"
                         autocomplete="email"
+                        placeholder="voce@exemplo.com"
                         [formField]="accountForm.email"
                         [attr.aria-invalid]="accountForm.email().invalid() && accountForm.email().touched()"
                         [attr.aria-describedby]="accountForm.email().invalid() && accountForm.email().touched() ? 'edit-patient-account-email-error' : null"

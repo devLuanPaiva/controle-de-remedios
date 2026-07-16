@@ -1,4 +1,4 @@
-<div class="toast-container">
+<output class="toast-container" aria-live="polite" aria-atomic="true">
 
     @for (
     toast of toastService.toasts();
@@ -6,10 +6,11 @@
     ) {
 
     <div class="toast" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'"
-        [class.warning]="toast.type === 'warning'" [class.info]="toast.type === 'info'">
+        [class.warning]="toast.type === 'warning'" [class.info]="toast.type === 'info'"
+        [attr.role]="toast.type === 'error' ? 'alert' : null">
 
         {{ toast.message }}
 
     </div>
     }
-</div>
+</output>

@@ -9,9 +9,11 @@ import { DateField } from '@shared/ui/date-field/date-field';
 import { ImageUploadMultiField } from '@shared/ui/image-upload-multi-field/image-upload-multi-field';
 import { formatCpf } from '@shared/utils/cpf.util';
 import { isNotFutureDate, toDateInputValue } from '@shared/utils/date.util';
+import { diffPrimitive, diffStringArray } from '@shared/utils/diff.util';
 
 import { PrescriptionItemEditCard } from '../../components/prescription-item-edit-card/prescription-item-edit-card';
 import { UpdatePrescriptionItemRequest } from '../../models/prescription-item-api.model';
+import { UpdatePrescriptionRequest } from '../../models/prescription-api.model';
 import { PrescriptionStatus, PrescriptionStatusLabels } from '../../models/prescription.model';
 import * as PrescriptionActions from '../../store/prescription.actions';
 import {
@@ -107,16 +109,24 @@ export class PrescriptionEdit implements OnDestroy {
             return;
         }
 
+        const original = this.prescription();
+
+        if (!original) {
+            return;
+        }
+
         const value = this.model();
+
+        const payload: UpdatePrescriptionRequest = {
+            status: diffPrimitive(original.status, value.status),
+            issueDate: diffPrimitive(toDateInputValue(original.issueDate), value.issueDate),
+            imageUrls: diffStringArray(original.imageUrls, value.imageUrls),
+        };
 
         this.store.dispatch(
             PrescriptionActions.updatePrescription({
                 id: this.prescriptionId(),
-                payload: {
-                    status: value.status,
-                    issueDate: value.issueDate,
-                    imageUrls: value.imageUrls,
-                },
+                payload,
             }),
         );
     }

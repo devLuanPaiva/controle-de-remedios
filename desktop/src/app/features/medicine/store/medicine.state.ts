@@ -12,4 +12,7 @@ export interface MedicineState {
     totalPages: number;
     next: string | null;
     previous: string | null;
+
+    selectedMedicine: IMedicine | null;
+    selectedMedicineLoading: boolean;
 }
