@@ -43,6 +43,12 @@ class TextSimilarityTest {
     }
 
     @Test
+    @DisplayName("should treat a hyphen the same as a space even for short names")
+    void shouldTreatHyphenAsSpaceForShortNames() {
+        assertThat(TextSimilarity.isSimilar("Mag-B", "Mag B", THRESHOLD)).isTrue();
+    }
+
+    @Test
     @DisplayName("should return false for completely different strings")
     void shouldReturnFalseForCompletelyDifferentStrings() {
         assertThat(TextSimilarity.isSimilar("Dipirona", "Paracetamol", THRESHOLD)).isFalse();

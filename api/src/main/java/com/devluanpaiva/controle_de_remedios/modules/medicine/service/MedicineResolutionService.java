@@ -11,15 +11,12 @@ import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
-import com.devluanpaiva.controle_de_remedios.shared.utils.TextSimilarity;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class MedicineResolutionService {
-    private static final double NAME_SIMILARITY_THRESHOLD = 0.85;
-
     private final MedicineRepository medicineRepository;
 
     public Medicine resolveOrCreate(Company company, String name, String eanCode, String imageUrl) {
@@ -76,8 +73,13 @@ public class MedicineResolutionService {
     }
 
     private Optional<Medicine> findSimilarByName(UUID companyId, String name) {
-        return medicineRepository.findByCompany_Id(companyId).stream()
-                .filter(medicine -> TextSimilarity.isSimilar(medicine.getName(), name, NAME_SIMILARITY_THRESHOLD))
+        String anchorWord = MedicineNameMatcher.longestSignificantWord(name);
+        if (anchorWord.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(companyId, anchorWord).stream()
+                .filter(medicine -> MedicineNameMatcher.isSimilar(medicine.getName(), name))
                 .findFirst();
     }
 }
