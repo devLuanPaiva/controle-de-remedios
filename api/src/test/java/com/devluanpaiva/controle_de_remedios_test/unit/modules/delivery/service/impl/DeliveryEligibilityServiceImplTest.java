@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -78,6 +79,9 @@ class DeliveryEligibilityServiceImplTest {
                     BusinessException businessException = (BusinessException) ex;
                     assertThat(businessException.getStatus()).isEqualTo(HttpStatus.CONFLICT);
                     assertThat(businessException.getCode()).isEqualTo("MEDICINE_STILL_IN_TREATMENT_PERIOD");
+                    assertThat(businessException.getDetail())
+                            .contains(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(nextAvailableDate))
+                            .doesNotContain(nextAvailableDate.toString());
                 });
     }
 }

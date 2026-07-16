@@ -1,6 +1,7 @@
 package com.devluanpaiva.controle_de_remedios.modules.delivery.service.impl;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class DeliveryEligibilityServiceImpl implements DeliveryEligibilityService {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     private final DeliveryRepository deliveryRepository;
 
     @Override
@@ -40,7 +43,7 @@ public class DeliveryEligibilityServiceImpl implements DeliveryEligibilityServic
                 "Remédio ainda está no prazo de tratamento anterior",
                 "MEDICINE_STILL_IN_TREATMENT_PERIOD",
                 "medicineId",
-                "O remédio '" + medicine.getName() + "' só estará disponível novamente em " + nextAvailableDate
-                        + ".");
+                "O remédio '" + medicine.getName() + "' só estará disponível novamente em "
+                        + DATE_FORMATTER.format(nextAvailableDate) + ".");
     }
 }
