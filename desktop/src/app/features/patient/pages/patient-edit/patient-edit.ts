@@ -12,8 +12,10 @@ import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
 import { DangerCard } from '@shared/ui/danger-card/danger-card';
 import { formatCpf, isValidCpf, onlyDigits } from '@shared/utils/cpf.util';
 import { isNotFutureDate, toDateInputValue } from '@shared/utils/date.util';
+import { diffPrimitive } from '@shared/utils/diff.util';
 
 import { PatientAccountPanel } from '../../components/patient-account-panel/patient-account-panel';
+import { UpdatePatientRequest } from '../../models/patient-api.model';
 import * as PatientActions from '../../store/patient.actions';
 import {
     selectPatientsError,
@@ -102,16 +104,24 @@ export class PatientEdit implements OnDestroy {
             return;
         }
 
+        const original = this.patient();
+
+        if (!original) {
+            return;
+        }
+
         const value = this.model();
+
+        const payload: UpdatePatientRequest = {
+            name: diffPrimitive(original.name, value.name),
+            cpf: diffPrimitive(original.cpf, onlyDigits(value.cpf)),
+            birthDate: diffPrimitive(toDateInputValue(original.birthDate), value.birthDate),
+        };
 
         this.store.dispatch(
             PatientActions.updatePatient({
                 id: this.patientId(),
-                payload: {
-                    name: value.name,
-                    cpf: onlyDigits(value.cpf),
-                    birthDate: value.birthDate,
-                },
+                payload,
             }),
         );
     }

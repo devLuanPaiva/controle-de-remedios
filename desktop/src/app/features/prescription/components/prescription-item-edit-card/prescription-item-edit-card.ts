@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 
 import { ImageFallback } from '@shared/ui/image-fallback/image-fallback';
+import { diffPrimitive } from '@shared/utils/diff.util';
 
 import { PrescriptionStatus, PrescriptionStatusLabels } from '../../models/prescription.model';
 import { UpdatePrescriptionItemRequest } from '../../models/prescription-item-api.model';
@@ -165,21 +166,24 @@ export class PrescriptionItemEditCard {
             return;
         }
 
+        const original = this.item();
         const value = this.model();
+        const observations = value.observations.trim();
+        const originalStartDate = original.startDate ? toDateInputValue(original.startDate) : '';
 
         this.save.emit({
-            status: value.status,
-            dosage: value.dosage.trim(),
-            prescribedQuantity: value.prescribedQuantity,
-            unityType: value.unityType,
-            frequency: value.frequency,
-            frequencyType: value.frequencyType,
-            treatmentType: value.treatmentType,
-            treatmentDays: value.treatmentDays,
-            observations: value.observations.trim() || undefined,
-            startDate: value.startDate || undefined,
-            receivedQuantity: value.receivedQuantity,
-            deliveredQuantity: value.deliveredQuantity,
+            status: diffPrimitive(original.status, value.status),
+            dosage: diffPrimitive(original.dosage, value.dosage.trim()),
+            prescribedQuantity: diffPrimitive(original.prescribedQuantity, value.prescribedQuantity),
+            unityType: diffPrimitive(original.unityType, value.unityType),
+            frequency: diffPrimitive(original.frequency, value.frequency),
+            frequencyType: diffPrimitive(original.frequencyType, value.frequencyType),
+            treatmentType: diffPrimitive(original.treatmentType, value.treatmentType),
+            treatmentDays: diffPrimitive(original.treatmentDays, value.treatmentDays),
+            observations: diffPrimitive(original.observations ?? '', observations) || undefined,
+            startDate: diffPrimitive(originalStartDate, value.startDate) || undefined,
+            receivedQuantity: diffPrimitive(original.receivedQuantity ?? 0, value.receivedQuantity),
+            deliveredQuantity: diffPrimitive(original.deliveredQuantity ?? 0, value.deliveredQuantity),
         });
     }
 }

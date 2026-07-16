@@ -22,8 +22,8 @@ export interface CreateUserRequest {
 }
 
 export interface UpdateUserRequest {
-    name: string;
-    cpf: string;
+    name?: string;
+    cpf?: string;
     imageUrl?: string;
 }
 
