@@ -39,7 +39,7 @@ public class Medicine {
     @Column(length = 14, name = "ean_code")
     private String eanCode;
 
-    @Column(nullable = false, length = 200, name = "image_url")
+    @Column(length = 200, name = "image_url")
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
