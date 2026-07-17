@@ -49,6 +49,14 @@ export const authRoutes: Routes = [
                 canActivate: [roleGuard([UserRole.ADMIN, UserRole.MANAGER, UserRole.ASSISTANT])],
                 loadChildren: () => import('@features/delivery/delivery.routes').then((m) => m.deliveryRoutes),
             },
+            {
+                path: '**',
+                loadComponent: () =>
+                    import('@features/not-found/pages/authenticated-not-found/authenticated-not-found').then(
+                        (m) => m.AuthenticatedNotFound,
+                    ),
+                title: 'Página não encontrada',
+            },
         ],
     },
 ];

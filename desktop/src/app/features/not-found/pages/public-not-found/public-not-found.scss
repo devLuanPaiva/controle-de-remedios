@@ -1,0 +1,31 @@
+@use '../../../../../styles/abstracts/breakpoints' as bp;
+
+.public-not-found {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 100vh;
+    padding: var(--space-6);
+
+    overflow: hidden;
+}
+
+.public-not-found__background {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+
+    background:
+        radial-gradient(circle at 15% 20%, rgba(3, 89, 65, 0.16), transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(60, 115, 99, 0.18), transparent 50%),
+        linear-gradient(160deg, var(--color-neutral-200) 0%, var(--color-neutral-100) 55%, var(--bg-secondary) 100%);
+}
+
+@media (max-width: bp.$sm) {
+    .public-not-found {
+        padding: var(--space-4);
+    }
+}
