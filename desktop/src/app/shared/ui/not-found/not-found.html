@@ -1,0 +1,36 @@
+<div class="not-found">
+    <span class="not-found__icon" aria-hidden="true">
+        @switch (icon()) {
+            @case ('users') {
+                <svg lucideUsers></svg>
+            }
+            @case ('patients') {
+                <svg lucideHeartPulse></svg>
+            }
+            @case ('prescriptions') {
+                <svg lucideFileText></svg>
+            }
+            @case ('medicines') {
+                <svg lucidePill></svg>
+            }
+            @case ('deliveries') {
+                <svg lucideTruck></svg>
+            }
+            @case ('company') {
+                <svg lucideBuilding2></svg>
+            }
+            @case ('page') {
+                <svg lucideFileQuestion></svg>
+            }
+            @default {
+                <svg lucideInbox></svg>
+            }
+        }
+    </span>
+
+    <p class="not-found__message">{{ message() }}</p>
+
+    @if (actionLabel()) {
+        <button type="button" class="btn btn-primary" (click)="action.emit()">{{ actionLabel() }}</button>
+    }
+</div>
