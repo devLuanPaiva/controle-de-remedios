@@ -1,3 +1,5 @@
+import { CreatePrescriptionItemRequest } from "@/data/models/prescription-item.model";
+
 export enum PrescriptionStatus {
     PENDING = "PENDING",
     APPROVED = "APPROVED",
@@ -28,4 +30,5 @@ export interface CreatePrescriptionRequest {
     imageUrls?: string[];
     issueDate: string;
     patientId: string;
+    items: CreatePrescriptionItemRequest[];
 }
