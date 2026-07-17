@@ -1,10 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 
+import { NotFound } from '@shared/ui/not-found/not-found';
 import { Pagination } from '@shared/ui/pagination/pagination';
 import { PrescriptionStatusBadge } from '@shared/ui/prescription-status-badge/prescription-status-badge';
 import { Tabs, TabConfig } from '@shared/ui/tabs/tabs';
@@ -37,7 +38,7 @@ const EMPTY_FILTER_FORM: PrescriptionListFilterForm = {
 
 @Component({
     selector: 'app-prescription-list',
-    imports: [RouterLink, DatePipe, Tabs, Pagination, PrescriptionStatusBadge, PrescriptionCreateForm],
+    imports: [RouterLink, DatePipe, Tabs, Pagination, PrescriptionStatusBadge, PrescriptionCreateForm, NotFound],
     templateUrl: './prescription-list.html',
     styleUrl: './prescription-list.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,6 +62,15 @@ export class PrescriptionList implements OnInit {
     readonly PrescriptionStatusLabels = PrescriptionStatusLabels;
 
     readonly filterForm = signal<PrescriptionListFilterForm>({ ...EMPTY_FILTER_FORM });
+
+    readonly hasActiveFilters = computed(() => {
+        const form = this.filterForm();
+        return !!(form.patientName || form.patientCpf || form.status || form.issueDate);
+    });
+
+    readonly showNotFound = computed(
+        () => !this.loading() && !this.error() && this.pagination().count === 0 && !this.hasActiveFilters(),
+    );
 
     private readonly requestedPage = signal(0);
 

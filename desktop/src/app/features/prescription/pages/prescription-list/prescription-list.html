@@ -6,125 +6,134 @@
     <app-tabs [tabs]="tabs" [activeTabId]="activeTabId()" (tabChange)="onTabChange($event)" />
 
     @if (activeTabId() === 'list') {
-        <form class="prescription-list__filters" (submit)="applyFilters($event)">
-            <div class="prescription-list__filter-field">
-                <label class="prescription-list__filter-label" for="filter-patient-name">Nome do paciente</label>
-                <input
-                    id="filter-patient-name"
-                    #nameInput
-                    type="text"
-                    class="input"
-                    placeholder="Buscar por nome"
-                    [value]="filterForm().patientName"
-                    (input)="onFilterPatientNameChange(nameInput.value)"
-                />
-            </div>
-
-            <div class="prescription-list__filter-field">
-                <label class="prescription-list__filter-label" for="filter-patient-cpf">CPF do paciente</label>
-                <input
-                    id="filter-patient-cpf"
-                    #cpfInput
-                    type="text"
-                    inputmode="numeric"
-                    maxlength="14"
-                    class="input"
-                    placeholder="000.000.000-00"
-                    [value]="filterForm().patientCpf"
-                    (input)="onFilterPatientCpfChange(cpfInput.value)"
-                />
-            </div>
-
-            <div class="prescription-list__filter-field">
-                <label class="prescription-list__filter-label" for="filter-status">Status</label>
-                <select
-                    id="filter-status"
-                    #statusSelect
-                    class="input"
-                    [value]="filterForm().status"
-                    (change)="onFilterStatusChange(statusSelect.value)"
-                >
-                    <option value="">Todos</option>
-                    @for (status of statusOptions; track status) {
-                        <option [value]="status">{{ PrescriptionStatusLabels[status] }}</option>
-                    }
-                </select>
-            </div>
-
-            <div class="prescription-list__filter-field">
-                <label class="prescription-list__filter-label" for="filter-issue-date">Data de emissão</label>
-                <input
-                    id="filter-issue-date"
-                    #issueDateInput
-                    type="date"
-                    class="input"
-                    [value]="filterForm().issueDate"
-                    (input)="onFilterIssueDateChange(issueDateInput.value)"
-                />
-            </div>
-
-            <div class="prescription-list__filter-actions">
-                <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
-                <button type="button" class="btn btn-outline btn-sm" (click)="clearFilters()">Limpar filtros</button>
-            </div>
-        </form>
-
-        @if (loading()) {
-            <div class="loading prescription-list__state">
-                <output class="spinner" aria-label="Carregando receituários"></output>
-            </div>
-        } @else if (error()) {
-            <div class="prescription-list__state prescription-list__state--error">
-                <p>{{ error() }}</p>
-                <button type="button" class="btn btn-outline" (click)="retry()">
-                    Tentar novamente
-                </button>
-            </div>
+        @if (showNotFound()) {
+            <app-not-found
+                icon="prescriptions"
+                message="Nenhum receituário cadastrado ainda."
+                actionLabel="Cadastrar novo"
+                (action)="onTabChange('create')"
+            />
         } @else {
-            <div class="table-responsive">
-                <table class="table prescription-list__table">
-                    <thead>
-                        <tr>
-                            <th>Paciente</th>
-                            <th>Data de emissão</th>
-                            <th>Status</th>
-                            <th class="prescription-list__col-actions">Ações</th>
-                        </tr>
-                    </thead>
+            <form class="prescription-list__filters" (submit)="applyFilters($event)">
+                <div class="prescription-list__filter-field">
+                    <label class="prescription-list__filter-label" for="filter-patient-name">Nome do paciente</label>
+                    <input
+                        id="filter-patient-name"
+                        #nameInput
+                        type="text"
+                        class="input"
+                        placeholder="Buscar por nome"
+                        [value]="filterForm().patientName"
+                        (input)="onFilterPatientNameChange(nameInput.value)"
+                    />
+                </div>
 
-                    <tbody>
-                        @for (prescription of prescriptions(); track prescription.id) {
-                            <tr>
-                                <td data-label="Paciente" class="prescription-list__col-name">{{ prescription.patient.name }}</td>
-                                <td data-label="Data de emissão">{{ prescription.issueDate | date: 'dd/MM/yyyy' }}</td>
-                                <td data-label="Status"><app-prescription-status-badge [status]="prescription.status" /></td>
-                                <td data-label="Ações" class="prescription-list__col-actions">
-                                    <a
-                                        class="btn btn-outline btn-sm"
-                                        [routerLink]="['/prescriptions', prescription.id]"
-                                        [attr.aria-label]="'Ver receituário de ' + prescription.patient.name"
-                                    >
-                                        Ver
-                                    </a>
-                                    <a
-                                        class="btn btn-outline btn-sm"
-                                        [routerLink]="['/prescriptions', prescription.id, 'edit']"
-                                        [attr.aria-label]="'Editar receituário de ' + prescription.patient.name"
-                                    >
-                                        Editar
-                                    </a>
-                                </td>
-                            </tr>
-                        } @empty {
-                            <tr class="prescription-list__empty-row">
-                                <td colspan="4">Nenhum receituário encontrado.</td>
-                            </tr>
+                <div class="prescription-list__filter-field">
+                    <label class="prescription-list__filter-label" for="filter-patient-cpf">CPF do paciente</label>
+                    <input
+                        id="filter-patient-cpf"
+                        #cpfInput
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="14"
+                        class="input"
+                        placeholder="000.000.000-00"
+                        [value]="filterForm().patientCpf"
+                        (input)="onFilterPatientCpfChange(cpfInput.value)"
+                    />
+                </div>
+
+                <div class="prescription-list__filter-field">
+                    <label class="prescription-list__filter-label" for="filter-status">Status</label>
+                    <select
+                        id="filter-status"
+                        #statusSelect
+                        class="input"
+                        [value]="filterForm().status"
+                        (change)="onFilterStatusChange(statusSelect.value)"
+                    >
+                        <option value="">Todos</option>
+                        @for (status of statusOptions; track status) {
+                            <option [value]="status">{{ PrescriptionStatusLabels[status] }}</option>
                         }
-                    </tbody>
-                </table>
-            </div>
+                    </select>
+                </div>
 
-            <app-pagination [pagination]="pagination()" (previousPage)="goToPreviousPage()" (nextPage)="goToNextPage()" />
+                <div class="prescription-list__filter-field">
+                    <label class="prescription-list__filter-label" for="filter-issue-date">Data de emissão</label>
+                    <input
+                        id="filter-issue-date"
+                        #issueDateInput
+                        type="date"
+                        class="input"
+                        [value]="filterForm().issueDate"
+                        (input)="onFilterIssueDateChange(issueDateInput.value)"
+                    />
+                </div>
+
+                <div class="prescription-list__filter-actions">
+                    <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+                    <button type="button" class="btn btn-outline btn-sm" (click)="clearFilters()">Limpar filtros</button>
+                </div>
+            </form>
+
+            @if (loading()) {
+                <div class="loading prescription-list__state">
+                    <output class="spinner" aria-label="Carregando receituários"></output>
+                </div>
+            } @else if (error()) {
+                <div class="prescription-list__state prescription-list__state--error">
+                    <p>{{ error() }}</p>
+                    <button type="button" class="btn btn-outline" (click)="retry()">
+                        Tentar novamente
+                    </button>
+                </div>
+            } @else {
+                <div class="table-responsive">
+                    <table class="table prescription-list__table">
+                        <thead>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>Data de emissão</th>
+                                <th>Status</th>
+                                <th class="prescription-list__col-actions">Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (prescription of prescriptions(); track prescription.id) {
+                                <tr>
+                                    <td data-label="Paciente" class="prescription-list__col-name">{{ prescription.patient.name }}</td>
+                                    <td data-label="Data de emissão">{{ prescription.issueDate | date: 'dd/MM/yyyy' }}</td>
+                                    <td data-label="Status"><app-prescription-status-badge [status]="prescription.status" /></td>
+                                    <td data-label="Ações" class="prescription-list__col-actions">
+                                        <a
+                                            class="btn btn-outline btn-sm"
+                                            [routerLink]="['/prescriptions', prescription.id]"
+                                            [attr.aria-label]="'Ver receituário de ' + prescription.patient.name"
+                                        >
+                                            Ver
+                                        </a>
+                                        <a
+                                            class="btn btn-outline btn-sm"
+                                            [routerLink]="['/prescriptions', prescription.id, 'edit']"
+                                            [attr.aria-label]="'Editar receituário de ' + prescription.patient.name"
+                                        >
+                                            Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                            } @empty {
+                                <tr class="prescription-list__empty-row">
+                                    <td colspan="4">Nenhum receituário encontrado.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <app-pagination [pagination]="pagination()" (previousPage)="goToPreviousPage()" (nextPage)="goToNextPage()" />
+            }
         }
     } @else {
         <app-prescription-create-form />

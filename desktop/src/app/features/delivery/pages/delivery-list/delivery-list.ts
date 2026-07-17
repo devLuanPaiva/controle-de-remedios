@@ -1,11 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 
 import { selectSelectedCompanyId } from '@features/company/store/company.selectors';
 import { UnityTypeLabels } from '@features/prescription/models/prescription-item.model';
+import { NotFound } from '@shared/ui/not-found/not-found';
 import { Pagination } from '@shared/ui/pagination/pagination';
 import { Tabs, TabConfig } from '@shared/ui/tabs/tabs';
 import { ViewMode, ViewToggle } from '@shared/ui/view-toggle/view-toggle';
@@ -30,7 +31,7 @@ const EMPTY_FILTER_FORM: DeliveryListFilterForm = {
 
 @Component({
     selector: 'app-delivery-list',
-    imports: [DatePipe, Tabs, ViewToggle, Pagination, DeliveryCreateForm],
+    imports: [DatePipe, Tabs, ViewToggle, Pagination, DeliveryCreateForm, NotFound],
     templateUrl: './delivery-list.html',
     styleUrl: './delivery-list.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,6 +57,15 @@ export class DeliveryList implements OnInit {
 
     readonly viewMode = signal<ViewMode>('table');
     readonly filterForm = signal<DeliveryListFilterForm>({ ...EMPTY_FILTER_FORM });
+
+    readonly hasActiveFilters = computed(() => {
+        const form = this.filterForm();
+        return !!(form.patientName || form.patientCpf || form.medicineName);
+    });
+
+    readonly showNotFound = computed(
+        () => !this.loading() && !this.error() && this.pagination().count === 0 && !this.hasActiveFilters(),
+    );
 
     private readonly requestedPage = signal(0);
 

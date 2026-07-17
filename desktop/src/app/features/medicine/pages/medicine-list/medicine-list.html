@@ -8,106 +8,115 @@
         </div>
     </header>
 
-    <form class="medicine-list__filters" (submit)="applyFilters($event)">
-        <div class="medicine-list__filter-field">
-            <label class="medicine-list__filter-label" for="filter-medicine-name">Nome</label>
-            <input
-                id="filter-medicine-name"
-                #nameInput
-                type="text"
-                class="input"
-                placeholder="Buscar por nome"
-                [value]="filterForm().name"
-                (input)="onFilterNameChange(nameInput.value)"
-            />
-        </div>
-
-        <div class="medicine-list__filter-field">
-            <label class="medicine-list__filter-label" for="filter-medicine-ean-code">Código EAN</label>
-            <input
-                id="filter-medicine-ean-code"
-                #eanCodeInput
-                type="text"
-                inputmode="numeric"
-                maxlength="14"
-                class="input"
-                placeholder="Código de barras"
-                [value]="filterForm().eanCode"
-                (input)="onFilterEanCodeChange(eanCodeInput.value)"
-            />
-        </div>
-
-        <div class="medicine-list__filter-actions">
-            <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
-            <button type="button" class="btn btn-outline btn-sm" (click)="clearFilters()">Limpar filtros</button>
-        </div>
-    </form>
-
-    @if (loading()) {
-        <div class="loading medicine-list__state">
-            <output class="spinner" aria-label="Carregando medicamentos"></output>
-        </div>
-    } @else if (error()) {
-        <div class="medicine-list__state medicine-list__state--error">
-            <p>{{ error() }}</p>
-            <button type="button" class="btn btn-outline" (click)="retry()">Tentar novamente</button>
-        </div>
-    } @else if (viewMode() === 'cards') {
-        <div class="medicine-list__grid">
-            @for (medicine of medicines(); track medicine.id) {
-                <a class="medicine-list__card card" [routerLink]="['/medicines', medicine.id]">
-                    <div class="medicine-list__card-image">
-                        <app-image-fallback [src]="medicine.imageUrl" [alt]="medicine.name" icon="medicine" />
-                    </div>
-
-                    <div class="card-body medicine-list__card-body">
-                        <span class="medicine-list__card-name">{{ medicine.name }}</span>
-                        <span class="medicine-list__card-ean">EAN: {{ medicine.eanCode ?? '—' }}</span>
-                    </div>
-                </a>
-            } @empty {
-                <p class="medicine-list__empty">Nenhum medicamento encontrado.</p>
-            }
-        </div>
+    @if (showNotFound()) {
+        <app-not-found
+            icon="medicines"
+            message="Nenhum medicamento cadastrado ainda."
+            actionLabel="Novo medicamento"
+            (action)="openCreateModal()"
+        />
     } @else {
-        <div class="table-responsive">
-            <table class="table medicine-list__table">
-                <thead>
-                    <tr>
-                        <th>Imagem</th>
-                        <th>Nome</th>
-                        <th>EAN</th>
-                    </tr>
-                </thead>
+        <form class="medicine-list__filters" (submit)="applyFilters($event)">
+            <div class="medicine-list__filter-field">
+                <label class="medicine-list__filter-label" for="filter-medicine-name">Nome</label>
+                <input
+                    id="filter-medicine-name"
+                    #nameInput
+                    type="text"
+                    class="input"
+                    placeholder="Buscar por nome"
+                    [value]="filterForm().name"
+                    (input)="onFilterNameChange(nameInput.value)"
+                />
+            </div>
 
-                <tbody>
-                    @for (medicine of medicines(); track medicine.id) {
-                        <tr class="medicine-list__row" [routerLink]="['/medicines', medicine.id]">
-                            <td data-label="Imagem" class="medicine-list__col-image">
-                                <app-image-fallback
-                                    class="medicine-list__thumb"
-                                    [src]="medicine.imageUrl"
-                                    [alt]="medicine.name"
-                                    icon="medicine"
-                                />
-                            </td>
-                            <td data-label="Nome" class="medicine-list__col-name">
-                                <a [routerLink]="['/medicines', medicine.id]">{{ medicine.name }}</a>
-                            </td>
-                            <td data-label="EAN">{{ medicine.eanCode ?? '—' }}</td>
-                        </tr>
-                    } @empty {
-                        <tr class="medicine-list__empty-row">
-                            <td colspan="3">Nenhum medicamento encontrado.</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
+            <div class="medicine-list__filter-field">
+                <label class="medicine-list__filter-label" for="filter-medicine-ean-code">Código EAN</label>
+                <input
+                    id="filter-medicine-ean-code"
+                    #eanCodeInput
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="14"
+                    class="input"
+                    placeholder="Código de barras"
+                    [value]="filterForm().eanCode"
+                    (input)="onFilterEanCodeChange(eanCodeInput.value)"
+                />
+            </div>
 
-    @if (!loading() && !error()) {
-        <app-pagination [pagination]="pagination()" (previousPage)="goToPreviousPage()" (nextPage)="goToNextPage()" />
+            <div class="medicine-list__filter-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+                <button type="button" class="btn btn-outline btn-sm" (click)="clearFilters()">Limpar filtros</button>
+            </div>
+        </form>
+
+        @if (loading()) {
+            <div class="loading medicine-list__state">
+                <output class="spinner" aria-label="Carregando medicamentos"></output>
+            </div>
+        } @else if (error()) {
+            <div class="medicine-list__state medicine-list__state--error">
+                <p>{{ error() }}</p>
+                <button type="button" class="btn btn-outline" (click)="retry()">Tentar novamente</button>
+            </div>
+        } @else if (viewMode() === 'cards') {
+            <div class="medicine-list__grid">
+                @for (medicine of medicines(); track medicine.id) {
+                    <a class="medicine-list__card card" [routerLink]="['/medicines', medicine.id]">
+                        <div class="medicine-list__card-image">
+                            <app-image-fallback [src]="medicine.imageUrl" [alt]="medicine.name" icon="medicine" />
+                        </div>
+
+                        <div class="card-body medicine-list__card-body">
+                            <span class="medicine-list__card-name">{{ medicine.name }}</span>
+                            <span class="medicine-list__card-ean">EAN: {{ medicine.eanCode ?? '—' }}</span>
+                        </div>
+                    </a>
+                } @empty {
+                    <p class="medicine-list__empty">Nenhum medicamento encontrado.</p>
+                }
+            </div>
+        } @else {
+            <div class="table-responsive">
+                <table class="table medicine-list__table">
+                    <thead>
+                        <tr>
+                            <th>Imagem</th>
+                            <th>Nome</th>
+                            <th>EAN</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @for (medicine of medicines(); track medicine.id) {
+                            <tr class="medicine-list__row" [routerLink]="['/medicines', medicine.id]">
+                                <td data-label="Imagem" class="medicine-list__col-image">
+                                    <app-image-fallback
+                                        class="medicine-list__thumb"
+                                        [src]="medicine.imageUrl"
+                                        [alt]="medicine.name"
+                                        icon="medicine"
+                                    />
+                                </td>
+                                <td data-label="Nome" class="medicine-list__col-name">
+                                    <a [routerLink]="['/medicines', medicine.id]">{{ medicine.name }}</a>
+                                </td>
+                                <td data-label="EAN">{{ medicine.eanCode ?? '—' }}</td>
+                            </tr>
+                        } @empty {
+                            <tr class="medicine-list__empty-row">
+                                <td colspan="3">Nenhum medicamento encontrado.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @if (!loading() && !error()) {
+            <app-pagination [pagination]="pagination()" (previousPage)="goToPreviousPage()" (nextPage)="goToNextPage()" />
+        }
     }
 </section>
 

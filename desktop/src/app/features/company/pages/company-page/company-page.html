@@ -28,9 +28,12 @@
             <p>{{ error() }}</p>
         </div>
     } @else if (!selectedCompany()) {
-        <div class="company-page__state company-page__state--empty">
-            <p>Você ainda não está associado a nenhuma empresa.</p>
-        </div>
+        <app-not-found
+            icon="company"
+            message="Você ainda não está associado a nenhuma empresa."
+            [actionLabel]="createActionLabel()"
+            (action)="openCreateModal()"
+        />
     } @else {
         <div class="company-page__summary card">
             <div class="card-body company-page__summary-body">

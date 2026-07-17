@@ -7,6 +7,7 @@ import { Store } from '@ngrx/store';
 import { AuthSessionService } from '@features/auth/services/auth-session.service';
 import { selectSelectedCompanyId } from '@features/company/store/company.selectors';
 import { Avatar } from '@shared/ui/avatar/avatar';
+import { NotFound } from '@shared/ui/not-found/not-found';
 import { RoleBadge } from '@shared/ui/role-badge/role-badge';
 import { Pagination } from '@shared/ui/pagination/pagination';
 import { Tabs, TabConfig } from '@shared/ui/tabs/tabs';
@@ -41,7 +42,7 @@ const EMPTY_FILTER_FORM: UserListFilterForm = {
 
 @Component({
     selector: 'app-user-list',
-    imports: [RouterLink, Avatar, RoleBadge, Tabs, UserCreateForm, Pagination],
+    imports: [RouterLink, Avatar, RoleBadge, Tabs, UserCreateForm, Pagination, NotFound],
     templateUrl: './user-list.html',
     styleUrl: './user-list.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,6 +71,15 @@ export class UserList implements OnInit {
     readonly activeTabId = signal('list');
 
     readonly filterForm = signal<UserListFilterForm>({ ...EMPTY_FILTER_FORM });
+
+    readonly hasActiveFilters = computed(() => {
+        const form = this.filterForm();
+        return !!(form.role || form.name || form.email || form.cpf || form.active);
+    });
+
+    readonly showNotFound = computed(
+        () => !this.loading() && !this.error() && this.pagination().count === 0 && !this.hasActiveFilters(),
+    );
 
     private readonly requestedPage = signal(0);
 

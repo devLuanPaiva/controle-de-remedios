@@ -1,9 +1,10 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import { selectSelectedCompanyId } from '@features/company/store/company.selectors';
+import { NotFound } from '@shared/ui/not-found/not-found';
 import { Pagination } from '@shared/ui/pagination/pagination';
 import { formatCpf, onlyDigits } from '@shared/utils/cpf.util';
 
@@ -29,7 +30,7 @@ const EMPTY_FILTER_FORM: PatientListFilterForm = {
 
 @Component({
     selector: 'app-patient-list',
-    imports: [RouterLink, DatePipe, PatientCreateModal, Pagination],
+    imports: [RouterLink, DatePipe, PatientCreateModal, Pagination, NotFound],
     templateUrl: './patient-list.html',
     styleUrl: './patient-list.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,6 +46,15 @@ export class PatientList implements OnInit {
 
     readonly showCreateModal = signal(false);
     readonly filterForm = signal<PatientListFilterForm>({ ...EMPTY_FILTER_FORM });
+
+    readonly hasActiveFilters = computed(() => {
+        const form = this.filterForm();
+        return !!(form.name || form.cpf);
+    });
+
+    readonly showNotFound = computed(
+        () => !this.loading() && !this.error() && this.pagination().count === 0 && !this.hasActiveFilters(),
+    );
 
     private readonly requestedPage = signal(0);
 
