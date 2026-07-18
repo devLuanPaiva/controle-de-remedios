@@ -12,6 +12,7 @@ import { IPatient } from "@/data/models/patient.model";
 import { toCreatePrescriptionItemRequest } from "@/data/models/prescription-item.model";
 import { brToIso, isPastOrPresentBrDate, isValidBrDate, isoToBr } from "@/lib/dateFormat";
 import { usePrescriptionItems } from "@/features/prescriptions/hooks/usePrescriptionItems";
+import { mapItemFieldErrors } from "@/features/prescriptions/utils/itemFieldErrors";
 import { ExtractionBanner } from "@/features/prescriptions/components/ExtractionBanner";
 import { PatientSearchField } from "@/features/prescriptions/components/PatientSearchField";
 import { IssueDateField } from "@/features/prescriptions/components/IssueDateField";
@@ -26,6 +27,7 @@ export default function PrescriptionReview() {
     const [issueDateBr, setIssueDateBr] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
+    const [itemErrors, setItemErrors] = useState<Record<string, string>>({});
 
     const { items, initializeFromExtraction, addItem, updateItem, removeItem } = usePrescriptionItems();
 
@@ -77,6 +79,7 @@ export default function PrescriptionReview() {
 
         try {
             setFormError(null);
+            setItemErrors({});
             setIsSubmitting(true);
 
             await createPrescription({
@@ -96,7 +99,12 @@ export default function PrescriptionReview() {
                 },
             ]);
         } catch (err) {
-            setFormError(err instanceof ApiRequestError ? err.message : "Não foi possível cadastrar a receita.");
+            if (err instanceof ApiRequestError) {
+                setFormError(err.message);
+                setItemErrors(mapItemFieldErrors(err.errors, items));
+            } else {
+                setFormError("Não foi possível cadastrar a receita.");
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -149,6 +157,7 @@ export default function PrescriptionReview() {
                     onAdd={addItem}
                     onUpdate={updateItem}
                     onRemove={removeItem}
+                    itemErrors={itemErrors}
                 />
 
                 <UploadedImagesRow imageUrls={uploadedImageUrls} />

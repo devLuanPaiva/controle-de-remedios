@@ -14,6 +14,7 @@ interface PrescriptionItemsSectionProps {
     onAdd: (item: CreatePrescriptionItemRequest) => void;
     onUpdate: (localId: string, item: CreatePrescriptionItemRequest) => void;
     onRemove: (localId: string) => void;
+    itemErrors?: Record<string, string>;
 }
 
 export function PrescriptionItemsSection({
@@ -21,6 +22,7 @@ export function PrescriptionItemsSection({
     onAdd,
     onUpdate,
     onRemove,
+    itemErrors,
 }: Readonly<PrescriptionItemsSectionProps>) {
     const [editingItem, setEditingItem] = useState<PrescriptionItemDraft | null>(null);
     const [isCreating, setIsCreating] = useState(false);
@@ -58,6 +60,7 @@ export function PrescriptionItemsSection({
                         item={item}
                         onEdit={() => setEditingItem(item)}
                         onDelete={() => setPendingDeleteId(item.localId)}
+                        errorMessage={itemErrors?.[item.localId]}
                     />
                 ))}
             </View>

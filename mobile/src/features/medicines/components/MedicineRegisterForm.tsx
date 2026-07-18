@@ -26,6 +26,7 @@ interface MedicineRegisterFormProps {
     name: string;
     onChangeName: (name: string) => void;
     formError: string | null;
+    formErrorField?: string;
     isSubmitting: boolean;
     onRetake: () => void;
     onSubmit: () => void;
@@ -39,6 +40,7 @@ export function MedicineRegisterForm({
     name,
     onChangeName,
     formError,
+    formErrorField,
     isSubmitting,
     onRetake,
     onSubmit,
@@ -72,7 +74,7 @@ export function MedicineRegisterForm({
                     <View style={styles.field}>
                         <Text style={styles.label}>Nome do medicamento</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[styles.input, formErrorField === "name" && styles.inputError]}
                             value={name}
                             onChangeText={onChangeName}
                             placeholder="Ex: Dipirona 500mg"
@@ -176,6 +178,10 @@ const styles = StyleSheet.create({
         fontFamily: Typography.fonts.body,
         fontSize: Typography.sizes.md,
         color: Colors.text,
+    },
+
+    inputError: {
+        borderColor: Colors.danger,
     },
 
     readOnlyValue: {

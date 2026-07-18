@@ -24,6 +24,7 @@ export function useMedicineResultForm() {
     const [capturing, setCapturing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
+    const [formErrorField, setFormErrorField] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (lookup.status !== "found") {
@@ -74,11 +75,13 @@ export function useMedicineResultForm() {
 
         if (!name.trim()) {
             setFormError("Informe o nome do medicamento.");
+            setFormErrorField("name");
             return;
         }
 
         try {
             setFormError(null);
+            setFormErrorField(undefined);
             setIsSaving(true);
 
             await updateExistingMedicine(lookup.medicine.id, {
@@ -90,7 +93,12 @@ export function useMedicineResultForm() {
             setRetakenPhoto(null);
             Alert.alert("Sucesso", "Medicamento atualizado com sucesso.");
         } catch (err) {
-            setFormError(err instanceof ApiRequestError ? err.message : "Não foi possível atualizar o medicamento.");
+            if (err instanceof ApiRequestError) {
+                setFormError(err.message);
+                setFormErrorField(err.field);
+            } else {
+                setFormError("Não foi possível atualizar o medicamento.");
+            }
         } finally {
             setIsSaving(false);
         }
@@ -110,6 +118,7 @@ export function useMedicineResultForm() {
         capturing,
         isSaving,
         formError,
+        formErrorField,
         finishAndGoHome,
         startEditingPhoto,
         handleRetakeCapture,

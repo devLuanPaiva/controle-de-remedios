@@ -14,6 +14,7 @@ interface MedicineResultDetailsProps {
     onChangeName: (name: string) => void;
     previewUri?: string;
     formError: string | null;
+    formErrorField?: string;
     hasChanges: boolean;
     isSaving: boolean;
     onEditPhoto: () => void;
@@ -30,6 +31,7 @@ export function MedicineResultDetails({
     onChangeName,
     previewUri,
     formError,
+    formErrorField,
     hasChanges,
     isSaving,
     onEditPhoto,
@@ -76,7 +78,11 @@ export function MedicineResultDetails({
             <View style={styles.field}>
                 <Text style={styles.label}>Nome do medicamento</Text>
                 {isEditing ? (
-                    <TextInput style={styles.input} value={name} onChangeText={onChangeName} />
+                    <TextInput
+                        style={[styles.input, formErrorField === "name" && styles.inputError]}
+                        value={name}
+                        onChangeText={onChangeName}
+                    />
                 ) : (
                     <Text style={styles.value}>{medicine.name}</Text>
                 )}
@@ -231,6 +237,10 @@ const styles = StyleSheet.create({
         fontFamily: Typography.fonts.body,
         fontSize: Typography.sizes.md,
         color: Colors.text,
+    },
+
+    inputError: {
+        borderColor: Colors.danger,
     },
 
     errorText: {

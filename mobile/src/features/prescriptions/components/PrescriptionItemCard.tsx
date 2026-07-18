@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Pencil, Pill, Trash2 } from "lucide-react-native";
+import { AlertCircle, Pencil, Pill, Trash2 } from "lucide-react-native";
 
 import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
 import {
@@ -14,6 +14,7 @@ interface PrescriptionItemCardProps {
     item: CreatePrescriptionItemRequest;
     onEdit: () => void;
     onDelete: () => void;
+    errorMessage?: string;
 }
 
 function summarize(item: CreatePrescriptionItemRequest): string {
@@ -27,12 +28,18 @@ function summarize(item: CreatePrescriptionItemRequest): string {
     );
 }
 
-export function PrescriptionItemCard({ item, onEdit, onDelete }: Readonly<PrescriptionItemCardProps>) {
+export function PrescriptionItemCard({
+    item,
+    onEdit,
+    onDelete,
+    errorMessage,
+}: Readonly<PrescriptionItemCardProps>) {
     const [imageFailed, setImageFailed] = useState(false);
     const showImage = Boolean(item.medicine.imageUrl) && !imageFailed;
+    const hasError = Boolean(errorMessage);
 
     return (
-        <View style={styles.card}>
+        <View style={[styles.card, hasError && styles.cardError]}>
             <View style={styles.imageWrapper}>
                 {showImage ? (
                     <Image
@@ -56,6 +63,15 @@ export function PrescriptionItemCard({ item, onEdit, onDelete }: Readonly<Prescr
                 <Text style={styles.summary} numberOfLines={2}>
                     {summarize(item)}
                 </Text>
+
+                {hasError ? (
+                    <View style={styles.errorRow}>
+                        <AlertCircle size={14} color={Colors.danger} />
+                        <Text style={styles.errorText} numberOfLines={2}>
+                            {errorMessage}
+                        </Text>
+                    </View>
+                ) : null}
             </View>
 
             <View style={styles.actions}>
@@ -96,6 +112,11 @@ const styles = StyleSheet.create({
         ...Shadows.sm,
     },
 
+    cardError: {
+        borderColor: Colors.danger,
+        borderWidth: 1.5,
+    },
+
     imageWrapper: {
         width: 48,
         height: 48,
@@ -132,6 +153,20 @@ const styles = StyleSheet.create({
         fontFamily: Typography.fonts.body,
         fontSize: Typography.sizes.xs,
         color: Colors.textSecondary,
+    },
+
+    errorRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: Spacing.xs,
+        marginTop: 2,
+    },
+
+    errorText: {
+        flex: 1,
+        fontFamily: Typography.fonts.bodyMedium,
+        fontSize: Typography.sizes.xs,
+        color: Colors.danger,
     },
 
     actions: {

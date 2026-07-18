@@ -39,6 +39,7 @@ export default function MedicineRegister() {
         setName,
         isSubmitting,
         formError,
+        formErrorField,
         handleCapture,
         handleRetake,
         handleSubmit,
@@ -111,6 +112,7 @@ export default function MedicineRegister() {
             name={name}
             onChangeName={setName}
             formError={formError}
+            formErrorField={formErrorField}
             isSubmitting={isSubmitting}
             onRetake={handleRetake}
             onSubmit={handleSubmit}

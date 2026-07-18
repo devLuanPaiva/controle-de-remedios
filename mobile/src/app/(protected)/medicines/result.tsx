@@ -21,6 +21,7 @@ export default function MedicineFoundResult() {
         capturing,
         isSaving,
         formError,
+        formErrorField,
         finishAndGoHome,
         startEditingPhoto,
         handleRetakeCapture,
@@ -46,6 +47,7 @@ export default function MedicineFoundResult() {
                     onChangeName={setName}
                     previewUri={previewUri}
                     formError={formError}
+                    formErrorField={formErrorField}
                     hasChanges={hasChanges}
                     isSaving={isSaving}
                     onEditPhoto={startEditingPhoto}

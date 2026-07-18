@@ -18,6 +18,7 @@ export function useMedicineRegisterForm() {
     const [name, setName] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
+    const [formErrorField, setFormErrorField] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (extractedName && !hasInitializedName.current) {
@@ -55,16 +56,19 @@ export function useMedicineRegisterForm() {
         hasInitializedName.current = false;
         setName("");
         setFormError(null);
+        setFormErrorField(undefined);
     }
 
     async function handleSubmit() {
         if (!name.trim()) {
             setFormError("Informe o nome do medicamento.");
+            setFormErrorField("name");
             return;
         }
 
         try {
             setFormError(null);
+            setFormErrorField(undefined);
             setIsSubmitting(true);
 
             await registerNewMedicine(name.trim());
@@ -79,7 +83,12 @@ export function useMedicineRegisterForm() {
                 },
             ]);
         } catch (err) {
-            setFormError(err instanceof ApiRequestError ? err.message : "Não foi possível cadastrar o medicamento.");
+            if (err instanceof ApiRequestError) {
+                setFormError(err.message);
+                setFormErrorField(err.field);
+            } else {
+                setFormError("Não foi possível cadastrar o medicamento.");
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -96,6 +105,7 @@ export function useMedicineRegisterForm() {
         setName,
         isSubmitting,
         formError,
+        formErrorField,
         handleCapture,
         handleRetake,
         handleSubmit,
