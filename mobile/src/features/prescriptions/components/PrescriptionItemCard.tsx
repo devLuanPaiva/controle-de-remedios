@@ -40,70 +40,67 @@ export function PrescriptionItemCard({
 
     return (
         <View style={[styles.card, hasError && styles.cardError]}>
-            <View style={styles.imageWrapper}>
-                {showImage ? (
-                    <Image
-                        source={{ uri: item.medicine.imageUrl }}
-                        style={styles.image}
-                        onError={() => setImageFailed(true)}
-                        accessibilityLabel={`Imagem de ${item.medicine.name}`}
-                    />
-                ) : (
-                    <Pill size={22} color={Colors.textSecondary} />
-                )}
+            <View style={styles.row}>
+                <View style={styles.imageWrapper}>
+                    {showImage ? (
+                        <Image
+                            source={{ uri: item.medicine.imageUrl }}
+                            style={styles.image}
+                            onError={() => setImageFailed(true)}
+                            accessibilityLabel={`Imagem de ${item.medicine.name}`}
+                        />
+                    ) : (
+                        <Pill size={22} color={Colors.textSecondary} />
+                    )}
+                </View>
+
+                <View style={styles.info}>
+                    <Text style={styles.name} numberOfLines={2}>
+                        {item.medicine.name}
+                    </Text>
+                    <Text style={styles.dosage} numberOfLines={2}>
+                        {item.dosage}
+                    </Text>
+                    <Text style={styles.summary} numberOfLines={2}>
+                        {summarize(item)}
+                    </Text>
+                </View>
+
+                <View style={styles.actions}>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={onEdit}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Editar ${item.medicine.name}`}
+                    >
+                        <Pencil size={16} color={Colors.primary} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={onDelete}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Remover ${item.medicine.name}`}
+                    >
+                        <Trash2 size={16} color={Colors.danger} />
+                    </TouchableOpacity>
+                </View>
             </View>
 
-            <View style={styles.info}>
-                <Text style={styles.name} numberOfLines={2}>
-                    {item.medicine.name}
-                </Text>
-                <Text style={styles.dosage} numberOfLines={2}>
-                    {item.dosage}
-                </Text>
-                <Text style={styles.summary} numberOfLines={2}>
-                    {summarize(item)}
-                </Text>
-
-                {hasError ? (
-                    <View style={styles.errorRow}>
-                        <AlertCircle size={14} color={Colors.danger} />
-                        <Text style={styles.errorText} numberOfLines={2}>
-                            {errorMessage}
-                        </Text>
-                    </View>
-                ) : null}
-            </View>
-
-            <View style={styles.actions}>
-                <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={onEdit}
-                    hitSlop={8}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Editar ${item.medicine.name}`}
-                >
-                    <Pencil size={16} color={Colors.primary} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={onDelete}
-                    hitSlop={8}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Remover ${item.medicine.name}`}
-                >
-                    <Trash2 size={16} color={Colors.danger} />
-                </TouchableOpacity>
-            </View>
+            {hasError ? (
+                <View style={styles.errorRow}>
+                    <AlertCircle size={14} color={Colors.danger} />
+                    <Text style={styles.errorText}>{errorMessage}</Text>
+                </View>
+            ) : null}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     card: {
-        flexDirection: "row",
-        alignItems: "flex-start",
-        gap: Spacing.md,
         backgroundColor: Colors.surface,
         borderRadius: Radius.xl,
         borderWidth: 1,
@@ -115,6 +112,12 @@ const styles = StyleSheet.create({
     cardError: {
         borderColor: Colors.danger,
         borderWidth: 1.5,
+    },
+
+    row: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        gap: Spacing.md,
     },
 
     imageWrapper: {
@@ -157,9 +160,9 @@ const styles = StyleSheet.create({
 
     errorRow: {
         flexDirection: "row",
-        alignItems: "center",
+        alignItems: "flex-start",
         gap: Spacing.xs,
-        marginTop: 2,
+        marginTop: Spacing.sm,
     },
 
     errorText: {
