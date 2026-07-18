@@ -4,28 +4,26 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, type Href } from "expo-router";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { LinearGradient } from "expo-linear-gradient";
 import { AlertCircle, Camera as CameraIcon } from "lucide-react-native";
 
 import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
-import { usePrescriptionScan } from "@/data/contexts/PrescriptionScanContext";
-import { createLocalId } from "@/lib/createLocalId";
+import { useMedicineScan } from "@/data/contexts/MedicineScanContext";
 import { useSpeechTips } from "@/data/hooks/useSpeechTips";
-import { PrescriptionTypeSelector } from "@/features/prescriptions/components/PrescriptionTypeSelector";
 import { CameraCaptureButton } from "@/components/shared/CameraCaptureButton";
-import { CapturedPagesStrip } from "@/features/prescriptions/components/CapturedPagesStrip";
 import { SpeechTipButton } from "@/components/shared/SpeechTipButton";
 import { ProcessingOverlay } from "@/components/shared/ProcessingOverlay";
+import { BackButton } from "@/components/shared/BackButton";
 
-const CAPTURE_TIPS = [
-    "Aproxime a câmera da receita e mantenha o celular parado.",
+const BARCODE_TIPS = [
+    "Deite o celular na horizontal para ler o código de barras.",
     "Procure um ambiente bem iluminado antes de fotografar.",
-    "Limpe a lente da câmera para uma foto mais nítida.",
-    "Evite sombras e reflexos sobre o papel.",
-    "Centralize a receita inteira dentro da moldura.",
+    "Mantenha o código de barras próximo ao centro da tela.",
+    "Evite reflexos na embalagem ao posicionar a câmera.",
 ];
 
-export default function PrescriptionScan() {
+export default function MedicineBarcodeScan() {
     const router = useRouter();
     const isFocused = useIsFocused();
     const [permission, requestPermission] = useCameraPermissions();
@@ -33,23 +31,15 @@ export default function PrescriptionScan() {
     const [capturing, setCapturing] = useState(false);
     const hasSpokenWelcome = useRef(false);
 
-    const {
-        prescriptionType,
-        pages,
-        isProcessing,
-        uploadProgressLabel,
-        processError,
-        setPrescriptionType,
-        addPage,
-        removePage,
-        processAndContinue,
-    } = usePrescriptionScan();
-
-    const { isSpeaking, speakNextTip, stop: stopSpeech } = useSpeechTips(CAPTURE_TIPS);
+    const { lookup, captureAndLookup } = useMedicineScan();
+    const { isSpeaking, speakNextTip, stop: stopSpeech } = useSpeechTips(BARCODE_TIPS, { random: true });
 
     useFocusEffect(
         useCallback(() => {
+            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+
             return () => {
+                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
                 stopSpeech();
             };
         }, [stopSpeech]),
@@ -77,21 +67,23 @@ export default function PrescriptionScan() {
             setCapturing(true);
             const photo = await cameraRef.current.takePictureAsync({ quality: 0.8, base64: true });
 
-            if (photo?.uri && photo.base64) {
-                addPage({ id: createLocalId("page"), localUri: photo.uri, base64: photo.base64 });
+            if (!photo?.uri || !photo.base64) {
+                return;
+            }
+
+            const result = await captureAndLookup({ localUri: photo.uri, base64: photo.base64 });
+
+            if (result.status === "found") {
+                router.push("/(protected)/medicines/result" as Href);
+            } else if (result.status === "not_found") {
+                router.push("/(protected)/medicines/register" as Href);
+            } else if (result.status === "error") {
+                Alert.alert("Erro", result.message);
             }
         } catch {
             Alert.alert("Erro", "Não foi possível capturar a foto. Tente novamente.");
         } finally {
             setCapturing(false);
-        }
-    }
-
-    async function handleSubmit() {
-        const success = await processAndContinue();
-
-        if (success) {
-            router.push("/(protected)/prescriptions/review" as Href);
         }
     }
 
@@ -107,7 +99,7 @@ export default function PrescriptionScan() {
                 </View>
                 <Text style={styles.permissionTitle}>Acesso à câmera necessário</Text>
                 <Text style={styles.permissionSubtitle}>
-                    Para fotografar a receita médica, o ChegaMed precisa da sua permissão de câmera.
+                    Para fotografar o código de barras, o ChegaMed precisa da sua permissão de câmera.
                 </Text>
                 <TouchableOpacity
                     style={styles.permissionButton}
@@ -122,8 +114,7 @@ export default function PrescriptionScan() {
         );
     }
 
-    const canCapture = Boolean(prescriptionType) && !capturing && !isProcessing;
-    const canSubmit = pages.length > 0 && !isProcessing;
+    const isProcessing = lookup.status === "scanning" || lookup.status === "searching";
 
     return (
         <View style={styles.container}>
@@ -134,50 +125,40 @@ export default function PrescriptionScan() {
 
             <SafeAreaView style={styles.overlay}>
                 <View style={styles.topBar}>
-                    <PrescriptionTypeSelector
-                        value={prescriptionType}
-                        onChange={setPrescriptionType}
-                        disabled={pages.length > 0}
-                    />
+                    <BackButton variant="onDark" />
                     <SpeechTipButton isSpeaking={isSpeaking} onPress={speakNextTip} />
                 </View>
 
+                <View style={styles.centerArea}>
+                    <Text style={styles.hint}>Fotografe o código de barras da caixa do medicamento</Text>
+                </View>
+
                 <View style={styles.bottomArea}>
-                    {processError ? (
+                    {lookup.status === "error" ? (
                         <View style={styles.errorBox}>
                             <AlertCircle size={16} color={Colors.white} />
-                            <Text style={styles.errorText}>{processError}</Text>
+                            <Text style={styles.errorText}>{lookup.message}</Text>
                         </View>
                     ) : null}
-
-                    {!prescriptionType ? (
-                        <Text style={styles.hint}>Selecione o tipo de receita para começar.</Text>
-                    ) : null}
-
-                    <CapturedPagesStrip pages={pages} onRemove={removePage} />
 
                     <View style={styles.controlsRow}>
-                        <View style={styles.controlsSide} />
-
-                        <CameraCaptureButton disabled={!canCapture} capturing={capturing} onPress={handleCapture} />
-
-                        <View style={styles.controlsSide}>
-                            <TouchableOpacity
-                                style={[styles.submitButton, !canSubmit && styles.submitButtonDisabled]}
-                                onPress={handleSubmit}
-                                disabled={!canSubmit}
-                                activeOpacity={0.85}
-                                accessibilityRole="button"
-                                accessibilityLabel="Enviar receituário"
-                            >
-                                <Text style={styles.submitButtonText}>Enviar</Text>
-                            </TouchableOpacity>
-                        </View>
+                        <CameraCaptureButton
+                            disabled={capturing || isProcessing}
+                            capturing={capturing}
+                            onPress={handleCapture}
+                            accessibilityLabel="Fotografar código de barras"
+                        />
                     </View>
                 </View>
             </SafeAreaView>
 
-            <ProcessingOverlay visible={isProcessing} uploadLabel={uploadProgressLabel} />
+            <ProcessingOverlay
+                visible={isProcessing}
+                uploadLabel={null}
+                title="Identificando medicamento"
+                defaultUploadLabel="Lendo código de barras..."
+                secondaryLabel="Buscando medicamento cadastrado..."
+            />
         </View>
     );
 }
@@ -193,7 +174,7 @@ const styles = StyleSheet.create({
         top: 0,
         left: 0,
         right: 0,
-        height: 140,
+        height: 90,
     },
 
     bottomGradient: {
@@ -201,7 +182,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        height: 260,
+        height: 150,
     },
 
     overlay: {
@@ -217,16 +198,22 @@ const styles = StyleSheet.create({
         paddingTop: Spacing.md,
     },
 
-    bottomArea: {
-        gap: Spacing.md,
-        paddingBottom: Spacing.xl,
+    centerArea: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: Spacing.xxl,
     },
 
     hint: {
-        alignSelf: "center",
         fontFamily: Typography.fonts.bodyMedium,
         fontSize: Typography.sizes.sm,
         color: Colors.white,
+        textAlign: "center",
+    },
+
+    bottomArea: {
+        gap: Spacing.md,
+        paddingBottom: Spacing.xl,
     },
 
     errorBox: {
@@ -248,33 +235,9 @@ const styles = StyleSheet.create({
     },
 
     controlsRow: {
-        flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "center",
         paddingHorizontal: Spacing.xl,
-    },
-
-    controlsSide: {
-        width: 92,
-        alignItems: "center",
-    },
-
-    submitButton: {
-        backgroundColor: Colors.white,
-        borderRadius: Radius.full,
-        paddingVertical: Spacing.md,
-        paddingHorizontal: Spacing.lg,
-        ...Shadows.md,
-    },
-
-    submitButtonDisabled: {
-        opacity: 0.5,
-    },
-
-    submitButtonText: {
-        fontFamily: Typography.fonts.bodySemiBold,
-        fontSize: Typography.sizes.sm,
-        color: Colors.primary,
     },
 
     permissionContainer: {
