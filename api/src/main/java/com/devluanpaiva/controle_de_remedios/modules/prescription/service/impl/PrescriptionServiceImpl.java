@@ -75,9 +75,13 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .patient(patient)
                 .build();
 
-        List<PrescriptionItem> items = dto.items().stream()
-                .map(itemDto -> buildPrescriptionItem(itemDto, prescription, patient))
-                .toList();
+        List<CreatePrescriptionItemRequestDTO> itemDtos = dto.items();
+        List<PrescriptionItem> items = new ArrayList<>();
+
+        for (int index = 0; index < itemDtos.size(); index++) {
+            items.add(buildPrescriptionItem(itemDtos.get(index), index, prescription, patient));
+        }
+
         prescription.getItems().addAll(items);
 
         Prescription savedPrescription = prescriptionRepository.save(prescription);
@@ -87,10 +91,14 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     private PrescriptionItem buildPrescriptionItem(
-            CreatePrescriptionItemRequestDTO dto, Prescription prescription, Patient patient) {
-        Medicine medicine = resolveMedicine(dto, patient.getCompany());
+            CreatePrescriptionItemRequestDTO dto, int index, Prescription prescription, Patient patient) {
+        Medicine medicine = resolveMedicine(dto, index, patient.getCompany());
 
-        deliveryEligibilityService.assertEligible(patient, medicine);
+        try {
+            deliveryEligibilityService.assertEligible(patient, medicine);
+        } catch (BusinessException ex) {
+            throw withIndexedField(ex, index);
+        }
 
         return PrescriptionItem.builder()
                 .prescription(prescription)
@@ -109,23 +117,35 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .build();
     }
 
-    private Medicine resolveMedicine(CreatePrescriptionItemRequestDTO dto, Company company) {
-        if (dto.medicineId() != null) {
-            return findMedicineOrThrow(dto.medicineId(), company.getId());
-        }
+    private Medicine resolveMedicine(CreatePrescriptionItemRequestDTO dto, int index, Company company) {
+        try {
+            if (dto.medicineId() != null) {
+                return findMedicineOrThrow(dto.medicineId(), company.getId());
+            }
 
-        if (dto.medicine() == null || !StringUtils.hasText(dto.medicine().name())) {
-            throw new BusinessException(
-                    HttpStatus.UNPROCESSABLE_CONTENT,
-                    "Medicamento inválido",
-                    "MEDICINE_REQUIRED",
-                    "medicineId",
-                    "Informe o ID de um medicamento existente ou os dados para cadastrar um novo.");
-        }
+            if (dto.medicine() == null || !StringUtils.hasText(dto.medicine().name())) {
+                throw new BusinessException(
+                        HttpStatus.UNPROCESSABLE_CONTENT,
+                        "Medicamento inválido",
+                        "MEDICINE_REQUIRED",
+                        "medicineId",
+                        "Informe o ID de um medicamento existente ou os dados para cadastrar um novo.");
+            }
 
-        CreatePrescriptionItemMedicineRequestDTO medicine = dto.medicine();
-        return medicineResolutionService.resolveOrCreate(
-                company, medicine.name(), medicine.eanCode(), medicine.imageUrl());
+            CreatePrescriptionItemMedicineRequestDTO medicine = dto.medicine();
+            return medicineResolutionService.resolveOrCreate(
+                    company, medicine.name(), medicine.eanCode(), medicine.imageUrl());
+        } catch (BusinessException ex) {
+            throw withIndexedField(ex, index);
+        }
+    }
+
+    private BusinessException withIndexedField(BusinessException ex, int index) {
+        String indexedField = StringUtils.hasText(ex.getField())
+                ? "items[" + index + "]." + ex.getField()
+                : "items[" + index + "]";
+
+        return new BusinessException(ex.getStatus(), ex.getMessage(), ex.getCode(), indexedField, ex.getDetail());
     }
 
     private Medicine findMedicineOrThrow(UUID id, UUID companyId) {

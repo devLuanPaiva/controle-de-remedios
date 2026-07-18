@@ -1,5 +1,7 @@
 package com.devluanpaiva.controle_de_remedios.shared.exceptions;
 
+import java.util.List;
+
 public record ApiExceptionResponse(
 
         String status,
@@ -8,5 +10,5 @@ public record ApiExceptionResponse(
 
         Object data,
 
-        ApiError errors) {
+        List<ApiError> errors) {
 }

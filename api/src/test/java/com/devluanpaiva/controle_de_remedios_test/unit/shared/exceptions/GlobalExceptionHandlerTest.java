@@ -54,9 +54,10 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().status()).isEqualTo("error");
             assertThat(response.getBody().message()).isEqualTo("CNPJ já cadastrado");
-            assertThat(response.getBody().errors().code()).isEqualTo("CNPJ_ALREADY_EXISTS");
-            assertThat(response.getBody().errors().field()).isEqualTo("cnpj");
-            assertThat(response.getBody().errors().detail())
+            assertThat(response.getBody().errors()).hasSize(1);
+            assertThat(response.getBody().errors().get(0).code()).isEqualTo("CNPJ_ALREADY_EXISTS");
+            assertThat(response.getBody().errors().get(0).field()).isEqualTo("cnpj");
+            assertThat(response.getBody().errors().get(0).detail())
                     .isEqualTo("Já existe uma empresa cadastrada com o CNPJ '11222333000181'.");
         }
 
@@ -78,8 +79,8 @@ class GlobalExceptionHandlerTest {
     class HandleValidationException {
 
         @Test
-        @DisplayName("should join multiple field errors with the expected separators")
-        void shouldJoinMultipleFieldErrors() {
+        @DisplayName("should return one ApiError per field error, preserving each field and message")
+        void shouldReturnOneApiErrorPerFieldError() {
             BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "createCompanyRequestDTO");
             bindingResult.addError(new FieldError("createCompanyRequestDTO", "name", "não deve estar em branco"));
             bindingResult.addError(new FieldError("createCompanyRequestDTO", "cnpj", "CNPJ inválido"));
@@ -92,15 +93,20 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().message()).isEqualTo("Erro de validação");
-            assertThat(response.getBody().errors().code()).isEqualTo("VALIDATION_ERROR");
-            assertThat(response.getBody().errors().field()).isEqualTo("name, cnpj");
-            assertThat(response.getBody().errors().detail())
-                    .isEqualTo("name: não deve estar em branco; cnpj: CNPJ inválido");
+            assertThat(response.getBody().errors()).hasSize(2);
+
+            assertThat(response.getBody().errors().get(0).code()).isEqualTo("VALIDATION_ERROR");
+            assertThat(response.getBody().errors().get(0).field()).isEqualTo("name");
+            assertThat(response.getBody().errors().get(0).detail()).isEqualTo("não deve estar em branco");
+
+            assertThat(response.getBody().errors().get(1).code()).isEqualTo("VALIDATION_ERROR");
+            assertThat(response.getBody().errors().get(1).field()).isEqualTo("cnpj");
+            assertThat(response.getBody().errors().get(1).detail()).isEqualTo("CNPJ inválido");
         }
 
         @Test
-        @DisplayName("should format a single field error without a separator")
-        void shouldFormatSingleFieldErrorWithoutSeparator() {
+        @DisplayName("should return a single-element list for a single field error")
+        void shouldReturnSingleElementListForSingleFieldError() {
             BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "createCompanyRequestDTO");
             bindingResult.addError(new FieldError("createCompanyRequestDTO", "cnpj", "CNPJ inválido"));
 
@@ -110,8 +116,9 @@ class GlobalExceptionHandlerTest {
             ResponseEntity<ApiExceptionResponse> response = handler.handleValidationException(exception);
 
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().errors().field()).isEqualTo("cnpj");
-            assertThat(response.getBody().errors().detail()).isEqualTo("cnpj: CNPJ inválido");
+            assertThat(response.getBody().errors()).hasSize(1);
+            assertThat(response.getBody().errors().get(0).field()).isEqualTo("cnpj");
+            assertThat(response.getBody().errors().get(0).detail()).isEqualTo("CNPJ inválido");
         }
     }
 
@@ -143,9 +150,10 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().message()).isEqualTo("Parâmetro inválido");
-            assertThat(response.getBody().errors().code()).isEqualTo("INVALID_PARAMETER");
-            assertThat(response.getBody().errors().field()).isEqualTo("id");
-            assertThat(response.getBody().errors().detail())
+            assertThat(response.getBody().errors()).hasSize(1);
+            assertThat(response.getBody().errors().get(0).code()).isEqualTo("INVALID_PARAMETER");
+            assertThat(response.getBody().errors().get(0).field()).isEqualTo("id");
+            assertThat(response.getBody().errors().get(0).detail())
                     .isEqualTo("O valor 'abc' informado para 'id' é inválido. Era esperado um valor do tipo UUID.");
         }
 
@@ -158,7 +166,7 @@ class GlobalExceptionHandlerTest {
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().errors().detail()).contains("desconhecido");
+            assertThat(response.getBody().errors().get(0).detail()).contains("desconhecido");
         }
     }
 
@@ -177,9 +185,10 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().message()).isEqualTo("Parâmetro obrigatório ausente");
-            assertThat(response.getBody().errors().code()).isEqualTo("MISSING_PARAMETER");
-            assertThat(response.getBody().errors().field()).isEqualTo("companyId");
-            assertThat(response.getBody().errors().detail()).isEqualTo("O parâmetro 'companyId' é obrigatório.");
+            assertThat(response.getBody().errors()).hasSize(1);
+            assertThat(response.getBody().errors().get(0).code()).isEqualTo("MISSING_PARAMETER");
+            assertThat(response.getBody().errors().get(0).field()).isEqualTo("companyId");
+            assertThat(response.getBody().errors().get(0).detail()).isEqualTo("O parâmetro 'companyId' é obrigatório.");
         }
     }
 
@@ -198,8 +207,9 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().message()).isEqualTo("Requisição inválida");
-            assertThat(response.getBody().errors().code()).isEqualTo("MALFORMED_REQUEST_BODY");
-            assertThat(response.getBody().errors().detail()).doesNotContain("JSON parse error");
+            assertThat(response.getBody().errors()).hasSize(1);
+            assertThat(response.getBody().errors().get(0).code()).isEqualTo("MALFORMED_REQUEST_BODY");
+            assertThat(response.getBody().errors().get(0).detail()).doesNotContain("JSON parse error");
         }
     }
 
@@ -216,8 +226,9 @@ class GlobalExceptionHandlerTest {
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().errors().code()).isEqualTo("METHOD_NOT_ALLOWED");
-            assertThat(response.getBody().errors().detail()).contains("PUT");
+            assertThat(response.getBody().errors()).hasSize(1);
+            assertThat(response.getBody().errors().get(0).code()).isEqualTo("METHOD_NOT_ALLOWED");
+            assertThat(response.getBody().errors().get(0).detail()).contains("PUT");
         }
     }
 
@@ -235,7 +246,8 @@ class GlobalExceptionHandlerTest {
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().errors().code()).isEqualTo("UNSUPPORTED_MEDIA_TYPE");
+            assertThat(response.getBody().errors()).hasSize(1);
+            assertThat(response.getBody().errors().get(0).code()).isEqualTo("UNSUPPORTED_MEDIA_TYPE");
         }
     }
 
@@ -253,7 +265,8 @@ class GlobalExceptionHandlerTest {
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().errors().code()).isEqualTo("NOT_FOUND");
+            assertThat(response.getBody().errors()).hasSize(1);
+            assertThat(response.getBody().errors().get(0).code()).isEqualTo("NOT_FOUND");
         }
     }
 
@@ -274,9 +287,10 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().status()).isEqualTo("error");
             assertThat(response.getBody().message()).isEqualTo("Conflito de dados");
-            assertThat(response.getBody().errors().code()).isEqualTo("DATA_INTEGRITY_CONFLICT");
-            assertThat(response.getBody().errors().field()).isNull();
-            assertThat(response.getBody().errors().detail())
+            assertThat(response.getBody().errors()).hasSize(1);
+            assertThat(response.getBody().errors().get(0).code()).isEqualTo("DATA_INTEGRITY_CONFLICT");
+            assertThat(response.getBody().errors().get(0).field()).isNull();
+            assertThat(response.getBody().errors().get(0).detail())
                     .isEqualTo("Os dados informados conflitam com um registro já existente.")
                     .doesNotContain("uk_companies_cnpj")
                     .doesNotContain("SQL");
@@ -309,9 +323,10 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().status()).isEqualTo("error");
             assertThat(response.getBody().message()).isEqualTo("Erro interno do servidor");
-            assertThat(response.getBody().errors().code()).isEqualTo("INTERNAL_SERVER_ERROR");
-            assertThat(response.getBody().errors().field()).isNull();
-            assertThat(response.getBody().errors().detail())
+            assertThat(response.getBody().errors()).hasSize(1);
+            assertThat(response.getBody().errors().get(0).code()).isEqualTo("INTERNAL_SERVER_ERROR");
+            assertThat(response.getBody().errors().get(0).field()).isNull();
+            assertThat(response.getBody().errors().get(0).detail())
                     .isEqualTo("Ocorreu um erro inesperado. Tente novamente mais tarde.")
                     .doesNotContain("db-primary.internal");
         }

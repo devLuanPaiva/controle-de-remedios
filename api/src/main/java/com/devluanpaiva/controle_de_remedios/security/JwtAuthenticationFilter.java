@@ -17,6 +17,7 @@ import com.devluanpaiva.controle_de_remedios.shared.exceptions.ApiError;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.ApiExceptionResponse;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -89,10 +90,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 "error",
                 message,
                 null,
-                new ApiError(
+                List.of(new ApiError(
                         "AUTH_UNAUTHORIZED",
                         "authorization",
-                        detail));
+                        detail)));
 
         objectMapper.writeValue(response.getWriter(), responseBody);
     }

@@ -174,12 +174,21 @@ class PrescriptionServiceImplTest {
     }
 
     private void assertFailsWith(ThrowingCallable callable, HttpStatus status, String expectedCode) {
+        assertFailsWith(callable, status, expectedCode, null);
+    }
+
+    private void assertFailsWith(
+            ThrowingCallable callable, HttpStatus status, String expectedCode, String expectedField) {
         assertThatThrownBy(callable)
                 .isInstanceOf(BusinessException.class)
                 .satisfies(ex -> {
                     BusinessException businessException = (BusinessException) ex;
                     assertThat(businessException.getStatus()).isEqualTo(status);
                     assertThat(businessException.getCode()).isEqualTo(expectedCode);
+
+                    if (expectedField != null) {
+                        assertThat(businessException.getField()).isEqualTo(expectedField);
+                    }
                 });
     }
 
@@ -260,7 +269,7 @@ class PrescriptionServiceImplTest {
 
             assertFailsWith(
                     () -> prescriptionService.createPrescription(dto),
-                    HttpStatus.UNPROCESSABLE_CONTENT, "MEDICINE_REQUIRED");
+                    HttpStatus.UNPROCESSABLE_CONTENT, "MEDICINE_REQUIRED", "items[0].medicineId");
 
             verify(prescriptionRepository, never()).save(any());
         }
@@ -282,7 +291,7 @@ class PrescriptionServiceImplTest {
 
             assertFailsWith(
                     () -> prescriptionService.createPrescription(dto),
-                    HttpStatus.UNPROCESSABLE_CONTENT, "MEDICINE_COMPANY_MISMATCH");
+                    HttpStatus.UNPROCESSABLE_CONTENT, "MEDICINE_COMPANY_MISMATCH", "items[0].medicine.id");
 
             verify(prescriptionRepository, never()).save(any());
         }
@@ -311,7 +320,7 @@ class PrescriptionServiceImplTest {
 
             assertFailsWith(
                     () -> prescriptionService.createPrescription(dto),
-                    HttpStatus.CONFLICT, "MEDICINE_STILL_IN_TREATMENT_PERIOD");
+                    HttpStatus.CONFLICT, "MEDICINE_STILL_IN_TREATMENT_PERIOD", "items[1].medicineId");
 
             verify(prescriptionRepository, never()).save(any());
             verify(medicineMovementService, never()).recordRequested(any());
