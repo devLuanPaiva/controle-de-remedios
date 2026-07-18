@@ -1,3 +1,5 @@
+import { ApiErrorDetail } from '@shared/models/api-error.model';
+
 import { IPrescriptionDetail, IPrescriptionListItem } from '../models/prescription.model';
 
 export interface PrescriptionState {
@@ -6,6 +8,7 @@ export interface PrescriptionState {
     loading: boolean;
     error: string | null;
     mutating: boolean;
+    createErrors: ApiErrorDetail[];
 
     count: number;
     currentPage: number;

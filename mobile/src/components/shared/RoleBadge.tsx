@@ -10,7 +10,7 @@ interface RoleBadgeProps {
 const ROLE_BADGE_COLORS: Record<UserRole, string> = {
     [UserRole.ADMIN]: Colors.primary,
     [UserRole.MANAGER]: Colors.warning,
-    [UserRole.USER]: Colors.info,
+    [UserRole.ASSISTANT]: Colors.info,
     [UserRole.PATIENT]: Colors.success,
 };
 

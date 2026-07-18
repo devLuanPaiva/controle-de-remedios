@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Pencil, Pill, Trash2 } from "lucide-react-native";
+import { AlertCircle, Pencil, Pill, Trash2 } from "lucide-react-native";
 
 import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
 import {
@@ -14,6 +14,7 @@ interface PrescriptionItemCardProps {
     item: CreatePrescriptionItemRequest;
     onEdit: () => void;
     onDelete: () => void;
+    errorMessage?: string;
 }
 
 function summarize(item: CreatePrescriptionItemRequest): string {
@@ -27,73 +28,96 @@ function summarize(item: CreatePrescriptionItemRequest): string {
     );
 }
 
-export function PrescriptionItemCard({ item, onEdit, onDelete }: Readonly<PrescriptionItemCardProps>) {
+export function PrescriptionItemCard({
+    item,
+    onEdit,
+    onDelete,
+    errorMessage,
+}: Readonly<PrescriptionItemCardProps>) {
     const [imageFailed, setImageFailed] = useState(false);
     const showImage = Boolean(item.medicine.imageUrl) && !imageFailed;
+    const hasError = Boolean(errorMessage);
 
     return (
-        <View style={styles.card}>
-            <View style={styles.imageWrapper}>
-                {showImage ? (
-                    <Image
-                        source={{ uri: item.medicine.imageUrl }}
-                        style={styles.image}
-                        onError={() => setImageFailed(true)}
-                        accessibilityLabel={`Imagem de ${item.medicine.name}`}
-                    />
-                ) : (
-                    <Pill size={22} color={Colors.textSecondary} />
-                )}
+        <View style={[styles.card, hasError && styles.cardError]}>
+            <View style={styles.row}>
+                <View style={styles.imageWrapper}>
+                    {showImage ? (
+                        <Image
+                            source={{ uri: item.medicine.imageUrl }}
+                            style={styles.image}
+                            onError={() => setImageFailed(true)}
+                            accessibilityLabel={`Imagem de ${item.medicine.name}`}
+                        />
+                    ) : (
+                        <Pill size={22} color={Colors.textSecondary} />
+                    )}
+                </View>
+
+                <View style={styles.info}>
+                    <Text style={styles.name} numberOfLines={2}>
+                        {item.medicine.name}
+                    </Text>
+                    <Text style={styles.dosage} numberOfLines={2}>
+                        {item.dosage}
+                    </Text>
+                    <Text style={styles.summary} numberOfLines={2}>
+                        {summarize(item)}
+                    </Text>
+                </View>
+
+                <View style={styles.actions}>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={onEdit}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Editar ${item.medicine.name}`}
+                    >
+                        <Pencil size={16} color={Colors.primary} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={onDelete}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Remover ${item.medicine.name}`}
+                    >
+                        <Trash2 size={16} color={Colors.danger} />
+                    </TouchableOpacity>
+                </View>
             </View>
 
-            <View style={styles.info}>
-                <Text style={styles.name} numberOfLines={2}>
-                    {item.medicine.name}
-                </Text>
-                <Text style={styles.dosage} numberOfLines={2}>
-                    {item.dosage}
-                </Text>
-                <Text style={styles.summary} numberOfLines={2}>
-                    {summarize(item)}
-                </Text>
-            </View>
-
-            <View style={styles.actions}>
-                <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={onEdit}
-                    hitSlop={8}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Editar ${item.medicine.name}`}
-                >
-                    <Pencil size={16} color={Colors.primary} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={onDelete}
-                    hitSlop={8}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Remover ${item.medicine.name}`}
-                >
-                    <Trash2 size={16} color={Colors.danger} />
-                </TouchableOpacity>
-            </View>
+            {hasError ? (
+                <View style={styles.errorRow}>
+                    <AlertCircle size={14} color={Colors.danger} />
+                    <Text style={styles.errorText}>{errorMessage}</Text>
+                </View>
+            ) : null}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     card: {
-        flexDirection: "row",
-        alignItems: "flex-start",
-        gap: Spacing.md,
         backgroundColor: Colors.surface,
         borderRadius: Radius.xl,
         borderWidth: 1,
         borderColor: Colors.border,
         padding: Spacing.base,
         ...Shadows.sm,
+    },
+
+    cardError: {
+        borderColor: Colors.danger,
+        borderWidth: 1.5,
+    },
+
+    row: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        gap: Spacing.md,
     },
 
     imageWrapper: {
@@ -132,6 +156,20 @@ const styles = StyleSheet.create({
         fontFamily: Typography.fonts.body,
         fontSize: Typography.sizes.xs,
         color: Colors.textSecondary,
+    },
+
+    errorRow: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        gap: Spacing.xs,
+        marginTop: Spacing.sm,
+    },
+
+    errorText: {
+        flex: 1,
+        fontFamily: Typography.fonts.bodyMedium,
+        fontSize: Typography.sizes.xs,
+        color: Colors.danger,
     },
 
     actions: {

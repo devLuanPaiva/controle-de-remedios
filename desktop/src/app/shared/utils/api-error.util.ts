@@ -1,13 +1,34 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { ApiExceptionResponse } from '../models/api-error.model';
+import { ApiErrorDetail, ApiExceptionResponse } from '../models/api-error.model';
 
-export function extractErrorMessage(error: unknown, fallback: string): string {
+function extractErrorBody(error: unknown): ApiExceptionResponse | null {
     if (!(error instanceof HttpErrorResponse)) {
-        return fallback;
+        return null;
     }
 
-    const body = error.error as ApiExceptionResponse | null;
+    return error.error as ApiExceptionResponse | null;
+}
 
-    return body?.errors?.detail || body?.message || fallback;
+function formatErrorDetail(error: ApiErrorDetail): string {
+    return error.field ? `${error.field}: ${error.detail}` : (error.detail ?? '');
+}
+
+export function extractErrors(error: unknown): ApiErrorDetail[] {
+    return extractErrorBody(error)?.errors ?? [];
+}
+
+export function extractErrorMessage(error: unknown, fallback: string): string {
+    const body = extractErrorBody(error);
+    const errors = body?.errors ?? [];
+
+    if (errors.length === 0) {
+        return body?.message || fallback;
+    }
+
+    if (errors.length === 1) {
+        return errors[0].detail || body?.message || fallback;
+    }
+
+    return errors.map(formatErrorDetail).join('; ');
 }

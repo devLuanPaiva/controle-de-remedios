@@ -31,6 +31,7 @@
                 <app-prescription-item-create-row
                     [index]="$index"
                     [canRemove]="itemRows().length > 1"
+                    [errorMessage]="itemErrors()[$index]"
                     (itemChanged)="onItemChanged($index, $event)"
                     (removed)="removeItemRow($index)"
                 />

@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, type Href } from "expo-router";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { LinearGradient } from "expo-linear-gradient";
 import { AlertCircle, Camera as CameraIcon } from "lucide-react-native";
@@ -9,15 +10,24 @@ import { AlertCircle, Camera as CameraIcon } from "lucide-react-native";
 import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
 import { usePrescriptionScan } from "@/data/contexts/PrescriptionScanContext";
 import { createLocalId } from "@/lib/createLocalId";
-import { useSpeechTips } from "@/features/prescriptions/hooks/useSpeechTips";
+import { useSpeechTips } from "@/data/hooks/useSpeechTips";
 import { PrescriptionTypeSelector } from "@/features/prescriptions/components/PrescriptionTypeSelector";
-import { CameraCaptureButton } from "@/features/prescriptions/components/CameraCaptureButton";
+import { CameraCaptureButton } from "@/components/shared/CameraCaptureButton";
 import { CapturedPagesStrip } from "@/features/prescriptions/components/CapturedPagesStrip";
-import { SpeechTipButton } from "@/features/prescriptions/components/SpeechTipButton";
-import { ProcessingOverlay } from "@/features/prescriptions/components/ProcessingOverlay";
+import { SpeechTipButton } from "@/components/shared/SpeechTipButton";
+import { ProcessingOverlay } from "@/components/shared/ProcessingOverlay";
+
+const CAPTURE_TIPS = [
+    "Aproxime a câmera da receita e mantenha o celular parado.",
+    "Procure um ambiente bem iluminado antes de fotografar.",
+    "Limpe a lente da câmera para uma foto mais nítida.",
+    "Evite sombras e reflexos sobre o papel.",
+    "Centralize a receita inteira dentro da moldura.",
+];
 
 export default function PrescriptionScan() {
     const router = useRouter();
+    const isFocused = useIsFocused();
     const [permission, requestPermission] = useCameraPermissions();
     const cameraRef = useRef<CameraView>(null);
     const [capturing, setCapturing] = useState(false);
@@ -35,7 +45,15 @@ export default function PrescriptionScan() {
         processAndContinue,
     } = usePrescriptionScan();
 
-    const { isSpeaking, speakNextTip } = useSpeechTips();
+    const { isSpeaking, speakNextTip, stop: stopSpeech } = useSpeechTips(CAPTURE_TIPS);
+
+    useFocusEffect(
+        useCallback(() => {
+            return () => {
+                stopSpeech();
+            };
+        }, [stopSpeech]),
+    );
 
     useEffect(() => {
         if (permission && !permission.granted && permission.canAskAgain) {
@@ -109,7 +127,7 @@ export default function PrescriptionScan() {
 
     return (
         <View style={styles.container}>
-            <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
+            {isFocused ? <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" /> : null}
 
             <LinearGradient colors={["rgba(0,0,0,0.55)", "transparent"]} style={styles.topGradient} />
             <LinearGradient colors={["transparent", "rgba(0,0,0,0.7)"]} style={styles.bottomGradient} />

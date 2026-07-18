@@ -6,12 +6,14 @@ interface CameraCaptureButtonProps {
     disabled?: boolean;
     capturing: boolean;
     onPress: () => void;
+    accessibilityLabel?: string;
 }
 
 export function CameraCaptureButton({
     disabled = false,
     capturing,
     onPress,
+    accessibilityLabel = "Tirar foto da receita",
 }: Readonly<CameraCaptureButtonProps>) {
     return (
         <TouchableOpacity
@@ -20,7 +22,7 @@ export function CameraCaptureButton({
             disabled={disabled || capturing}
             activeOpacity={0.8}
             accessibilityRole="button"
-            accessibilityLabel="Tirar foto da receita"
+            accessibilityLabel={accessibilityLabel}
         >
             <View style={styles.innerCircle}>
                 {capturing ? <ActivityIndicator color={Colors.primary} /> : null}

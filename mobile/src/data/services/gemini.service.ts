@@ -6,7 +6,11 @@ const MAX_ATTEMPTS = 5;
 const RETRY_BACKOFF_MS = 1_500;
 const RETRYABLE_STATUSES = new Set([429, 503]);
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const EAN_PATTERN = /^\d{8}$|^\d{12,14}$/;
 const LOG_PREFIX = "[Gemini]";
+
+const MEDICINE_MODEL = "gemini-3.1-flash-lite";
+const MEDICINE_TIMEOUT_MS = 10_000;
 
 export type PrescriptionType = "DIGITAL" | "HANDWRITTEN";
 
@@ -108,7 +112,9 @@ const BASE_INSTRUCTIONS =
     "3. medicamentos: lista de objetos, um por medicamento prescrito. Para cada um, extraia:\n" +
     "   - nome: o nome do medicamento.\n" +
     "   - codigo_ean: código de barras/EAN do medicamento, apenas se estiver explicitamente impresso na receita.\n" +
-    "   - dosagem: a forma, concentração ou instrução de uso resumida (ex: '1 comprimido de 500mg a cada 8 horas').\n" +
+    "   - dosagem: apenas a concentração do medicamento (ex: '500mg', '20mg/mL', '1g'). Não inclua via de " +
+    "administração, frequência ou duração do tratamento — essas informações já são extraídas separadamente " +
+    "nos campos quantidade_prescrita, unidade, frequencia, tipo_frequencia, tipo_tratamento e dias_tratamento.\n" +
     "   - quantidade_prescrita: a quantidade total prescrita, como número inteiro (ex: 60).\n" +
     "   - unidade: classifique a unidade da quantidade prescrita em um destes valores: " +
     `${UNITY_TYPE_VALUES.join(", ")}.\n` +
@@ -399,4 +405,102 @@ export async function extractPrescriptionData(
     console.log(`${LOG_PREFIX} extraction parsed ->`, parsed);
 
     return parsed ? { status: "success", data: parsed } : { status: "unavailable" };
+}
+
+export type BarcodeExtractionResult = { status: "success"; eanCode: string } | { status: "unavailable" };
+
+export type MedicineNameExtractionResult = { status: "success"; name: string } | { status: "unavailable" };
+
+const BARCODE_RESPONSE_SCHEMA = {
+    type: "OBJECT",
+    properties: {
+        codigo_ean: { type: "STRING", nullable: true },
+    },
+};
+
+const MEDICINE_NAME_RESPONSE_SCHEMA = {
+    type: "OBJECT",
+    properties: {
+        nome: { type: "STRING", nullable: true },
+    },
+};
+
+const BARCODE_PROMPT =
+    "Atue como um leitor de código de barras. Esta imagem mostra o código de barras (EAN) impresso na caixa " +
+    "de um medicamento. Leia o número impresso em texto logo abaixo ou ao lado das barras e retorne apenas os " +
+    "dígitos desse código em JSON. Se não for possível ler o número com confiança, retorne null.";
+
+const MEDICINE_NAME_PROMPT =
+    "Atue como um assistente de identificação de medicamentos. Esta imagem mostra a caixa de um medicamento. " +
+    "Leia o nome comercial do medicamento impresso na caixa (ignore fabricante, dosagem, código de barras e " +
+    "outras informações) e retorne em JSON. Se não for possível identificar o nome com confiança, retorne null.";
+
+async function callMedicineGemini(label: string, prompt: string, schema: object, base64: string): Promise<string | null> {
+    if (!GEMINI_API_KEY) {
+        console.warn(`${LOG_PREFIX} ${label} skipped -> GEMINI_API_KEY is not configured`);
+        return null;
+    }
+
+    const url = `${buildEndpoint(MEDICINE_MODEL)}?key=${GEMINI_API_KEY}`;
+    const requestBody = {
+        contents: [
+            {
+                role: "user",
+                parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: base64 } }],
+            },
+        ],
+        generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: schema,
+        },
+    };
+
+    return callGeminiWithRetry({
+        label: `${label} (${MEDICINE_MODEL})`,
+        url,
+        body: requestBody,
+        timeoutMs: MEDICINE_TIMEOUT_MS,
+    });
+}
+
+export async function extractBarcodeValue(base64: string): Promise<BarcodeExtractionResult> {
+    const text = await callMedicineGemini("barcode extraction", BARCODE_PROMPT, BARCODE_RESPONSE_SCHEMA, base64);
+
+    if (!text) {
+        return { status: "unavailable" };
+    }
+
+    let parsed: unknown;
+
+    try {
+        parsed = JSON.parse(text);
+    } catch (error) {
+        console.error(`${LOG_PREFIX} barcode extraction response <- invalid JSON text`, error);
+        return { status: "unavailable" };
+    }
+
+    const eanCode = isRecord(parsed) && typeof parsed.codigo_ean === "string" ? parsed.codigo_ean.trim() : null;
+
+    return eanCode && EAN_PATTERN.test(eanCode) ? { status: "success", eanCode } : { status: "unavailable" };
+}
+
+export async function extractMedicineName(base64: string): Promise<MedicineNameExtractionResult> {
+    const text = await callMedicineGemini("medicine name extraction", MEDICINE_NAME_PROMPT, MEDICINE_NAME_RESPONSE_SCHEMA, base64);
+
+    if (!text) {
+        return { status: "unavailable" };
+    }
+
+    let parsed: unknown;
+
+    try {
+        parsed = JSON.parse(text);
+    } catch (error) {
+        console.error(`${LOG_PREFIX} medicine name extraction response <- invalid JSON text`, error);
+        return { status: "unavailable" };
+    }
+
+    const name = isRecord(parsed) && typeof parsed.nome === "string" ? parsed.nome.trim() : null;
+
+    return name ? { status: "success", name } : { status: "unavailable" };
 }

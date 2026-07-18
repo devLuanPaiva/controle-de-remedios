@@ -1,5 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 
+import { ApiErrorDetail } from '@shared/models/api-error.model';
+
 import {
     CreatePrescriptionRequest,
     PrescriptionFilterParams,
@@ -58,7 +60,7 @@ export const createPrescriptionSuccess = createAction(
 
 export const createPrescriptionFailure = createAction(
     '[Prescriptions] Create Prescription Failure',
-    props<{ message: string }>(),
+    props<{ message: string; errors: ApiErrorDetail[] }>(),
 );
 
 export const updatePrescription = createAction(

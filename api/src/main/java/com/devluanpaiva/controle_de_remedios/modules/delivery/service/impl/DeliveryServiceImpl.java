@@ -17,11 +17,14 @@ import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.CreateDelivery
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.DeliveryResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.EligiblePrescriptionItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.EligiblePrescriptionResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.PendingDeliveryItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.PendingQueueItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.ReserveStockRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.entity.Delivery;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.DeliveryFilter;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.DeliverySpecification;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.PendingDeliveryItemFilter;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.PendingDeliveryItemSpecification;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.mapper.DeliveryMapper;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.repository.DeliveryRepository;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.service.DeliveryService;
@@ -222,6 +225,48 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 return deliveryRepository.findAll(specification, pageable)
                                 .map(deliveryMapper::toResponseDTO);
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public Page<PendingDeliveryItemResponseDTO> listPendingDeliveryItems(
+                        PendingDeliveryItemFilter filter, Pageable pageable) {
+                User actor = securityContextHelper.getCurrentUser();
+
+                if (filter.companyId() == null) {
+                        throw new BusinessException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Parâmetro obrigatório ausente",
+                                        "COMPANY_ID_REQUIRED",
+                                        "companyId",
+                                        "O parâmetro 'companyId' é obrigatório.");
+                }
+
+                authorizationPolicy.requireAdminOrRolesWithCondition(
+                                actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT),
+                                () -> isMemberOf(filter.companyId(), actor));
+
+                Specification<PrescriptionItem> specification = PendingDeliveryItemSpecification.isDeliverable()
+                                .and(PendingDeliveryItemSpecification.hasCompanyId(filter.companyId()))
+                                .and(PendingDeliveryItemSpecification.hasPatientName(filter.patientName()))
+                                .and(PendingDeliveryItemSpecification.hasPatientCpf(filter.patientCpf()));
+
+                return prescriptionItemRepository.findAll(specification, pageable)
+                                .map(this::toPendingDeliveryItemResponseDTO);
+        }
+
+        private PendingDeliveryItemResponseDTO toPendingDeliveryItemResponseDTO(PrescriptionItem item) {
+                Prescription prescription = item.getPrescription();
+
+                return new PendingDeliveryItemResponseDTO(
+                                item.getId(),
+                                prescription.getId(),
+                                prescription.getPatient().getId(),
+                                prescription.getPatient().getName(),
+                                prescription.getIssueDate(),
+                                item.getMedicine().getName(),
+                                item.getUnityType(),
+                                item.getPrescribedQuantity());
         }
 
         @Override

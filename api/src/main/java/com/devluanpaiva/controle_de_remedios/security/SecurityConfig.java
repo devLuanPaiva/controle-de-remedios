@@ -1,6 +1,7 @@
 package com.devluanpaiva.controle_de_remedios.security;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -100,7 +101,7 @@ public class SecurityConfig {
                 "error",
                 message,
                 null,
-                new ApiError(code, field, detail));
+                List.of(new ApiError(code, field, detail)));
 
         objectMapper.writeValue(response.getWriter(), responseBody);
     }

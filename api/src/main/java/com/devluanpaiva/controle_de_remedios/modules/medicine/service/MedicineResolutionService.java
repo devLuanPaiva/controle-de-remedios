@@ -39,6 +39,11 @@ public class MedicineResolutionService {
         if (similarWithoutEanCode.isPresent()) {
             Medicine medicine = similarWithoutEanCode.get();
             medicine.setEanCode(eanCode);
+
+            if (StringUtils.hasText(imageUrl)) {
+                medicine.setImageUrl(imageUrl);
+            }
+
             return medicineRepository.save(medicine);
         }
 
