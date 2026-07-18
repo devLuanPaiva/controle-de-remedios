@@ -7,9 +7,10 @@ import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
 interface SpeechTipButtonProps {
     isSpeaking: boolean;
     onPress: () => void;
+    label?: string;
 }
 
-export function SpeechTipButton({ isSpeaking, onPress }: Readonly<SpeechTipButtonProps>) {
+export function SpeechTipButton({ isSpeaking, onPress, label = "Dica" }: Readonly<SpeechTipButtonProps>) {
     const pulse = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
@@ -39,7 +40,7 @@ export function SpeechTipButton({ isSpeaking, onPress }: Readonly<SpeechTipButto
                 accessibilityLabel="Ouvir dica de fotografia"
             >
                 <Volume2 size={16} color={Colors.white} />
-                <Text style={styles.label}>Dica</Text>
+                <Text style={styles.label}>{label}</Text>
             </TouchableOpacity>
         </Animated.View>
     );
