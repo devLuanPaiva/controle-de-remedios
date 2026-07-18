@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final InternalServiceAuthenticationFilter internalServiceAuthenticationFilter;
         private final ObjectMapper objectMapper;
 
     @Bean
@@ -71,6 +72,9 @@ public class SecurityConfig {
                                         "Você não possui permissão para acessar este recurso")))
                 .addFilterBefore(
                         jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(
+                        internalServiceAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
