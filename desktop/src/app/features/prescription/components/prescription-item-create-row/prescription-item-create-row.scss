@@ -1,5 +1,14 @@
 @use '../../../../../styles/abstracts/breakpoints' as bp;
 
+.item-row--error {
+    border-color: var(--color-danger);
+}
+
+.field__error {
+    color: var(--color-danger);
+    font-size: var(--text-sm);
+}
+
 .item-row__body {
     display: flex;
     flex-direction: column;

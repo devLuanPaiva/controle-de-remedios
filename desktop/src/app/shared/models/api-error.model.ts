@@ -8,5 +8,5 @@ export interface ApiExceptionResponse {
     status: string;
     message: string;
     data: unknown;
-    errors: ApiErrorDetail | null;
+    errors: ApiErrorDetail[] | null;
 }

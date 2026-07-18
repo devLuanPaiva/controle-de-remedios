@@ -8,6 +8,7 @@ const initialState: PrescriptionState = {
     loading: false,
     error: null,
     mutating: false,
+    createErrors: [],
     count: 0,
     currentPage: 1,
     totalPages: 1,
@@ -68,17 +69,20 @@ export const prescriptionReducer = createReducer(
     on(PrescriptionActions.createPrescription, (state) => ({
         ...state,
         mutating: true,
+        createErrors: [],
     })),
 
     on(PrescriptionActions.createPrescriptionSuccess, (state) => ({
         ...state,
         mutating: false,
+        createErrors: [],
     })),
 
-    on(PrescriptionActions.createPrescriptionFailure, (state, { message }) => ({
+    on(PrescriptionActions.createPrescriptionFailure, (state, { message, errors }) => ({
         ...state,
         mutating: false,
         error: message,
+        createErrors: errors,
     })),
 
     on(PrescriptionActions.updatePrescription, (state) => ({
