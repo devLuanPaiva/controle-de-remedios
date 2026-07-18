@@ -159,14 +159,14 @@ export function PrescriptionItemForm({
                     </View>
 
                     <View style={styles.field}>
-                        <Text style={styles.label}>Dosagem / uso</Text>
+                        <Text style={styles.label}>Dosagem</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Ex: 1 comprimido a cada 8 horas"
+                            placeholder="Ex: 500mg"
                             placeholderTextColor={Colors.textSecondary}
                             value={form.dosage}
                             onChangeText={(text) => updateForm({ dosage: text })}
-                            accessibilityLabel="Dosagem ou instrução de uso"
+                            accessibilityLabel="Dosagem do medicamento"
                         />
                     </View>
 

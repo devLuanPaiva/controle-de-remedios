@@ -112,7 +112,9 @@ const BASE_INSTRUCTIONS =
     "3. medicamentos: lista de objetos, um por medicamento prescrito. Para cada um, extraia:\n" +
     "   - nome: o nome do medicamento.\n" +
     "   - codigo_ean: código de barras/EAN do medicamento, apenas se estiver explicitamente impresso na receita.\n" +
-    "   - dosagem: a forma, concentração ou instrução de uso resumida (ex: '1 comprimido de 500mg a cada 8 horas').\n" +
+    "   - dosagem: apenas a concentração do medicamento (ex: '500mg', '20mg/mL', '1g'). Não inclua via de " +
+    "administração, frequência ou duração do tratamento — essas informações já são extraídas separadamente " +
+    "nos campos quantidade_prescrita, unidade, frequencia, tipo_frequencia, tipo_tratamento e dias_tratamento.\n" +
     "   - quantidade_prescrita: a quantidade total prescrita, como número inteiro (ex: 60).\n" +
     "   - unidade: classifique a unidade da quantidade prescrita em um destes valores: " +
     `${UNITY_TYPE_VALUES.join(", ")}.\n` +
