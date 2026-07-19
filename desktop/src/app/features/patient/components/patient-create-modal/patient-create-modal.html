@@ -25,6 +25,44 @@
 
             <app-date-field id="create-patient-birth-date" label="Data de nascimento" [field]="patientForm.birthDate" [max]="maxBirthDate" />
 
+            <app-field
+                [for]="'create-patient-contact'"
+                label="Contato"
+                [touched]="patientForm.contact().touched()"
+                [invalid]="patientForm.contact().invalid()"
+                [errorMessage]="patientForm.contact().errors()[0]?.message"
+            >
+                <input
+                    id="create-patient-contact"
+                    class="input"
+                    type="text"
+                    autocomplete="tel"
+                    placeholder="Telefone para contato"
+                    [formField]="patientForm.contact"
+                    [attr.aria-invalid]="patientForm.contact().invalid() && patientForm.contact().touched()"
+                    [attr.aria-describedby]="patientForm.contact().invalid() && patientForm.contact().touched() ? 'create-patient-contact-error' : null"
+                />
+            </app-field>
+
+            <app-field
+                [for]="'create-patient-address'"
+                label="Endereço"
+                [touched]="patientForm.address().touched()"
+                [invalid]="patientForm.address().invalid()"
+                [errorMessage]="patientForm.address().errors()[0]?.message"
+            >
+                <input
+                    id="create-patient-address"
+                    class="input"
+                    type="text"
+                    autocomplete="street-address"
+                    placeholder="Endereço completo"
+                    [formField]="patientForm.address"
+                    [attr.aria-invalid]="patientForm.address().invalid() && patientForm.address().touched()"
+                    [attr.aria-describedby]="patientForm.address().invalid() && patientForm.address().touched() ? 'create-patient-address-error' : null"
+                />
+            </app-field>
+
             @if (connectedCompany(); as company) {
                 <p class="patient-create-modal__hint">
                     Este paciente será associado à empresa conectada: <strong>{{ company.name }}</strong>.

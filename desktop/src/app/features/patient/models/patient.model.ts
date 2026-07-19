@@ -5,6 +5,8 @@ export interface IPatient {
     birthDate: Date;
     companyId: string;
     userId?: string;
+    contact?: string;
+    address?: string;
     createdAt: Date;
     updatedAt: Date;
 }

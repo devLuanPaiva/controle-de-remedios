@@ -52,6 +52,44 @@
                 <app-cpf-field id="edit-patient-cpf" [field]="editForm.cpf" />
 
                 <app-date-field id="edit-patient-birth-date" label="Data de nascimento" [field]="editForm.birthDate" [max]="maxBirthDate" />
+
+                <app-field
+                    for="edit-patient-contact"
+                    label="Contato"
+                    [touched]="editForm.contact().touched()"
+                    [invalid]="editForm.contact().invalid()"
+                    [errorMessage]="editForm.contact().errors()[0]?.message"
+                >
+                    <input
+                        id="edit-patient-contact"
+                        class="input"
+                        type="text"
+                        autocomplete="tel"
+                        placeholder="Telefone para contato"
+                        [formField]="editForm.contact"
+                        [attr.aria-invalid]="editForm.contact().invalid() && editForm.contact().touched()"
+                        [attr.aria-describedby]="editForm.contact().invalid() && editForm.contact().touched() ? 'edit-patient-contact-error' : null"
+                    />
+                </app-field>
+
+                <app-field
+                    for="edit-patient-address"
+                    label="Endereço"
+                    [touched]="editForm.address().touched()"
+                    [invalid]="editForm.address().invalid()"
+                    [errorMessage]="editForm.address().errors()[0]?.message"
+                >
+                    <input
+                        id="edit-patient-address"
+                        class="input"
+                        type="text"
+                        autocomplete="street-address"
+                        placeholder="Endereço completo"
+                        [formField]="editForm.address"
+                        [attr.aria-invalid]="editForm.address().invalid() && editForm.address().touched()"
+                        [attr.aria-describedby]="editForm.address().invalid() && editForm.address().touched() ? 'edit-patient-address-error' : null"
+                    />
+                </app-field>
             </div>
 
             <div class="card-footer">
