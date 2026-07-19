@@ -11,6 +11,8 @@ public record PatientResponseDTO(
         LocalDate birthDate,
         UUID companyId,
         UUID userId,
+        String contact,
+        String address,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {
 }

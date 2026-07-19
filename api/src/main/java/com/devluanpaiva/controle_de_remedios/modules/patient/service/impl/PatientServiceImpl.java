@@ -62,6 +62,8 @@ public class PatientServiceImpl implements PatientService {
                 .cpf(dto.cpf())
                 .birthdate(dto.birthDate().atStartOfDay())
                 .company(company)
+                .contact(dto.contact())
+                .address(dto.address())
                 .build();
 
         Patient savedPatient = patientRepository.save(patient);
@@ -128,6 +130,14 @@ public class PatientServiceImpl implements PatientService {
             patient.setBirthdate(dto.birthDate().atStartOfDay());
         }
 
+        if (dto.contact() != null) {
+            patient.setContact(dto.contact());
+        }
+
+        if (dto.address() != null) {
+            patient.setAddress(dto.address());
+        }
+
         Patient updatedPatient = patientRepository.save(patient);
         return patientMapper.toResponseDTO(updatedPatient);
     }
@@ -189,6 +199,8 @@ public class PatientServiceImpl implements PatientService {
                 .birthdate(dto.birthDate().atStartOfDay())
                 .company(company)
                 .user(savedUser)
+                .contact(dto.contact())
+                .address(dto.address())
                 .build();
 
         Patient savedPatient = patientRepository.save(patient);

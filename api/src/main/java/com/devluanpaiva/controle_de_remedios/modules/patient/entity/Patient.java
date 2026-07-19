@@ -43,6 +43,12 @@ public class Patient {
     @Column(nullable = false, name = "birth_date")
     private LocalDateTime birthdate;
 
+    @Column(length = 20)
+    private String contact;
+
+    @Column(length = 255)
+    private String address;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;

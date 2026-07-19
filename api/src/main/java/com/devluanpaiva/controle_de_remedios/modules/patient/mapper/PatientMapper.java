@@ -16,6 +16,8 @@ public class PatientMapper {
                 patient.getBirthdate().toLocalDate(),
                 patient.getCompany().getId(),
                 patient.getUser() != null ? patient.getUser().getId() : null,
+                patient.getContact(),
+                patient.getAddress(),
                 patient.getCreatedAt(),
                 patient.getUpdatedAt());
     }
@@ -30,6 +32,8 @@ public class PatientMapper {
                 dto.birthDate(),
                 dto.companyId(),
                 dto.userId(),
+                dto.contact(),
+                dto.address(),
                 dto.createdAt(),
                 dto.updatedAt());
     }
