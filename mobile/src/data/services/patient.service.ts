@@ -11,6 +11,8 @@ interface PatientDto {
     birthDate: string;
     companyId: string;
     userId: string | null;
+    contact: string | null;
+    address: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -23,6 +25,8 @@ function toPatient(dto: PatientDto): IPatient {
         birthDate: new Date(dto.birthDate),
         companyId: dto.companyId,
         userId: dto.userId ?? undefined,
+        contact: dto.contact ?? undefined,
+        address: dto.address ?? undefined,
         createdAt: new Date(dto.createdAt),
         updatedAt: new Date(dto.updatedAt),
     };
