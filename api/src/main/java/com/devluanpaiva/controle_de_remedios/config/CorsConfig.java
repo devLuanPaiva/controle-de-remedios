@@ -16,7 +16,9 @@ public class CorsConfig {
             "http://localhost:3000",
             "http://localhost:8081",
             "http://localhost:1420",
-        "http://localhost:5678");
+            "http://localhost:5678",
+            "tauri://localhost",
+            "http://tauri.localhost");
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
