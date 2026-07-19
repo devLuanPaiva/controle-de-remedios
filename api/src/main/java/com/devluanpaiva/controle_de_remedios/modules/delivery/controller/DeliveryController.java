@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -12,9 +13,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.CreateDeliveryRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.DeliveryResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.EligiblePrescriptionResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.PendingDeliveryItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.PendingQueueItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.ReserveStockRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.DeliveryFilter;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.PendingDeliveryItemFilter;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.service.DeliveryService;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.PrescriptionItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponse;
@@ -53,7 +56,7 @@ public class DeliveryController {
             @RequestParam(required = false) String patientEmail,
             @RequestParam(required = false) String patientCpf) {
 
-        Pageable pageable = PageableFactory.build(page, size);
+        Pageable pageable = PageableFactory.build(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         DeliveryFilter filter = new DeliveryFilter(
                 companyId, patientId, medicineId, medicineName, patientName, patientEmail, patientCpf);
         Page<DeliveryResponseDTO> result = deliveryService.listDeliveries(filter, pageable);
@@ -69,6 +72,25 @@ public class DeliveryController {
                 .replaceQueryParam("page", page)
                 .replaceQueryParam("size", size)
                 .toUriString();
+    }
+
+    @GetMapping("/pending-items")
+    public ApiResponse<List<PendingDeliveryItemResponseDTO>> getPendingDeliveryItems(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) UUID companyId,
+            @RequestParam(required = false) String patientName,
+            @RequestParam(required = false) String patientCpf) {
+
+        Pageable pageable = PageableFactory.build(page, size, Sort.by(Sort.Direction.ASC, "requestedAt"));
+        PendingDeliveryItemFilter filter = new PendingDeliveryItemFilter(companyId, patientName, patientCpf);
+        Page<PendingDeliveryItemResponseDTO> result = deliveryService.listPendingDeliveryItems(filter, pageable);
+
+        String next = result.hasNext() ? buildPageUri(page + 1, size) : null;
+        String previous = result.hasPrevious() ? buildPageUri(page - 1, size) : null;
+
+        return ApiResponseFactory.paginated(
+                "Lista de itens pendentes de entrega obtida com sucesso", result, next, previous);
     }
 
     @GetMapping("/pending-queue/{medicineId}")

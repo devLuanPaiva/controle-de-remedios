@@ -6,6 +6,7 @@ import { AuthSessionService } from '@features/auth/services/auth-session.service
 import { normalizeUserRole, UserRole } from '@features/users/models/user.model';
 import { Avatar } from '@shared/ui/avatar/avatar';
 import { Field } from '@shared/ui/field/field';
+import { NotFound } from '@shared/ui/not-found/not-found';
 import { formatCnpj } from '@shared/utils/cnpj.util';
 
 import * as CompanyActions from '../../store/company.actions';
@@ -23,7 +24,7 @@ import { CompanySwitcher } from '../../ui/company-switcher/company-switcher';
 
 @Component({
     selector: 'app-company-page',
-    imports: [FormField, Avatar, Field, CompanySwitcher, CompanyCreateModal, CompanyAssociationsModal],
+    imports: [FormField, Avatar, Field, NotFound, CompanySwitcher, CompanyCreateModal, CompanyAssociationsModal],
     templateUrl: './company-page.html',
     styleUrl: './company-page.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +43,7 @@ export class CompanyPage {
     readonly selectedCompany = this.store.selectSignal(selectSelectedCompany);
 
     readonly isAdmin = computed(() => normalizeUserRole(this.session.user()?.role) === UserRole.ADMIN);
+    readonly createActionLabel = computed(() => (this.isAdmin() ? 'Nova empresa' : undefined));
 
     readonly showCreateModal = signal(false);
     readonly showAssociationsModal = signal(false);

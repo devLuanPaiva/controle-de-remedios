@@ -14,7 +14,7 @@ export interface ApiSuccessResponse<T> {
     data: T;
 }
 
-interface ApiErrorPayload {
+export interface ApiErrorPayload {
     code: string;
     field: string;
     detail: string;
@@ -24,18 +24,43 @@ interface ApiErrorResponse {
     status: "error";
     message: string;
     data: null;
-    errors: ApiErrorPayload | null;
+    errors: ApiErrorPayload[] | null;
 }
 
 export class ApiRequestError extends Error {
     constructor(
         message: string,
-        readonly code?: string,
-        readonly field?: string,
+        readonly errors: ApiErrorPayload[] = [],
     ) {
         super(message);
         this.name = "ApiRequestError";
     }
+
+    get code(): string | undefined {
+        return this.errors[0]?.code;
+    }
+
+    get field(): string | undefined {
+        return this.errors[0]?.field;
+    }
+}
+
+function formatErrorEntry(error: ApiErrorPayload): string {
+    return error.field ? `${error.field}: ${error.detail}` : error.detail;
+}
+
+function pickErrorMessage(errorBody: ApiErrorResponse | null, fallbackMessage: string): string {
+    const errors = errorBody?.errors ?? [];
+
+    if (errors.length === 0) {
+        return errorBody?.message || fallbackMessage;
+    }
+
+    if (errors.length === 1) {
+        return errors[0].detail || errorBody?.message || fallbackMessage;
+    }
+
+    return errors.map(formatErrorEntry).join("; ");
 }
 
 async function readAccessToken(): Promise<string | null> {
@@ -56,8 +81,8 @@ function buildHeaders(accessToken: string | null, extraHeaders?: HeadersInit): R
 }
 
 function toApiRequestError(errorBody: ApiErrorResponse | null, fallbackMessage: string): ApiRequestError {
-    const message = errorBody?.message || fallbackMessage;
-    return new ApiRequestError(message, errorBody?.errors?.code, errorBody?.errors?.field);
+    const message = pickErrorMessage(errorBody, fallbackMessage);
+    return new ApiRequestError(message, errorBody?.errors ?? []);
 }
 
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<ApiSuccessResponse<T>> {

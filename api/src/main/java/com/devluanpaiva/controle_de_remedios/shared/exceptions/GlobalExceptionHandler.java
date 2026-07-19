@@ -1,12 +1,11 @@
 package com.devluanpaiva.controle_de_remedios.shared.exceptions;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,10 +28,10 @@ public class GlobalExceptionHandler {
                                 "error",
                                 ex.getMessage(),
                                 null,
-                                new ApiError(
+                                List.of(new ApiError(
                                                 ex.getCode(),
                                                 ex.getField(),
-                                                ex.getDetail()));
+                                                ex.getDetail())));
 
                 return ResponseEntity
                                 .status(ex.getStatus())
@@ -42,19 +41,15 @@ public class GlobalExceptionHandler {
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ApiExceptionResponse> handleValidationException(MethodArgumentNotValidException ex) {
 
-                String field = ex.getBindingResult().getFieldErrors().stream()
-                                .map(FieldError::getField)
-                                .collect(Collectors.joining(", "));
-
-                String detail = ex.getBindingResult().getFieldErrors().stream()
-                                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                                .collect(Collectors.joining("; "));
+                List<ApiError> errors = ex.getBindingResult().getFieldErrors().stream()
+                                .map(error -> new ApiError("VALIDATION_ERROR", error.getField(), error.getDefaultMessage()))
+                                .toList();
 
                 ApiExceptionResponse response = new ApiExceptionResponse(
                                 "error",
                                 "Erro de validação",
                                 null,
-                                new ApiError("VALIDATION_ERROR", field, detail));
+                                errors);
 
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
@@ -70,11 +65,11 @@ public class GlobalExceptionHandler {
                                 "error",
                                 "Parâmetro inválido",
                                 null,
-                                new ApiError(
+                                List.of(new ApiError(
                                                 "INVALID_PARAMETER",
                                                 ex.getName(),
                                                 "O valor '" + ex.getValue() + "' informado para '" + ex.getName()
-                                                                + "' é inválido. Era esperado um valor do tipo " + requiredType + "."));
+                                                                + "' é inválido. Era esperado um valor do tipo " + requiredType + ".")));
 
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
@@ -89,10 +84,10 @@ public class GlobalExceptionHandler {
                                 "error",
                                 "Parâmetro obrigatório ausente",
                                 null,
-                                new ApiError(
+                                List.of(new ApiError(
                                                 "MISSING_PARAMETER",
                                                 ex.getParameterName(),
-                                                "O parâmetro '" + ex.getParameterName() + "' é obrigatório."));
+                                                "O parâmetro '" + ex.getParameterName() + "' é obrigatório.")));
 
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
@@ -107,10 +102,10 @@ public class GlobalExceptionHandler {
                                 "error",
                                 "Requisição inválida",
                                 null,
-                                new ApiError(
+                                List.of(new ApiError(
                                                 "MALFORMED_REQUEST_BODY",
                                                 null,
-                                                "O corpo da requisição está ausente ou mal formatado."));
+                                                "O corpo da requisição está ausente ou mal formatado.")));
 
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
@@ -125,10 +120,10 @@ public class GlobalExceptionHandler {
                                 "error",
                                 "Método não permitido",
                                 null,
-                                new ApiError(
+                                List.of(new ApiError(
                                                 "METHOD_NOT_ALLOWED",
                                                 null,
-                                                "O método '" + ex.getMethod() + "' não é suportado para este recurso."));
+                                                "O método '" + ex.getMethod() + "' não é suportado para este recurso.")));
 
                 return ResponseEntity
                                 .status(HttpStatus.METHOD_NOT_ALLOWED)
@@ -143,10 +138,10 @@ public class GlobalExceptionHandler {
                                 "error",
                                 "Tipo de mídia não suportado",
                                 null,
-                                new ApiError(
+                                List.of(new ApiError(
                                                 "UNSUPPORTED_MEDIA_TYPE",
                                                 "Content-Type",
-                                                "O tipo de conteúdo informado não é suportado por este recurso."));
+                                                "O tipo de conteúdo informado não é suportado por este recurso.")));
 
                 return ResponseEntity
                                 .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
@@ -160,10 +155,10 @@ public class GlobalExceptionHandler {
                                 "error",
                                 "Recurso não encontrado",
                                 null,
-                                new ApiError(
+                                List.of(new ApiError(
                                                 "NOT_FOUND",
                                                 null,
-                                                "Não foi possível encontrar o recurso solicitado."));
+                                                "Não foi possível encontrar o recurso solicitado.")));
 
                 return ResponseEntity
                                 .status(HttpStatus.NOT_FOUND)
@@ -178,10 +173,10 @@ public class GlobalExceptionHandler {
                                 "error",
                                 "Conflito de dados",
                                 null,
-                                new ApiError(
+                                List.of(new ApiError(
                                                 "DATA_INTEGRITY_CONFLICT",
                                                 null,
-                                                "Os dados informados conflitam com um registro já existente."));
+                                                "Os dados informados conflitam com um registro já existente.")));
 
                 return ResponseEntity
                                 .status(HttpStatus.CONFLICT)
@@ -196,10 +191,10 @@ public class GlobalExceptionHandler {
                                 "error",
                                 "Erro interno do servidor",
                                 null,
-                                new ApiError(
+                                List.of(new ApiError(
                                                 "INTERNAL_SERVER_ERROR",
                                                 null,
-                                                "Ocorreu um erro inesperado. Tente novamente mais tarde."));
+                                                "Ocorreu um erro inesperado. Tente novamente mais tarde.")));
 
                 return ResponseEntity
                                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

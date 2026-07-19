@@ -1,4 +1,4 @@
-<div class="item-row card">
+<div class="item-row card" [class.item-row--error]="!!errorMessage()">
     <div class="card-body item-row__body">
         <div class="item-row__header">
             <span class="item-row__title">Item {{ index() + 1 }}</span>
@@ -14,6 +14,10 @@
                 </button>
             }
         </div>
+
+        @if (errorMessage()) {
+            <span class="field__error">{{ errorMessage() }}</span>
+        }
 
         <app-medicine-picker (medicineSelected)="onMedicineSelected($event)" (cleared)="onMedicineCleared()" />
 

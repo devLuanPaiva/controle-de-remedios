@@ -11,7 +11,8 @@ import { PatientPicker } from '../patient-picker/patient-picker';
 import { PrescriptionItemCreateRow } from '../prescription-item-create-row/prescription-item-create-row';
 import { CreatePrescriptionItemRequest } from '../../models/prescription-item-api.model';
 import * as PrescriptionActions from '../../store/prescription.actions';
-import { selectPrescriptionsMutating } from '../../store/prescription.selectors';
+import { selectCreatePrescriptionErrors, selectPrescriptionsMutating } from '../../store/prescription.selectors';
+import { mapItemFieldErrors } from '../../utils/item-field-errors.util';
 
 @Component({
     selector: 'app-prescription-create-form',
@@ -26,6 +27,8 @@ export class PrescriptionCreateForm {
     readonly maxIssueDate = toDateInputValue(new Date());
 
     readonly mutating = this.store.selectSignal(selectPrescriptionsMutating);
+    readonly createErrors = this.store.selectSignal(selectCreatePrescriptionErrors);
+    readonly itemErrors = computed(() => mapItemFieldErrors(this.createErrors()));
 
     readonly model = signal({
         patientId: '',

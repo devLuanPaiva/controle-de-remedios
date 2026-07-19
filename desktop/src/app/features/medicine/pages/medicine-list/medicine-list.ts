@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import { selectSelectedCompanyId } from '@features/company/store/company.selectors';
 import { ImageFallback } from '@shared/ui/image-fallback/image-fallback';
+import { NotFound } from '@shared/ui/not-found/not-found';
 import { Pagination } from '@shared/ui/pagination/pagination';
 import { ViewMode, ViewToggle } from '@shared/ui/view-toggle/view-toggle';
 
@@ -24,7 +25,7 @@ const EMPTY_FILTER_FORM: MedicineListFilterForm = {
 
 @Component({
     selector: 'app-medicine-list',
-    imports: [RouterLink, Pagination, ViewToggle, MedicineCreateModal, ImageFallback],
+    imports: [RouterLink, Pagination, ViewToggle, MedicineCreateModal, ImageFallback, NotFound],
     templateUrl: './medicine-list.html',
     styleUrl: './medicine-list.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +43,15 @@ export class MedicineList {
     readonly viewMode = signal<ViewMode>('cards');
     readonly filterForm = signal<MedicineListFilterForm>({ ...EMPTY_FILTER_FORM });
     readonly showCreateModal = signal(false);
+
+    readonly hasActiveFilters = computed(() => {
+        const form = this.filterForm();
+        return !!(form.name || form.eanCode);
+    });
+
+    readonly showNotFound = computed(
+        () => !this.loading() && !this.error() && this.pagination().count === 0 && !this.hasActiveFilters(),
+    );
 
     private readonly requestedPage = signal(0);
 

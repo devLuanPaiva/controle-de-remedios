@@ -1,0 +1,12 @@
+<main class="public-not-found">
+    <div class="public-not-found__background" aria-hidden="true"></div>
+
+    <app-auth-card subtitle="A página que você tentou acessar não existe.">
+        <app-not-found
+            icon="page"
+            message="Verifique o endereço digitado ou volte para a tela de login."
+            actionLabel="Ir para o login"
+            (action)="goToLogin()"
+        />
+    </app-auth-card>
+</main>

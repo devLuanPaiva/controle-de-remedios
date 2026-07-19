@@ -49,7 +49,7 @@ function buildHttpError(detail: string): HttpErrorResponse {
             status: 'error',
             message: 'Erro de validação',
             data: null,
-            errors: { code: 'VALIDATION_ERROR', field: null, detail },
+            errors: [{ code: 'VALIDATION_ERROR', field: null, detail }],
         },
     });
 }

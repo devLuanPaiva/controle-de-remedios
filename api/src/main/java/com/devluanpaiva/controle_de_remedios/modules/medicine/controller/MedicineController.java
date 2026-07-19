@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.CreateMedicineRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.MedicineResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.UpdateMedicineRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.service.MedicineService;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponse;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponseFactory;
@@ -29,5 +30,11 @@ public class MedicineController {
     @GetMapping("/{id}")
     public ApiResponse<MedicineResponseDTO> getMedicineById(@PathVariable UUID id) {
         return ApiResponseFactory.success("Medicamento encontrado com sucesso", medicineService.getMedicineById(id));
+    }
+
+    @PatchMapping("/{id}")
+    public ApiResponse<MedicineResponseDTO> updateMedicine(@PathVariable UUID id,
+            @RequestBody @Valid UpdateMedicineRequestDTO dto) {
+        return ApiResponseFactory.success("Medicamento atualizado com sucesso", medicineService.updateMedicine(id, dto));
     }
 }

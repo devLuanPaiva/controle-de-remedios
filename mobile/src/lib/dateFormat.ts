@@ -49,3 +49,26 @@ export function isPastOrPresentBrDate(value: string): boolean {
 
     return date <= today;
 }
+
+export function formatDateBr(date: Date): string {
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const year = date.getUTCFullYear();
+
+    return `${day}/${month}/${year}`;
+}
+
+export function formatTimeBr(date: Date): string {
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${hours}:${minutes}`;
+}
+
+export function todayIso(): string {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    return `${now.getFullYear()}-${month}-${day}`;
+}

@@ -11,6 +11,7 @@ import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.CreateMedicineRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.MedicineResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.medicine.dto.UpdateMedicineRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.mapper.MedicineMapper;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
@@ -57,6 +58,26 @@ public class MedicineServiceImpl implements MedicineService {
         assertCanManage(actor, medicine.getCompany().getId());
 
         return medicineMapper.toResponseDTO(medicine);
+    }
+
+    @Override
+    @Transactional
+    public MedicineResponseDTO updateMedicine(UUID id, UpdateMedicineRequestDTO dto) {
+        User actor = securityContextHelper.getCurrentUser();
+        Medicine medicine = findMedicineOrThrow(id);
+
+        assertCanManage(actor, medicine.getCompany().getId());
+
+        if (dto.name() != null) {
+            medicine.setName(dto.name());
+        }
+
+        if (dto.imageUrl() != null) {
+            medicine.setImageUrl(dto.imageUrl());
+        }
+
+        Medicine updatedMedicine = medicineRepository.save(medicine);
+        return medicineMapper.toResponseDTO(updatedMedicine);
     }
 
     private void assertCanManage(User actor, UUID companyId) {

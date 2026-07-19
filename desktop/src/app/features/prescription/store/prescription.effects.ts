@@ -5,7 +5,7 @@ import { catchError, exhaustMap, map, mergeMap, of, switchMap, tap } from 'rxjs'
 
 import { ToastType } from '@core/ui/toast/models/toast.model';
 import { ToastService } from '@core/ui/toast/service/toast.service';
-import { extractErrorMessage } from '@shared/utils/api-error.util';
+import { extractErrorMessage, extractErrors } from '@shared/utils/api-error.util';
 
 import { PrescriptionService } from '../services/prescription.service';
 import * as PrescriptionActions from './prescription.actions';
@@ -90,6 +90,7 @@ export class PrescriptionEffects {
                         of(
                             PrescriptionActions.createPrescriptionFailure({
                                 message: extractErrorMessage(error, 'Erro ao criar receituário.'),
+                                errors: extractErrors(error),
                             }),
                         ),
                     ),

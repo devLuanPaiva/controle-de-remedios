@@ -9,11 +9,14 @@ import { usePrescriptionScan } from "@/data/contexts/PrescriptionScanContext";
 import { ApiRequestError } from "@/lib/apiFetch";
 import { createPrescription } from "@/data/services/prescription.service";
 import { IPatient } from "@/data/models/patient.model";
+import { toCreatePrescriptionItemRequest } from "@/data/models/prescription-item.model";
 import { brToIso, isPastOrPresentBrDate, isValidBrDate, isoToBr } from "@/lib/dateFormat";
+import { usePrescriptionItems } from "@/features/prescriptions/hooks/usePrescriptionItems";
+import { mapItemFieldErrors } from "@/features/prescriptions/utils/itemFieldErrors";
 import { ExtractionBanner } from "@/features/prescriptions/components/ExtractionBanner";
 import { PatientSearchField } from "@/features/prescriptions/components/PatientSearchField";
 import { IssueDateField } from "@/features/prescriptions/components/IssueDateField";
-import { MedicationsReadOnlyList } from "@/features/prescriptions/components/MedicationsReadOnlyList";
+import { PrescriptionItemsSection } from "@/features/prescriptions/components/PrescriptionItemsSection";
 import { UploadedImagesRow } from "@/features/prescriptions/components/UploadedImagesRow";
 
 export default function PrescriptionReview() {
@@ -24,6 +27,9 @@ export default function PrescriptionReview() {
     const [issueDateBr, setIssueDateBr] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
+    const [itemErrors, setItemErrors] = useState<Record<string, string>>({});
+
+    const { items, initializeFromExtraction, addItem, updateItem, removeItem } = usePrescriptionItems();
 
     useEffect(() => {
         if (!uploadedImageUrls) {
@@ -37,13 +43,18 @@ export default function PrescriptionReview() {
         }
     }, [extraction]);
 
+    useEffect(() => {
+        if (extraction?.status === "success") {
+            initializeFromExtraction(extraction.data.medications);
+        }
+    }, [extraction, initializeFromExtraction]);
+
     if (!uploadedImageUrls) {
         return <View style={styles.container} />;
     }
 
     const extractedPatientName = extraction?.status === "success" ? (extraction.data.patientName ?? "") : "";
-    const medications = extraction?.status === "success" ? extraction.data.medications : [];
-    const canSubmit = Boolean(selectedPatient) && isValidBrDate(issueDateBr) && !isSubmitting;
+    const canSubmit = Boolean(selectedPatient) && isValidBrDate(issueDateBr) && items.length > 0 && !isSubmitting;
 
     async function handleSubmit() {
         if (!selectedPatient) {
@@ -61,14 +72,21 @@ export default function PrescriptionReview() {
             return;
         }
 
+        if (items.length === 0) {
+            setFormError("Adicione ao menos um medicamento à receita.");
+            return;
+        }
+
         try {
             setFormError(null);
+            setItemErrors({});
             setIsSubmitting(true);
 
             await createPrescription({
                 patientId: selectedPatient.id,
                 issueDate: brToIso(issueDateBr),
                 imageUrls: uploadedImageUrls ?? undefined,
+                items: items.map(toCreatePrescriptionItemRequest),
             });
 
             Alert.alert("Sucesso", "Receita cadastrada com sucesso.", [
@@ -81,7 +99,12 @@ export default function PrescriptionReview() {
                 },
             ]);
         } catch (err) {
-            setFormError(err instanceof ApiRequestError ? err.message : "Não foi possível cadastrar a receita.");
+            if (err instanceof ApiRequestError) {
+                setFormError(err.message);
+                setItemErrors(mapItemFieldErrors(err.errors, items));
+            } else {
+                setFormError("Não foi possível cadastrar a receita.");
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -129,7 +152,13 @@ export default function PrescriptionReview() {
 
                 <IssueDateField value={issueDateBr} onChange={setIssueDateBr} />
 
-                <MedicationsReadOnlyList medications={medications} />
+                <PrescriptionItemsSection
+                    items={items}
+                    onAdd={addItem}
+                    onUpdate={updateItem}
+                    onRemove={removeItem}
+                    itemErrors={itemErrors}
+                />
 
                 <UploadedImagesRow imageUrls={uploadedImageUrls} />
 

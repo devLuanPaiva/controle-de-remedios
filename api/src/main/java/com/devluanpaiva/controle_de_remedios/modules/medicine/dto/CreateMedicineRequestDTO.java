@@ -9,6 +9,6 @@ import jakarta.validation.constraints.Size;
 public record CreateMedicineRequestDTO(
         @NotBlank @Size(max = 200) String name,
         @NotBlank @Size(max = 14) String eanCode,
-        @NotBlank @Size(max = 200) String imageUrl,
+        @Size(max = 200) String imageUrl,
         @NotNull UUID companyId) {
 }

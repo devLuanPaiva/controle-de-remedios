@@ -9,9 +9,11 @@ import org.springframework.data.domain.Pageable;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.CreateDeliveryRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.DeliveryResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.EligiblePrescriptionResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.PendingDeliveryItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.PendingQueueItemResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.dto.ReserveStockRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.DeliveryFilter;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.PendingDeliveryItemFilter;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.PrescriptionItemResponseDTO;
 
 public interface DeliveryService {
@@ -24,6 +26,8 @@ public interface DeliveryService {
     DeliveryResponseDTO getDeliveryById(UUID id);
 
     Page<DeliveryResponseDTO> listDeliveries(DeliveryFilter filter, Pageable pageable);
+
+    Page<PendingDeliveryItemResponseDTO> listPendingDeliveryItems(PendingDeliveryItemFilter filter, Pageable pageable);
 
     List<PendingQueueItemResponseDTO> getPendingQueue(UUID medicineId);
 

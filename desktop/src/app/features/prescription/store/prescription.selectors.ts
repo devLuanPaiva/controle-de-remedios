@@ -12,6 +12,8 @@ export const selectPrescriptionsError = createSelector(selectPrescriptionState, 
 
 export const selectPrescriptionsMutating = createSelector(selectPrescriptionState, (state) => state.mutating);
 
+export const selectCreatePrescriptionErrors = createSelector(selectPrescriptionState, (state) => state.createErrors);
+
 export const selectPrescriptionsPagination = createSelector(selectPrescriptionState, (state) => ({
     count: state.count,
     currentPage: state.currentPage,

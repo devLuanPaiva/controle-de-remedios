@@ -74,6 +74,7 @@ function buildPayload(model: ItemRowModel): CreatePrescriptionItemRequest | null
 export class PrescriptionItemCreateRow {
     readonly index = input.required<number>();
     readonly canRemove = input(true);
+    readonly errorMessage = input<string | undefined>(undefined);
 
     readonly itemChanged = output<CreatePrescriptionItemRequest | null>();
     readonly removed = output<void>();

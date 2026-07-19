@@ -39,6 +39,11 @@ public class MedicineResolutionService {
         if (similarWithoutEanCode.isPresent()) {
             Medicine medicine = similarWithoutEanCode.get();
             medicine.setEanCode(eanCode);
+
+            if (StringUtils.hasText(imageUrl)) {
+                medicine.setImageUrl(imageUrl);
+            }
+
             return medicineRepository.save(medicine);
         }
 
@@ -55,14 +60,6 @@ public class MedicineResolutionService {
     }
 
     private Medicine createMedicine(Company company, String name, String eanCode, String imageUrl) {
-        if (!StringUtils.hasText(imageUrl)) {
-            throw new BusinessException(
-                    HttpStatus.UNPROCESSABLE_CONTENT,
-                    "Imagem do medicamento obrigatória",
-                    "MEDICINE_IMAGE_REQUIRED",
-                    "medicine.imageUrl",
-                    "Informe a imagem para cadastrar um novo medicamento.");
-        }
 
         return medicineRepository.save(Medicine.builder()
                 .name(name)
