@@ -1,0 +1,11 @@
+{
+	email {$ACME_EMAIL}
+}
+
+api.chegamed.com.br {
+	reverse_proxy api:8080
+}
+
+n8n.chegamed.com.br {
+	reverse_proxy n8n:5678
+}
