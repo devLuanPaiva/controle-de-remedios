@@ -12,6 +12,9 @@ import org.springframework.web.client.RestClientException;
 
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class N8nAssistantClient {
     private static final String INTERNAL_SECRET_HEADER = "X-Internal-Secret";
@@ -48,6 +51,7 @@ public class N8nAssistantClient {
 
             return response.answer();
         } catch (RestClientException ex) {
+            log.error("Falha ao chamar o webhook do assistente em '{}'", webhookUrl, ex);
             throw assistantUnavailable();
         }
     }
