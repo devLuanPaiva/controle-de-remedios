@@ -26,6 +26,7 @@ import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.DeliverySpe
 import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.PendingDeliveryItemFilter;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.PendingDeliveryItemSpecification;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.mapper.DeliveryMapper;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.mapper.PendingDeliveryItemMapper;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.repository.DeliveryRepository;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.service.DeliveryService;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
@@ -64,6 +65,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         private final MedicineRepository medicineRepository;
         private final CompanyRepository companyRepository;
         private final DeliveryMapper deliveryMapper;
+        private final PendingDeliveryItemMapper pendingDeliveryItemMapper;
         private final PrescriptionItemMapper prescriptionItemMapper;
         private final MedicineMovementService medicineMovementService;
         private final SecurityContextHelper securityContextHelper;
@@ -252,21 +254,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 .and(PendingDeliveryItemSpecification.hasPatientCpf(filter.patientCpf()));
 
                 return prescriptionItemRepository.findAll(specification, pageable)
-                                .map(this::toPendingDeliveryItemResponseDTO);
-        }
-
-        private PendingDeliveryItemResponseDTO toPendingDeliveryItemResponseDTO(PrescriptionItem item) {
-                Prescription prescription = item.getPrescription();
-
-                return new PendingDeliveryItemResponseDTO(
-                                item.getId(),
-                                prescription.getId(),
-                                prescription.getPatient().getId(),
-                                prescription.getPatient().getName(),
-                                prescription.getIssueDate(),
-                                item.getMedicine().getName(),
-                                item.getUnityType(),
-                                item.getPrescribedQuantity());
+                                .map(pendingDeliveryItemMapper::toResponseDTO);
         }
 
         @Override

@@ -36,3 +36,7 @@ aws:
   s3:
     bucket: ${AWS_S3_BUCKET:}
     public-base-url: ${AWS_S3_PUBLIC_BASE_URL:}
+
+assistant:
+  n8n-webhook-url: ${N8N_WEBHOOK_URL:http://localhost:5678/webhook/assistant}
+  internal-secret: ${ASSISTANT_INTERNAL_SECRET:}

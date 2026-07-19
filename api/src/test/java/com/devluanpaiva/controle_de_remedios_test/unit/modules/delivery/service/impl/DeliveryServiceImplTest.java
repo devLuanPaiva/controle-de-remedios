@@ -36,6 +36,7 @@ import com.devluanpaiva.controle_de_remedios.modules.delivery.entity.Delivery;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.DeliveryFilter;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.filter.PendingDeliveryItemFilter;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.mapper.DeliveryMapper;
+import com.devluanpaiva.controle_de_remedios.modules.delivery.mapper.PendingDeliveryItemMapper;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.repository.DeliveryRepository;
 import com.devluanpaiva.controle_de_remedios.modules.delivery.service.impl.DeliveryServiceImpl;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
@@ -91,7 +92,7 @@ class DeliveryServiceImplTest {
     void setUp() {
         deliveryService = new DeliveryServiceImpl(
                 deliveryRepository, prescriptionItemRepository, prescriptionRepository, patientRepository,
-                medicineRepository, companyRepository, new DeliveryMapper(),
+                medicineRepository, companyRepository, new DeliveryMapper(), new PendingDeliveryItemMapper(),
                 new PrescriptionItemMapper(new MedicineMapper()), medicineMovementService, securityContextHelper,
                 new AuthorizationPolicy());
     }
