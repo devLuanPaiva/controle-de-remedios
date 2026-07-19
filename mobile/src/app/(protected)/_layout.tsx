@@ -50,6 +50,7 @@ export default function ProtectedLayout() {
                     }}
                 />
                 <Tabs.Screen name="prescriptions" options={{ href: null }} />
+                <Tabs.Screen name="patients" options={{ href: null }} />
                 <Tabs.Screen name="medicines" options={{ href: null }} />
                 <Tabs.Screen name="deliveries" options={{ href: null }} />
                 <Tabs.Screen name="assistant" options={{ href: null }} />
