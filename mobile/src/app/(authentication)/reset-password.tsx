@@ -1,6 +1,3 @@
-import { useAuth } from "@/data/contexts/AuthContext";
-import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
-import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useRef, useState } from "react";
 import {
     ActivityIndicator,
@@ -17,40 +14,45 @@ import {
 import { Image } from "expo-image";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AlertCircle, CheckCircle2, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
+import { useLocalSearchParams, useRouter, type Href } from "expo-router";
+import { AlertCircle, Eye, EyeOff, KeyRound, Lock } from "lucide-react-native";
+
 import { Wave } from "@/components/shared/Wave";
+import { BackButton } from "@/components/shared/BackButton";
+import { useResetPassword } from "@/features/auth/hooks/useResetPassword";
+import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
 
-export default function SignIn() {
-    const { login } = useAuth();
+export default function ResetPassword() {
     const router = useRouter();
-    const { resetSuccess } = useLocalSearchParams<{ resetSuccess?: string }>();
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [secure, setSecure] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [focusedInput, setFocusedInput] = useState<string | null>(null);
+    const { token: tokenParam } = useLocalSearchParams<{ token?: string }>();
 
-    const usernameInputRef = useRef<TextInput>(null);
-    const passwordInputRef = useRef<TextInput>(null);
+    const {
+        token,
+        setToken,
+        newPassword,
+        setNewPassword,
+        confirmPassword,
+        setConfirmPassword,
+        isSubmitting,
+        formError,
+        formErrorField,
+        submit,
+    } = useResetPassword({
+        initialToken: tokenParam ?? "",
+        onSuccess: () => {
+            router.replace({
+                pathname: "/(authentication)/signIn",
+                params: { resetSuccess: "1" },
+            } as unknown as Href);
+        },
+    });
 
-    async function handleLogin() {
-        if (!username.trim() || !password.trim()) {
-            setError("Preencha nome de usuário e senha.");
-            return;
-        }
+    const tokenInputRef = useRef<TextInput>(null);
+    const newPasswordInputRef = useRef<TextInput>(null);
+    const confirmPasswordInputRef = useRef<TextInput>(null);
 
-        try {
-            setError(null);
-            setIsLoading(true);
-            await login(username.trim(), password);
-            router.replace("/(protected)/home");
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "Erro ao realizar login.");
-        } finally {
-            setIsLoading(false);
-        }
-    }
+    const [secureNewPassword, setSecureNewPassword] = useState(true);
+    const [secureConfirmPassword, setSecureConfirmPassword] = useState(true);
 
     return (
         <KeyboardAvoidingView
@@ -60,6 +62,10 @@ export default function SignIn() {
             <StatusBar style="light" />
 
             <View style={styles.header}>
+                <View style={styles.backButtonWrapper}>
+                    <BackButton variant="onDark" />
+                </View>
+
                 <View style={styles.logoBadge}>
                     <Image
                         source={require("../../../assets/logos/icon-logo-white.png")}
@@ -67,7 +73,7 @@ export default function SignIn() {
                         contentFit="contain"
                     />
                 </View>
-                <Wave style={styles.wave}  />
+                <Wave style={styles.wave} />
             </View>
 
             <ScrollView
@@ -79,85 +85,111 @@ export default function SignIn() {
             >
                 <SafeAreaView style={styles.content} edges={[]}>
                     <View style={styles.textBlock}>
-                        <Text style={styles.title}>Bem-vindo de volta</Text>
+                        <Text style={styles.title}>Redefinir senha</Text>
                         <Text style={styles.subtitle}>
-                            Entre com sua conta para continuar
+                            Informe o código recebido por e-mail e escolha uma nova senha.
                         </Text>
                     </View>
 
-                    {resetSuccess ? (
-                        <View style={styles.successBox}>
-                            <CheckCircle2 size={18} color={Colors.success} />
-                            <Text style={styles.successText}>Senha redefinida com sucesso. Faça login para continuar.</Text>
-                        </View>
-                    ) : null}
-
-                    {error ? (
+                    {formError ? (
                         <View style={styles.errorBox}>
                             <AlertCircle size={18} color={Colors.danger} />
-                            <Text style={styles.errorText}>{error}</Text>
+                            <Text style={styles.errorText}>{formError}</Text>
                         </View>
                     ) : null}
 
                     <View style={styles.form}>
                         <View style={styles.inputGroup}>
-                            <Text style={styles.label}>E-mail</Text>
+                            <Text style={styles.label}>Código de redefinição</Text>
                             <Pressable
-                                onPress={() => usernameInputRef.current?.focus()}
+                                onPress={() => tokenInputRef.current?.focus()}
                                 style={[
                                     styles.inputWrapper,
-                                    focusedInput === "username" && styles.inputWrapperFocused,
+                                    formErrorField === "token" && styles.inputWrapperError,
                                 ]}
                             >
-                                <Mail size={18} color={Colors.textSecondary} />
+                                <KeyRound size={18} color={Colors.textSecondary} />
                                 <TextInput
-                                    ref={usernameInputRef}
+                                    ref={tokenInputRef}
                                     style={styles.input}
-                                    placeholder="Digite seu e-mail"
+                                    placeholder="Cole aqui o código recebido"
                                     placeholderTextColor={Colors.textSecondary}
-                                    value={username}
-                                    onChangeText={setUsername}
-                                    onFocus={() => setFocusedInput("username")}
-                                    onBlur={() => setFocusedInput(null)}
+                                    value={token}
+                                    onChangeText={setToken}
                                     autoCapitalize="none"
                                     autoCorrect={false}
-                                    editable={!isLoading}
-                                    accessibilityLabel="Usuário"
+                                    editable={!isSubmitting}
+                                    accessibilityLabel="Código de redefinição"
                                 />
                             </Pressable>
                         </View>
 
                         <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Senha</Text>
+                            <Text style={styles.label}>Nova senha</Text>
                             <Pressable
-                                onPress={() => passwordInputRef.current?.focus()}
+                                onPress={() => newPasswordInputRef.current?.focus()}
                                 style={[
                                     styles.inputWrapper,
-                                    focusedInput === "password" && styles.inputWrapperFocused,
+                                    formErrorField === "newPassword" && styles.inputWrapperError,
                                 ]}
                             >
                                 <Lock size={18} color={Colors.textSecondary} />
                                 <TextInput
-                                    ref={passwordInputRef}
+                                    ref={newPasswordInputRef}
                                     style={styles.input}
-                                    placeholder="Digite sua senha"
+                                    placeholder="Digite a nova senha"
                                     placeholderTextColor={Colors.textSecondary}
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    onFocus={() => setFocusedInput("password")}
-                                    onBlur={() => setFocusedInput(null)}
-                                    secureTextEntry={secure}
-                                    editable={!isLoading}
-                                    accessibilityLabel="Senha"
+                                    value={newPassword}
+                                    onChangeText={setNewPassword}
+                                    secureTextEntry={secureNewPassword}
+                                    editable={!isSubmitting}
+                                    accessibilityLabel="Nova senha"
                                 />
                                 <TouchableOpacity
                                     style={styles.passwordToggle}
-                                    onPress={() => setSecure((prev) => !prev)}
+                                    onPress={() => setSecureNewPassword((prev) => !prev)}
                                     hitSlop={10}
                                     accessibilityRole="button"
-                                    accessibilityLabel={secure ? "Mostrar senha" : "Ocultar senha"}
+                                    accessibilityLabel={secureNewPassword ? "Mostrar senha" : "Ocultar senha"}
                                 >
-                                    {secure ? (
+                                    {secureNewPassword ? (
+                                        <EyeOff size={18} color={Colors.textSecondary} />
+                                    ) : (
+                                        <Eye size={18} color={Colors.textSecondary} />
+                                    )}
+                                </TouchableOpacity>
+                            </Pressable>
+                        </View>
+
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Confirmar nova senha</Text>
+                            <Pressable
+                                onPress={() => confirmPasswordInputRef.current?.focus()}
+                                style={[
+                                    styles.inputWrapper,
+                                    formErrorField === "confirmPassword" && styles.inputWrapperError,
+                                ]}
+                            >
+                                <Lock size={18} color={Colors.textSecondary} />
+                                <TextInput
+                                    ref={confirmPasswordInputRef}
+                                    style={styles.input}
+                                    placeholder="Confirme a nova senha"
+                                    placeholderTextColor={Colors.textSecondary}
+                                    value={confirmPassword}
+                                    onChangeText={setConfirmPassword}
+                                    secureTextEntry={secureConfirmPassword}
+                                    editable={!isSubmitting}
+                                    accessibilityLabel="Confirmar nova senha"
+                                />
+                                <TouchableOpacity
+                                    style={styles.passwordToggle}
+                                    onPress={() => setSecureConfirmPassword((prev) => !prev)}
+                                    hitSlop={10}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={secureConfirmPassword ? "Mostrar senha" : "Ocultar senha"}
+                                >
+                                    {secureConfirmPassword ? (
                                         <EyeOff size={18} color={Colors.textSecondary} />
                                     ) : (
                                         <Eye size={18} color={Colors.textSecondary} />
@@ -167,26 +199,17 @@ export default function SignIn() {
                         </View>
 
                         <TouchableOpacity
-                            style={styles.forgotPasswordLink}
-                            onPress={() => router.push("/(authentication)/forgot-password" as Href)}
-                            accessibilityRole="button"
-                            accessibilityLabel="Esqueci minha senha"
-                        >
-                            <Text style={styles.forgotPasswordText}>Esqueci minha senha?</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.button, isLoading && styles.buttonDisabled]}
+                            style={[styles.button, isSubmitting && styles.buttonDisabled]}
                             activeOpacity={0.85}
-                            onPress={handleLogin}
-                            disabled={isLoading}
+                            onPress={submit}
+                            disabled={isSubmitting}
                             accessibilityRole="button"
-                            accessibilityLabel="Entrar"
+                            accessibilityLabel="Redefinir senha"
                         >
-                            {isLoading ? (
+                            {isSubmitting ? (
                                 <ActivityIndicator color={Colors.white} />
                             ) : (
-                                <Text style={styles.buttonText}>Entrar</Text>
+                                <Text style={styles.buttonText}>Redefinir senha</Text>
                             )}
                         </TouchableOpacity>
                     </View>
@@ -211,6 +234,13 @@ const styles = StyleSheet.create({
         overflow: "hidden",
     },
 
+    backButtonWrapper: {
+        position: "absolute",
+        top: Spacing[10],
+        left: Spacing.xl,
+        zIndex: 1,
+    },
+
     logoBadge: {
         width: 88,
         height: 88,
@@ -224,7 +254,6 @@ const styles = StyleSheet.create({
     logo: {
         width: 56,
         height: 56,
-        
     },
 
     wave: {
@@ -281,26 +310,6 @@ const styles = StyleSheet.create({
         color: Colors.danger,
     },
 
-    successBox: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: Spacing.sm,
-        backgroundColor: `${Colors.success}1A`,
-        borderWidth: 1,
-        borderColor: `${Colors.success}40`,
-        borderRadius: Radius.lg,
-        paddingHorizontal: Spacing.base,
-        paddingVertical: Spacing.md,
-        marginBottom: Spacing.lg,
-    },
-
-    successText: {
-        flex: 1,
-        fontFamily: Typography.fonts.bodyMedium,
-        fontSize: Typography.sizes.sm,
-        color: Colors.success,
-    },
-
     form: {
         gap: Spacing.lg,
     },
@@ -327,9 +336,8 @@ const styles = StyleSheet.create({
         height: 54,
     },
 
-    inputWrapperFocused: {
-        borderColor: Colors.primary,
-        ...Shadows.sm,
+    inputWrapperError: {
+        borderColor: Colors.danger,
     },
 
     input: {
@@ -344,16 +352,6 @@ const styles = StyleSheet.create({
         padding: Spacing.xs,
         alignItems: "center",
         justifyContent: "center",
-    },
-
-    forgotPasswordLink: {
-        alignSelf: "flex-end",
-    },
-
-    forgotPasswordText: {
-        fontFamily: Typography.fonts.bodyMedium,
-        fontSize: Typography.sizes.sm,
-        color: Colors.primary,
     },
 
     button: {
