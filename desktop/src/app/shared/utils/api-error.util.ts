@@ -32,3 +32,7 @@ export function extractErrorMessage(error: unknown, fallback: string): string {
 
     return errors.map(formatErrorDetail).join('; ');
 }
+
+export function fieldErrorMessage(errors: readonly ApiErrorDetail[] | null | undefined, field: string): string | null {
+    return errors?.find((error) => error.field === field)?.detail ?? null;
+}

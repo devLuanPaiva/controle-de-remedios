@@ -23,3 +23,38 @@ export const selectAuthLoading =
         selectAuthState,
         state => state.loading
     );
+
+export const selectForgotPasswordLoading = createSelector(
+    selectAuthState,
+    state => state.forgotPasswordLoading
+);
+
+export const selectForgotPasswordSubmitted = createSelector(
+    selectAuthState,
+    state => state.forgotPasswordSubmitted
+);
+
+export const selectResetPasswordLoading = createSelector(
+    selectAuthState,
+    state => state.resetPasswordLoading
+);
+
+export const selectResetPasswordErrors = createSelector(
+    selectAuthState,
+    state => state.resetPasswordErrors
+);
+
+export const selectChangePasswordLoading = createSelector(
+    selectAuthState,
+    state => state.changePasswordLoading
+);
+
+export const selectChangePasswordErrors = createSelector(
+    selectAuthState,
+    state => state.changePasswordErrors
+);
+
+export const selectChangePasswordSuccess = createSelector(
+    selectAuthState,
+    state => state.changePasswordSuccess
+);
