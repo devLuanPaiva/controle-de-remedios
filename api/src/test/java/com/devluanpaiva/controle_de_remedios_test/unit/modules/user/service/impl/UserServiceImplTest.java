@@ -3,7 +3,9 @@ package com.devluanpaiva.controle_de_remedios_test.unit.modules.user.service.imp
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -31,9 +33,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
+import com.devluanpaiva.controle_de_remedios.modules.notification.service.EmailService;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.ChangePasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
@@ -65,13 +70,18 @@ class UserServiceImplTest {
     @Mock
     private SecurityContextHelper securityContextHelper;
 
+    @Mock
+    private EmailService emailService;
+
     private UserServiceImpl userService;
 
     @BeforeEach
     void setUp() {
         userService = new UserServiceImpl(
                 userRepository, companyRepository, new UserMapper(), passwordEncoder, securityContextHelper,
-                new AuthorizationPolicy());
+                new AuthorizationPolicy(), emailService);
+
+        ReflectionTestUtils.setField(userService, "webUrl", "https://chegamed.com.br");
     }
 
     private Company buildCompany() {
@@ -148,6 +158,23 @@ class UserServiceImplTest {
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
             verify(userRepository).save(userCaptor.capture());
             assertThat(userCaptor.getValue().getPassword()).isEqualTo("hashed-password");
+
+            verify(emailService).sendWelcomeEmail(userCaptor.getValue(), dto.password(), "https://chegamed.com.br");
+        }
+
+        @Test
+        @DisplayName("should not fail user creation when the welcome e-mail fails to be sent")
+        void shouldNotFailCreationWhenWelcomeEmailFails() {
+            when(userRepository.existsByEmail(dto.email())).thenReturn(false);
+            when(userRepository.existsByCpf(dto.cpf())).thenReturn(false);
+            when(passwordEncoder.encode(dto.password())).thenReturn("hashed-password");
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            doThrow(new RuntimeException("Resend indisponível"))
+                    .when(emailService).sendWelcomeEmail(any(), anyString(), anyString());
+
+            UserResponseDTO response = userService.createUser(dto);
+
+            assertThat(response.email()).isEqualTo(dto.email());
         }
 
         @Test
@@ -830,6 +857,70 @@ class UserServiceImplTest {
             userService.getAllUsers(NO_FILTER, pageable);
 
             verify(userRepository).findAll(any(Specification.class), eq(pageable));
+        }
+    }
+
+    @Nested
+    @DisplayName("changePassword")
+    class ChangePassword {
+
+        @Test
+        @DisplayName("should update the password when the current password is correct and confirmation matches")
+        void shouldUpdatePasswordWhenCurrentPasswordIsCorrect() {
+            User self = buildUser(UserRole.ASSISTANT);
+            ChangePasswordRequestDTO dto = new ChangePasswordRequestDTO("current-password", "new-password",
+                    "new-password");
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(self);
+            when(passwordEncoder.matches(dto.currentPassword(), self.getPassword())).thenReturn(true);
+            when(passwordEncoder.encode(dto.newPassword())).thenReturn("encoded-new-password");
+
+            userService.changePassword(dto);
+
+            assertThat(self.getPassword()).isEqualTo("encoded-new-password");
+            verify(userRepository).save(self);
+        }
+
+        @Test
+        @DisplayName("should throw 400 when the current password is incorrect")
+        void shouldThrowWhenCurrentPasswordIsIncorrect() {
+            User self = buildUser(UserRole.ASSISTANT);
+            ChangePasswordRequestDTO dto = new ChangePasswordRequestDTO("wrong-password", "new-password",
+                    "new-password");
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(self);
+            when(passwordEncoder.matches(dto.currentPassword(), self.getPassword())).thenReturn(false);
+
+            assertThatThrownBy(() -> userService.changePassword(dto))
+                    .isInstanceOf(BusinessException.class)
+                    .satisfies(ex -> {
+                        BusinessException businessException = (BusinessException) ex;
+                        assertThat(businessException.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+                        assertThat(businessException.getCode()).isEqualTo("CURRENT_PASSWORD_INVALID");
+                    });
+
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("should throw 400 when the new password and confirmation do not match")
+        void shouldThrowWhenNewPasswordAndConfirmationDoNotMatch() {
+            User self = buildUser(UserRole.ASSISTANT);
+            ChangePasswordRequestDTO dto = new ChangePasswordRequestDTO("current-password", "new-password",
+                    "different-password");
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(self);
+            when(passwordEncoder.matches(dto.currentPassword(), self.getPassword())).thenReturn(true);
+
+            assertThatThrownBy(() -> userService.changePassword(dto))
+                    .isInstanceOf(BusinessException.class)
+                    .satisfies(ex -> {
+                        BusinessException businessException = (BusinessException) ex;
+                        assertThat(businessException.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+                        assertThat(businessException.getCode()).isEqualTo("PASSWORD_MISMATCH");
+                    });
+
+            verify(userRepository, never()).save(any());
         }
     }
 
