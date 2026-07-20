@@ -1,8 +1,8 @@
 [package]
-name = "desktop"
+name = "ChegaMed"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "Projeto focado na entregua de medicamentos publicos em prefeituras. O mesmo tem o papel fundamental em controlar para que os pacientes recebam os medicamentos no tempo correto."
+authors = ["Luan Alves"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
