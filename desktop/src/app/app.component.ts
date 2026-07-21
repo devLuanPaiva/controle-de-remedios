@@ -1,7 +1,8 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { invoke } from "@tauri-apps/api/core";
 import { ToastContainer } from "@core/ui/toast/container/toast-container/toast-container";
+import { DeepLinkService } from "@core/services/deep-link.service";
 
 @Component({
   selector: "app-root",
@@ -10,7 +11,13 @@ import { ToastContainer } from "@core/ui/toast/container/toast-container/toast-c
   styleUrl: "./app.component.scss",
 })
 export class AppComponent {
+  private readonly deepLinkService = inject(DeepLinkService);
+
   greetingMessage = "";
+
+  constructor() {
+    this.deepLinkService.init();
+  }
 
   greet(event: SubmitEvent, name: string): void {
     event.preventDefault();
