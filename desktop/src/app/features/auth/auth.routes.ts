@@ -21,7 +21,8 @@ export const authRoutes: Routes = [
         children: [
             {
                 path: 'dashboard',
-                loadComponent: () => import('./pages/home/home').then(m => m.Home),
+                loadComponent: () =>
+                    import('@features/dashboard/pages/dashboard-page/dashboard-page').then((m) => m.DashboardPage),
                 title: 'Início',
             },
             {
