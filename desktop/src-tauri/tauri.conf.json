@@ -24,6 +24,13 @@
       "csp": null
     }
   },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["chegamed-desktop"]
+      }
+    }
+  },
   "bundle": {
     "active": true,
     "targets": "all",
