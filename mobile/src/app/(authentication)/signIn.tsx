@@ -1,6 +1,6 @@
 import { useAuth } from "@/data/contexts/AuthContext";
 import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useRef, useState } from "react";
 import {
     ActivityIndicator,
@@ -17,12 +17,13 @@ import {
 import { Image } from "expo-image";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AlertCircle, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
+import { AlertCircle, CheckCircle2, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
 import { Wave } from "@/components/shared/Wave";
 
 export default function SignIn() {
     const { login } = useAuth();
     const router = useRouter();
+    const { resetSuccess } = useLocalSearchParams<{ resetSuccess?: string }>();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [secure, setSecure] = useState(true);
@@ -83,6 +84,13 @@ export default function SignIn() {
                             Entre com sua conta para continuar
                         </Text>
                     </View>
+
+                    {resetSuccess ? (
+                        <View style={styles.successBox}>
+                            <CheckCircle2 size={18} color={Colors.success} />
+                            <Text style={styles.successText}>Senha redefinida com sucesso. Faça login para continuar.</Text>
+                        </View>
+                    ) : null}
 
                     {error ? (
                         <View style={styles.errorBox}>
@@ -157,6 +165,15 @@ export default function SignIn() {
                                 </TouchableOpacity>
                             </Pressable>
                         </View>
+
+                        <TouchableOpacity
+                            style={styles.forgotPasswordLink}
+                            onPress={() => router.push("/(authentication)/forgot-password" as Href)}
+                            accessibilityRole="button"
+                            accessibilityLabel="Esqueci minha senha"
+                        >
+                            <Text style={styles.forgotPasswordText}>Esqueci minha senha?</Text>
+                        </TouchableOpacity>
 
                         <TouchableOpacity
                             style={[styles.button, isLoading && styles.buttonDisabled]}
@@ -264,6 +281,26 @@ const styles = StyleSheet.create({
         color: Colors.danger,
     },
 
+    successBox: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: Spacing.sm,
+        backgroundColor: `${Colors.success}1A`,
+        borderWidth: 1,
+        borderColor: `${Colors.success}40`,
+        borderRadius: Radius.lg,
+        paddingHorizontal: Spacing.base,
+        paddingVertical: Spacing.md,
+        marginBottom: Spacing.lg,
+    },
+
+    successText: {
+        flex: 1,
+        fontFamily: Typography.fonts.bodyMedium,
+        fontSize: Typography.sizes.sm,
+        color: Colors.success,
+    },
+
     form: {
         gap: Spacing.lg,
     },
@@ -307,6 +344,16 @@ const styles = StyleSheet.create({
         padding: Spacing.xs,
         alignItems: "center",
         justifyContent: "center",
+    },
+
+    forgotPasswordLink: {
+        alignSelf: "flex-end",
+    },
+
+    forgotPasswordText: {
+        fontFamily: Typography.fonts.bodyMedium,
+        fontSize: Typography.sizes.sm,
+        color: Colors.primary,
     },
 
     button: {

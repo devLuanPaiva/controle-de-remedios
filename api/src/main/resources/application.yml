@@ -40,3 +40,17 @@ aws:
 assistant:
   n8n-webhook-url: ${N8N_WEBHOOK_URL:http://localhost:5678/webhook/assistant}
   internal-secret: ${ASSISTANT_INTERNAL_SECRET:}
+
+resend:
+  api-key: ${RESEND_API_KEY:}
+  from-email: ${RESEND_FROM_EMAIL:ChegaMed <naoresponda@contato.chegamed.com.br>}
+
+app:
+  branding:
+    logo-url: ${APP_LOGO_URL:https://cdn.chegamed.com.br/branding/logo.png}
+  frontend:
+    web-url: ${APP_WEB_URL:https://chegamed.com.br}
+    desktop-reset-password-url: ${DESKTOP_RESET_PASSWORD_URL:chegamed-desktop://reset-password}
+    mobile-reset-password-url: ${MOBILE_RESET_PASSWORD_URL:chegamed://reset-password}
+  password-reset:
+    token-expiration-minutes: ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES:60}

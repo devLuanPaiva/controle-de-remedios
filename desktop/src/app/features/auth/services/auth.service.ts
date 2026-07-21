@@ -7,6 +7,9 @@ import { AuthUser } from '../models/auth-user.model';
 import { decodeJwtPayload } from '@shared/utils/jwt.util';
 import { map } from 'rxjs';
 import { environment } from '@environments/environment';
+import { ApiResponse } from '@shared/models/api-response.model';
+import { ResetPasswordRequest } from '../models/reset-password-request.model';
+import { ChangePasswordRequest } from '../models/change-password-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -70,6 +73,27 @@ export class AuthService {
   getRefreshToken() {
     return this.session
       .getRefreshToken();
+  }
+
+  forgotPassword(email: string) {
+    return this.http.post<ApiResponse<null>>(
+      `${this.apiUrl()}/auth/forgot-password`,
+      { email, context: 'DESKTOP' }
+    );
+  }
+
+  resetPassword(payload: ResetPasswordRequest) {
+    return this.http.post<ApiResponse<null>>(
+      `${this.apiUrl()}/auth/reset-password`,
+      payload
+    );
+  }
+
+  changePassword(payload: ChangePasswordRequest) {
+    return this.http.post<ApiResponse<null>>(
+      `${this.apiUrl()}/users/change-password`,
+      payload
+    );
   }
 
 }

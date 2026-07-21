@@ -5,7 +5,17 @@ import { AuthState } from "./auth.state";
 const initialState: AuthState = {
     user: null,
     loading: false,
-    authenticated: false
+    authenticated: false,
+
+    forgotPasswordLoading: false,
+    forgotPasswordSubmitted: false,
+
+    resetPasswordLoading: false,
+    resetPasswordErrors: [],
+
+    changePasswordLoading: false,
+    changePasswordErrors: [],
+    changePasswordSuccess: false,
 };
 
 export const authReducer = createReducer(
@@ -45,6 +55,62 @@ export const authReducer = createReducer(
         AuthActions.logout,
 
         () => initialState
-    )
+    ),
+
+    on(AuthActions.forgotPassword, (state) => ({
+        ...state,
+        forgotPasswordLoading: true,
+        forgotPasswordSubmitted: false,
+    })),
+
+    on(AuthActions.forgotPasswordSuccess, (state) => ({
+        ...state,
+        forgotPasswordLoading: false,
+        forgotPasswordSubmitted: true,
+    })),
+
+    on(AuthActions.forgotPasswordFailure, (state) => ({
+        ...state,
+        forgotPasswordLoading: false,
+    })),
+
+    on(AuthActions.resetPassword, (state) => ({
+        ...state,
+        resetPasswordLoading: true,
+        resetPasswordErrors: [],
+    })),
+
+    on(AuthActions.resetPasswordSuccess, (state) => ({
+        ...state,
+        resetPasswordLoading: false,
+        resetPasswordErrors: [],
+    })),
+
+    on(AuthActions.resetPasswordFailure, (state, { errors }) => ({
+        ...state,
+        resetPasswordLoading: false,
+        resetPasswordErrors: errors,
+    })),
+
+    on(AuthActions.changePassword, (state) => ({
+        ...state,
+        changePasswordLoading: true,
+        changePasswordErrors: [],
+        changePasswordSuccess: false,
+    })),
+
+    on(AuthActions.changePasswordSuccess, (state) => ({
+        ...state,
+        changePasswordLoading: false,
+        changePasswordErrors: [],
+        changePasswordSuccess: true,
+    })),
+
+    on(AuthActions.changePasswordFailure, (state, { errors }) => ({
+        ...state,
+        changePasswordLoading: false,
+        changePasswordErrors: errors,
+        changePasswordSuccess: false,
+    })),
 
 )

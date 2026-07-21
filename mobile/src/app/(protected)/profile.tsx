@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
-import { LogOut } from "lucide-react-native";
+import { useRouter, type Href } from "expo-router";
+import { KeyRound, LogOut } from "lucide-react-native";
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,6 +14,7 @@ import { Colors, Radius, Spacing, Typography } from "@/theme";
 
 export default function Profile() {
     const { user, logout } = useAuth();
+    const router = useRouter();
     const { companies, selectedCompany, isLoading, error, selectCompany } = useCompanies();
     const [isLogoutDialogVisible, setIsLogoutDialogVisible] = useState(false);
 
@@ -50,6 +52,17 @@ export default function Profile() {
                     error={error}
                     onSelectCompany={selectCompany}
                 />
+
+                <TouchableOpacity
+                    style={styles.changePasswordButton}
+                    onPress={() => router.push("/(protected)/change-password" as Href)}
+                    activeOpacity={0.85}
+                    accessibilityRole="button"
+                    accessibilityLabel="Alterar senha"
+                >
+                    <KeyRound size={18} color={Colors.text} />
+                    <Text style={styles.changePasswordLabel}>Alterar senha</Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity
                     style={styles.logoutButton}
@@ -95,12 +108,30 @@ const styles = StyleSheet.create({
         marginBottom: Spacing.lg,
     },
 
-    logoutButton: {
+    changePasswordButton: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
         gap: Spacing.sm,
         marginTop: Spacing.xl,
+        height: 52,
+        borderRadius: Radius.full,
+        borderWidth: 1,
+        borderColor: Colors.border,
+    },
+
+    changePasswordLabel: {
+        fontFamily: Typography.fonts.bodySemiBold,
+        fontSize: Typography.sizes.md,
+        color: Colors.text,
+    },
+
+    logoutButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: Spacing.sm,
+        marginTop: Spacing.md,
         height: 52,
         borderRadius: Radius.full,
         borderWidth: 1,

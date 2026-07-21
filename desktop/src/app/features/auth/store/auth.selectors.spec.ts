@@ -27,6 +27,13 @@ function buildRootState(overrides: Partial<AuthState> = {}): RootState {
       user: null,
       loading: false,
       authenticated: false,
+      forgotPasswordLoading: false,
+      forgotPasswordSubmitted: false,
+      resetPasswordLoading: false,
+      resetPasswordErrors: [],
+      changePasswordLoading: false,
+      changePasswordErrors: [],
+      changePasswordSuccess: false,
       ...overrides,
     },
   };

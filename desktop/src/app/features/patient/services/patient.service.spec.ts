@@ -23,6 +23,8 @@ function buildPatientDto(overrides: Partial<PatientApiDto> = {}): PatientApiDto 
         birthDate: '1990-05-20',
         companyId: 'company-1',
         userId: null,
+        contact: null,
+        address: null,
         createdAt: '2026-01-01T10:00:00Z',
         updatedAt: '2026-01-02T10:00:00Z',
         ...overrides,

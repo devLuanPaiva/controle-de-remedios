@@ -2,6 +2,7 @@ package com.devluanpaiva.controle_de_remedios.modules.user.service.impl;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,9 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyRepository;
+import com.devluanpaiva.controle_de_remedios.modules.notification.service.EmailService;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.ChangePasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
-import com.devluanpaiva.controle_de_remedios.modules.user.dto.ResetPasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
@@ -28,7 +29,9 @@ import com.devluanpaiva.controle_de_remedios.security.SecurityContextHelper;
 import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -38,6 +41,10 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final SecurityContextHelper securityContextHelper;
     private final AuthorizationPolicy authorizationPolicy;
+    private final EmailService emailService;
+
+    @Value("${app.frontend.web-url}")
+    private String webUrl;
 
     @Override
     @Transactional
@@ -80,7 +87,17 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(user);
 
+        sendWelcomeEmail(savedUser, dto.password());
+
         return userMapper.toResponseDTO(savedUser);
+    }
+
+    private void sendWelcomeEmail(User user, String rawPassword) {
+        try {
+            emailService.sendWelcomeEmail(user, rawPassword, webUrl);
+        } catch (RuntimeException ex) {
+            log.error("Falha ao enviar e-mail de boas-vindas para o usuário '{}'", user.getId(), ex);
+        }
     }
 
     @Override
@@ -169,13 +186,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO) {
-        // Implementação do método de redefinição de senha
-    }
+    @Transactional
+    public void changePassword(ChangePasswordRequestDTO dto) {
+        User user = securityContextHelper.getCurrentUser();
 
-    @Override
-    public void changePassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
-        // Implementação do método de alteração de senha
+        if (!passwordEncoder.matches(dto.currentPassword(), user.getPassword())) {
+            throw new BusinessException(
+                    HttpStatus.BAD_REQUEST,
+                    "Senha atual incorreta",
+                    "CURRENT_PASSWORD_INVALID",
+                    "currentPassword",
+                    "A senha atual informada não confere com a senha cadastrada.");
+        }
+
+        if (!dto.newPassword().equals(dto.confirmPassword())) {
+            throw new BusinessException(
+                    HttpStatus.BAD_REQUEST,
+                    "As senhas não coincidem",
+                    "PASSWORD_MISMATCH",
+                    "confirmPassword",
+                    "A nova senha e a confirmação de senha precisam ser iguais.");
+        }
+
+        user.setPassword(passwordEncoder.encode(dto.newPassword()));
+        userRepository.save(user);
     }
 
     private void assertCanManage(User actor, User target) {
