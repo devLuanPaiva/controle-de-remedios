@@ -1,0 +1,13 @@
+<div class="stat-tile" [class]="'stat-tile--' + accent()">
+    <span class="stat-tile__icon" aria-hidden="true">
+        <ng-content select="[statIcon]" />
+    </span>
+
+    <span class="stat-tile__content">
+        <span class="stat-tile__label">{{ label() }}</span>
+        <span class="stat-tile__value">{{ value() }}</span>
+        @if (hint()) {
+            <span class="stat-tile__hint">{{ hint() }}</span>
+        }
+    </span>
+</div>

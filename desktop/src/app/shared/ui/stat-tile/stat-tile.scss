@@ -1,0 +1,74 @@
+.stat-tile {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    background: var(--color-neutral-100);
+}
+
+.stat-tile__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-full);
+
+    background: var(--color-neutral-200);
+    color: var(--text-secondary);
+
+    ::ng-deep svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.stat-tile__content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.stat-tile__label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+}
+
+.stat-tile__value {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: var(--leading-tight);
+}
+
+.stat-tile__hint {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+}
+
+.stat-tile--success .stat-tile__icon {
+    background: color-mix(in srgb, var(--color-success) 15%, white);
+    color: var(--color-success);
+}
+
+.stat-tile--warning .stat-tile__icon {
+    background: color-mix(in srgb, var(--color-warning) 18%, white);
+    color: var(--color-warning);
+}
+
+.stat-tile--danger .stat-tile__icon {
+    background: color-mix(in srgb, var(--color-danger) 15%, white);
+    color: var(--color-danger);
+}
+
+.stat-tile--info .stat-tile__icon {
+    background: color-mix(in srgb, var(--color-info) 15%, white);
+    color: var(--color-info);
+}
