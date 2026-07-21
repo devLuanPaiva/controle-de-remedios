@@ -1,0 +1,23 @@
+<app-widget-card
+    title="Atendimento das entregas"
+    subtitle="Últimos 30 dias"
+    [loading]="loading()"
+    [error]="errorMessage()"
+    (retry)="retry()"
+>
+    <svg widgetActions lucideCircleCheck aria-hidden="true"></svg>
+
+    <div class="fulfillment-summary-widget__stats">
+        <app-stat-tile label="Conclusão" [value]="completionRateLabel()" accent="success" />
+        <app-stat-tile label="Cobertura" [value]="coverageRateLabel()" accent="info" />
+    </div>
+
+    <div class="fulfillment-summary-widget__chart">
+        <app-chart
+            type="bar"
+            [data]="chartData()"
+            [options]="chartOptions"
+            ariaLabel="Gráfico de entregas completas contra parciais"
+        />
+    </div>
+</app-widget-card>

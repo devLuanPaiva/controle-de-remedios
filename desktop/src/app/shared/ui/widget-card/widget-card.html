@@ -1,0 +1,33 @@
+<section class="widget-card card" [attr.aria-busy]="loading()">
+    <header class="widget-card__header">
+        <div class="widget-card__heading">
+            <h2 class="widget-card__title">{{ title() }}</h2>
+            @if (subtitle()) {
+                <p class="widget-card__subtitle">{{ subtitle() }}</p>
+            }
+        </div>
+
+        <div class="widget-card__actions">
+            <ng-content select="[widgetActions]" />
+        </div>
+    </header>
+
+    <div class="widget-card__body">
+        @if (loading()) {
+            <div class="widget-card__skeleton" aria-hidden="true">
+                <div class="skeleton-block skeleton-block--lg"></div>
+                <div class="skeleton-block"></div>
+                <div class="skeleton-block skeleton-block--sm"></div>
+            </div>
+            <span class="sr-only">Carregando {{ title() }}…</span>
+        } @else if (error()) {
+            <div class="widget-card__error">
+                <svg lucideTriangleAlert aria-hidden="true"></svg>
+                <p>{{ error() }}</p>
+                <button type="button" class="btn btn-outline btn-sm" (click)="retry.emit()">Tentar novamente</button>
+            </div>
+        } @else {
+            <ng-content />
+        }
+    </div>
+</section>

@@ -1,0 +1,22 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+svg[lucideCircleCheck] {
+    width: 20px;
+    height: 20px;
+    color: var(--color-success);
+}
+
+.fulfillment-summary-widget__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.fulfillment-summary-widget__chart {
+    position: relative;
+    height: 120px;
+}

@@ -1,0 +1,13 @@
+<app-widget-card
+    title="Entregas ao longo do tempo"
+    [subtitle]="subtitle()"
+    [loading]="loading()"
+    [error]="errorMessage()"
+    (retry)="retry()"
+>
+    <svg widgetActions lucideTrendingUp aria-hidden="true"></svg>
+
+    <div class="delivery-timeline-widget__chart">
+        <app-chart type="line" [data]="chartData()" [options]="chartOptions()" ariaLabel="Gráfico de entregas ao longo do tempo" />
+    </div>
+</app-widget-card>

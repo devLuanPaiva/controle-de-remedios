@@ -1,0 +1,15 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+svg[lucideTrendingUp] {
+    width: 20px;
+    height: 20px;
+    color: var(--color-primary-400);
+}
+
+.delivery-timeline-widget__chart {
+    position: relative;
+    height: 260px;
+}
