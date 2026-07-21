@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 
 import { selectSelectedCompanyId } from '@features/company/store/company.selectors';
@@ -23,6 +23,8 @@ type PickerSelection = { type: 'existing'; medicine: IMedicine } | { type: 'new'
 export class MedicinePicker {
     private readonly medicineService = inject(MedicineService);
     private readonly store = inject(Store);
+
+    readonly idPrefix = input.required<string>();
 
     readonly medicineSelected = output<MedicinePickerSelection>();
     readonly cleared = output<void>();
@@ -109,25 +111,25 @@ export class MedicinePicker {
     }
 
     get canConfirmQuickCreate(): boolean {
-        return this.newMedicineName().trim().length > 0 && !!this.newMedicineImageUrl();
+        return this.newMedicineName().trim().length > 0;
     }
 
     confirmQuickCreate(): void {
         const name = this.newMedicineName().trim();
-        const imageUrl = this.newMedicineImageUrl();
 
-        if (!name || !imageUrl) {
+        if (!name) {
             return;
         }
 
         const eanCode = this.newMedicineEanCode().trim();
+        const imageUrl = this.newMedicineImageUrl();
 
         this.selection.set({ type: 'new', name });
         this.medicineSelected.emit({
             medicine: {
                 name,
                 eanCode: eanCode || undefined,
-                imageUrl,
+                imageUrl: imageUrl || undefined,
             },
         });
 
