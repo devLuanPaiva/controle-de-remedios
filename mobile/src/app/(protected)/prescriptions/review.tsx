@@ -21,7 +21,7 @@ import { UploadedImagesRow } from "@/features/prescriptions/components/UploadedI
 
 export default function PrescriptionReview() {
     const router = useRouter();
-    const { uploadedImageUrls, extraction, reset } = usePrescriptionScan();
+    const { pages, extraction, uploadPages, reset } = usePrescriptionScan();
 
     const [selectedPatient, setSelectedPatient] = useState<IPatient | null>(null);
     const [issueDateBr, setIssueDateBr] = useState("");
@@ -32,10 +32,10 @@ export default function PrescriptionReview() {
     const { items, initializeFromExtraction, addItem, updateItem, removeItem } = usePrescriptionItems();
 
     useEffect(() => {
-        if (!uploadedImageUrls) {
+        if (pages.length === 0) {
             router.replace("/(protected)/prescriptions" as Href);
         }
-    }, [uploadedImageUrls, router]);
+    }, [pages, router]);
 
     useEffect(() => {
         if (extraction?.status === "success" && extraction.data.issueDate) {
@@ -49,7 +49,7 @@ export default function PrescriptionReview() {
         }
     }, [extraction, initializeFromExtraction]);
 
-    if (!uploadedImageUrls) {
+    if (pages.length === 0) {
         return <View style={styles.container} />;
     }
 
@@ -82,10 +82,17 @@ export default function PrescriptionReview() {
             setItemErrors({});
             setIsSubmitting(true);
 
+            const imageUrls = await uploadPages();
+
+            if (!imageUrls) {
+                setFormError("Não foi possível enviar as imagens. Tente novamente.");
+                return;
+            }
+
             await createPrescription({
                 patientId: selectedPatient.id,
                 issueDate: brToIso(issueDateBr),
-                imageUrls: uploadedImageUrls ?? undefined,
+                imageUrls,
                 items: items.map(toCreatePrescriptionItemRequest),
             });
 
@@ -160,7 +167,7 @@ export default function PrescriptionReview() {
                     itemErrors={itemErrors}
                 />
 
-                <UploadedImagesRow imageUrls={uploadedImageUrls} />
+                <UploadedImagesRow imageUrls={pages.map((page) => page.localUri)} />
 
                 <TouchableOpacity
                     style={[styles.submitButton, !canSubmit && styles.submitButtonDisabled]}

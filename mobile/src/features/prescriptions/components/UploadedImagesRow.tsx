@@ -31,7 +31,7 @@ export function UploadedImagesRow({ imageUrls }: Readonly<UploadedImagesRowProps
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Imagens enviadas</Text>
+            <Text style={styles.title}>Imagens capturadas</Text>
 
             <FlatList
                 horizontal
