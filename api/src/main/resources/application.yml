@@ -41,6 +41,9 @@ assistant:
   n8n-webhook-url: ${N8N_WEBHOOK_URL:http://localhost:5678/webhook/assistant}
   internal-secret: ${ASSISTANT_INTERNAL_SECRET:}
 
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+
 resend:
   api-key: ${RESEND_API_KEY:}
   from-email: ${RESEND_FROM_EMAIL:ChegaMed <naoresponda@contato.chegamed.com.br>}
