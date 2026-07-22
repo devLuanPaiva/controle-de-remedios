@@ -3,9 +3,12 @@ import { FormField, form, maxLength, required } from '@angular/forms/signals';
 import { Store } from '@ngrx/store';
 
 import { selectSelectedCompany } from '@features/company/store/company.selectors';
+import { ToastService } from '@core/ui/toast/service/toast.service';
+import { ToastType } from '@core/ui/toast/models/toast.model';
 import { Field } from '@shared/ui/field/field';
 import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-field';
 import { Modal } from '@shared/ui/modal/modal';
+import { FileUploadService } from '@shared/services/file-upload.service';
 
 import * as MedicineActions from '../../store/medicine.actions';
 import { selectMedicinesMutating } from '../../store/medicine.selectors';
@@ -19,16 +22,20 @@ import { selectMedicinesMutating } from '../../store/medicine.selectors';
 })
 export class MedicineCreateModal {
     private readonly store = inject(Store);
+    private readonly fileUploadService = inject(FileUploadService);
+    private readonly toastService = inject(ToastService);
 
     readonly closed = output<void>();
 
     readonly mutating = this.store.selectSignal(selectMedicinesMutating);
     readonly connectedCompany = this.store.selectSignal(selectSelectedCompany);
 
+    readonly submitting = signal(false);
+
     readonly model = signal({
         name: '',
         eanCode: '',
-        imageUrl: '',
+        imageFile: null as File | null,
     });
 
     readonly medicineForm = form(this.model, (schema) => {
@@ -40,36 +47,50 @@ export class MedicineCreateModal {
     });
 
     readonly canSubmit = computed(
-        () => this.medicineForm().valid() && !this.mutating() && !!this.connectedCompany() && !!this.model().imageUrl,
+        () =>
+            this.medicineForm().valid() &&
+            !this.mutating() &&
+            !this.submitting() &&
+            !!this.connectedCompany() &&
+            !!this.model().imageFile,
     );
 
-    onImageUploaded(imageUrl: string): void {
-        this.model.update((current) => ({ ...current, imageUrl }));
+    onImageSelected(file: File): void {
+        this.model.update((current) => ({ ...current, imageFile: file }));
     }
 
-    onSubmit(event: Event, modal: Modal): void {
+    async onSubmit(event: Event, modal: Modal): Promise<void> {
         event.preventDefault();
 
         const companyId = this.connectedCompany()?.id;
+        const value = this.model();
 
-        if (!this.canSubmit() || !companyId) {
+        if (!this.canSubmit() || !companyId || !value.imageFile) {
             this.medicineForm().markAsTouched();
             return;
         }
 
-        const value = this.model();
+        this.submitting.set(true);
 
-        this.store.dispatch(
-            MedicineActions.createMedicine({
-                payload: {
-                    name: value.name,
-                    eanCode: value.eanCode,
-                    imageUrl: value.imageUrl,
-                    companyId,
-                },
-            }),
-        );
+        try {
+            const imageUrl = await this.fileUploadService.uploadImage(value.imageFile, 'MEDICINE', value.name);
 
-        modal.requestClose();
+            this.store.dispatch(
+                MedicineActions.createMedicine({
+                    payload: {
+                        name: value.name,
+                        eanCode: value.eanCode,
+                        imageUrl,
+                        companyId,
+                    },
+                }),
+            );
+
+            modal.requestClose();
+        } catch {
+            this.toastService.show(ToastType.Error, 'Não foi possível enviar a imagem. Tente novamente.');
+        } finally {
+            this.submitting.set(false);
+        }
     }
 }

@@ -7,9 +7,9 @@ import { MedicineService } from '@features/medicine/services/medicine.service';
 import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-field';
 import { Field } from '@shared/ui/field/field';
 
-import { CreatePrescriptionItemMedicine } from '../../models/prescription-item-api.model';
+import { CreatePrescriptionItemMedicineDraft } from '../../models/prescription-item-api.model';
 
-export type MedicinePickerSelection = { medicineId: string } | { medicine: CreatePrescriptionItemMedicine };
+export type MedicinePickerSelection = { medicineId: string } | { medicine: CreatePrescriptionItemMedicineDraft };
 
 type PickerSelection = { type: 'existing'; medicine: IMedicine } | { type: 'new'; name: string } | null;
 
@@ -41,7 +41,7 @@ export class MedicinePicker {
 
     readonly newMedicineName = signal('');
     readonly newMedicineEanCode = signal('');
-    readonly newMedicineImageUrl = signal<string | null>(null);
+    readonly newMedicineImageFile = signal<File | null>(null);
 
     onSearchTermChange(value: string): void {
         this.searchTerm.set(value);
@@ -106,8 +106,8 @@ export class MedicinePicker {
         this.newMedicineEanCode.set(value);
     }
 
-    onNewMedicineImageUploaded(imageUrl: string): void {
-        this.newMedicineImageUrl.set(imageUrl);
+    onNewMedicineImageSelected(file: File): void {
+        this.newMedicineImageFile.set(file);
     }
 
     get canConfirmQuickCreate(): boolean {
@@ -122,21 +122,21 @@ export class MedicinePicker {
         }
 
         const eanCode = this.newMedicineEanCode().trim();
-        const imageUrl = this.newMedicineImageUrl();
+        const imageFile = this.newMedicineImageFile();
 
         this.selection.set({ type: 'new', name });
         this.medicineSelected.emit({
             medicine: {
                 name,
                 eanCode: eanCode || undefined,
-                imageUrl: imageUrl || undefined,
+                imageFile: imageFile ?? undefined,
             },
         });
 
         this.showQuickCreate.set(false);
         this.newMedicineName.set('');
         this.newMedicineEanCode.set('');
-        this.newMedicineImageUrl.set(null);
+        this.newMedicineImageFile.set(null);
     }
 
     clearSelection(): void {

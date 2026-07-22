@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 
-import { CreatePrescriptionItemRequest } from '../../models/prescription-item-api.model';
+import { CreatePrescriptionItemRequestDraft } from '../../models/prescription-item-api.model';
 import {
     FrequencyType,
     FrequencyTypeLabels,
@@ -33,7 +33,7 @@ const EMPTY_MODEL: ItemRowModel = {
     treatmentDays: null,
 };
 
-function buildPayload(model: ItemRowModel): CreatePrescriptionItemRequest | null {
+function buildPayload(model: ItemRowModel): CreatePrescriptionItemRequestDraft | null {
     if (
         !model.medicineSelection ||
         !model.dosage.trim() ||
@@ -76,7 +76,7 @@ export class PrescriptionItemCreateRow {
     readonly canRemove = input(true);
     readonly errorMessage = input<string | undefined>(undefined);
 
-    readonly itemChanged = output<CreatePrescriptionItemRequest | null>();
+    readonly itemChanged = output<CreatePrescriptionItemRequestDraft | null>();
     readonly removed = output<void>();
 
     readonly unityOptions = Object.values(UnityType);

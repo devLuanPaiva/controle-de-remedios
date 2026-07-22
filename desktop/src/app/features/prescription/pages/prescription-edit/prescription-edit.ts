@@ -6,7 +6,10 @@ import { Store } from '@ngrx/store';
 import { map } from 'rxjs';
 
 import { DateField } from '@shared/ui/date-field/date-field';
-import { ImageUploadMultiField } from '@shared/ui/image-upload-multi-field/image-upload-multi-field';
+import { ImageUploadMultiField, ImageUploadMultiFieldChange } from '@shared/ui/image-upload-multi-field/image-upload-multi-field';
+import { ToastService } from '@core/ui/toast/service/toast.service';
+import { ToastType } from '@core/ui/toast/models/toast.model';
+import { FileUploadService } from '@shared/services/file-upload.service';
 import { formatCpf } from '@shared/utils/cpf.util';
 import { isNotFutureDate, toDateInputValue } from '@shared/utils/date.util';
 import { diffPrimitive, diffStringArray } from '@shared/utils/diff.util';
@@ -35,6 +38,8 @@ export class PrescriptionEdit implements OnDestroy {
     private readonly store = inject(Store);
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    private readonly fileUploadService = inject(FileUploadService);
+    private readonly toastService = inject(ToastService);
 
     readonly maxIssueDate = toDateInputValue(new Date());
     readonly formatCpf = formatCpf;
@@ -52,10 +57,12 @@ export class PrescriptionEdit implements OnDestroy {
     readonly mutating = this.store.selectSignal(selectPrescriptionsMutating);
     readonly mutatingItemIds = this.store.selectSignal(selectMutatingItemIds);
 
+    readonly submitting = signal(false);
+    readonly pendingImages = signal<ImageUploadMultiFieldChange>({ keptUrls: [], newFiles: [] });
+
     readonly model = signal({
         status: PrescriptionStatus.PENDING,
         issueDate: '',
-        imageUrls: [] as string[],
     });
 
     readonly editForm = form(this.model, (schema) => {
@@ -67,7 +74,7 @@ export class PrescriptionEdit implements OnDestroy {
         );
     });
 
-    readonly canSubmit = computed(() => this.editForm().valid() && !this.mutating());
+    readonly canSubmit = computed(() => this.editForm().valid() && !this.mutating() && !this.submitting());
 
     constructor() {
         effect(() => {
@@ -83,7 +90,6 @@ export class PrescriptionEdit implements OnDestroy {
                 this.model.set({
                     status: prescription.status,
                     issueDate: toDateInputValue(prescription.issueDate),
-                    imageUrls: prescription.imageUrls,
                 });
             }
         });
@@ -97,11 +103,11 @@ export class PrescriptionEdit implements OnDestroy {
         this.model.update((current) => ({ ...current, status: status as PrescriptionStatus }));
     }
 
-    onImagesChanged(imageUrls: string[]): void {
-        this.model.update((current) => ({ ...current, imageUrls }));
+    onImagesChanged(change: ImageUploadMultiFieldChange): void {
+        this.pendingImages.set(change);
     }
 
-    onSubmit(event: Event): void {
+    async onSubmit(event: Event): Promise<void> {
         event.preventDefault();
 
         if (!this.canSubmit()) {
@@ -116,19 +122,36 @@ export class PrescriptionEdit implements OnDestroy {
         }
 
         const value = this.model();
+        const { keptUrls, newFiles } = this.pendingImages();
 
-        const payload: UpdatePrescriptionRequest = {
-            status: diffPrimitive(original.status, value.status),
-            issueDate: diffPrimitive(toDateInputValue(original.issueDate), value.issueDate),
-            imageUrls: diffStringArray(original.imageUrls, value.imageUrls),
-        };
+        this.submitting.set(true);
 
-        this.store.dispatch(
-            PrescriptionActions.updatePrescription({
-                id: this.prescriptionId(),
-                payload,
-            }),
-        );
+        try {
+            const uploadedUrls: string[] = [];
+
+            for (const file of newFiles) {
+                uploadedUrls.push(await this.fileUploadService.uploadImage(file, 'PRESCRIPTION'));
+            }
+
+            const imageUrls = [...keptUrls, ...uploadedUrls];
+
+            const payload: UpdatePrescriptionRequest = {
+                status: diffPrimitive(original.status, value.status),
+                issueDate: diffPrimitive(toDateInputValue(original.issueDate), value.issueDate),
+                imageUrls: diffStringArray(original.imageUrls, imageUrls),
+            };
+
+            this.store.dispatch(
+                PrescriptionActions.updatePrescription({
+                    id: this.prescriptionId(),
+                    payload,
+                }),
+            );
+        } catch {
+            this.toastService.show(ToastType.Error, 'Não foi possível enviar uma das imagens. Tente novamente.');
+        } finally {
+            this.submitting.set(false);
+        }
     }
 
     goBack(): void {

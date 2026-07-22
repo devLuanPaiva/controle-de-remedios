@@ -96,10 +96,7 @@
                 <app-image-upload-field
                     [id]="idPrefix() + '-new-image'"
                     label="Imagem do medicamento"
-                    context="MEDICINE"
-                    [ownerName]="newMedicineName()"
-                    [imageUrl]="newMedicineImageUrl() ?? undefined"
-                    (uploaded)="onNewMedicineImageUploaded($event)"
+                    (fileSelected)="onNewMedicineImageSelected($event)"
                 />
 
                 <div class="medicine-picker__quick-create-actions">

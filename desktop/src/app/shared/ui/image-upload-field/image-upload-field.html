@@ -4,15 +4,14 @@
     <label
         class="image-upload__dropzone"
         [for]="inputId()"
-        [class.image-upload__dropzone--filled]="imageUrl()"
+        [class.image-upload__dropzone--filled]="previewUrl()"
         [class.image-upload__dropzone--dragging]="dragging()"
-        [class.image-upload__dropzone--uploading]="uploading()"
         [class.image-upload__dropzone--error]="error()"
         (dragover)="onDragOver($event)"
         (dragleave)="onDragLeave($event)"
         (drop)="onDrop($event)"
     >
-        @if (imageUrl(); as url) {
+        @if (previewUrl(); as url) {
             <img class="image-upload__preview" [src]="url" alt="Pré-visualização" />
 
             <span class="image-upload__overlay">
@@ -27,19 +26,11 @@
             </span>
         }
 
-        @if (uploading()) {
-            <span class="image-upload__uploading">
-                <span class="spinner spinner-sm" aria-hidden="true"></span>
-                Enviando imagem...
-            </span>
-        }
-
         <input
             [id]="inputId()"
             class="image-upload__input"
             type="file"
             accept="image/*"
-            [disabled]="uploading()"
             [attr.aria-labelledby]="id() + '-label'"
             (change)="onFileSelected($event)"
         />
