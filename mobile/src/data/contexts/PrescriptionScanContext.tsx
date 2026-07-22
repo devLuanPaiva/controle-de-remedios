@@ -8,7 +8,7 @@ import {
 } from "react";
 
 import { uploadImagesSequentially } from "@/data/services/upload.service";
-import { ExtractionResult, PrescriptionType, extractPrescriptionData } from "@/data/services/gemini.service";
+import { ExtractionResult, PrescriptionType, extractPrescriptionData } from "@/data/services/extraction.service";
 
 export interface CapturedPage {
     id: string;
@@ -21,7 +21,6 @@ interface PrescriptionScanContextType {
     pages: CapturedPage[];
     isProcessing: boolean;
     uploadProgressLabel: string | null;
-    uploadedImageUrls: string[] | null;
     extraction: ExtractionResult | null;
     processError: string | null;
     setPrescriptionType: (type: PrescriptionType) => void;
@@ -29,6 +28,7 @@ interface PrescriptionScanContextType {
     removePage: (id: string) => void;
     reset: () => void;
     processAndContinue: () => Promise<boolean>;
+    uploadPages: () => Promise<string[] | null>;
 }
 
 const PrescriptionScanContext = createContext<PrescriptionScanContextType | null>(null);
@@ -38,7 +38,6 @@ export function PrescriptionScanProvider({ children }: Readonly<PropsWithChildre
     const [pages, setPages] = useState<CapturedPage[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [uploadProgressLabel, setUploadProgressLabel] = useState<string | null>(null);
-    const [uploadedImageUrls, setUploadedImageUrls] = useState<string[] | null>(null);
     const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
     const [processError, setProcessError] = useState<string | null>(null);
 
@@ -55,7 +54,6 @@ export function PrescriptionScanProvider({ children }: Readonly<PropsWithChildre
         setPages([]);
         setIsProcessing(false);
         setUploadProgressLabel(null);
-        setUploadedImageUrls(null);
         setExtraction(null);
         setProcessError(null);
     }, []);
@@ -68,34 +66,39 @@ export function PrescriptionScanProvider({ children }: Readonly<PropsWithChildre
 
         setIsProcessing(true);
         setProcessError(null);
-        setUploadProgressLabel(`Enviando imagem 1 de ${pages.length}...`);
 
-        const uploadTask = uploadImagesSequentially(
-            pages.map((page) => page.localUri),
-            "PRESCRIPTION",
-            (completed, total) => setUploadProgressLabel(`Enviando imagem ${completed} de ${total}...`),
-        );
-
-        const extractionTask = extractPrescriptionData(
+        const extractionResult = await extractPrescriptionData(
             pages.map((page) => ({ base64: page.base64 })),
             prescriptionType,
         );
 
-        const [uploadResult, extractionResult] = await Promise.allSettled([uploadTask, extractionTask]);
-
         setIsProcessing(false);
-        setUploadProgressLabel(null);
-
-        if (uploadResult.status === "rejected") {
-            setProcessError("Não foi possível enviar as imagens. Tente novamente.");
-            return false;
-        }
-
-        setUploadedImageUrls(uploadResult.value);
-        setExtraction(extractionResult.status === "fulfilled" ? extractionResult.value : { status: "unavailable" });
+        setExtraction(extractionResult);
 
         return true;
     }, [prescriptionType, pages]);
+
+    const uploadPages = useCallback(async (): Promise<string[] | null> => {
+        if (pages.length === 0) {
+            return null;
+        }
+
+        setUploadProgressLabel(`Enviando imagem 1 de ${pages.length}...`);
+
+        try {
+            const uploadedImageUrls = await uploadImagesSequentially(
+                pages.map((page) => page.localUri),
+                "PRESCRIPTION",
+                (completed, total) => setUploadProgressLabel(`Enviando imagem ${completed} de ${total}...`),
+            );
+
+            return uploadedImageUrls;
+        } catch {
+            return null;
+        } finally {
+            setUploadProgressLabel(null);
+        }
+    }, [pages]);
 
     const contextValue = useMemo(
         () => ({
@@ -103,7 +106,6 @@ export function PrescriptionScanProvider({ children }: Readonly<PropsWithChildre
             pages,
             isProcessing,
             uploadProgressLabel,
-            uploadedImageUrls,
             extraction,
             processError,
             setPrescriptionType,
@@ -111,19 +113,20 @@ export function PrescriptionScanProvider({ children }: Readonly<PropsWithChildre
             removePage,
             reset,
             processAndContinue,
+            uploadPages,
         }),
         [
             prescriptionType,
             pages,
             isProcessing,
             uploadProgressLabel,
-            uploadedImageUrls,
             extraction,
             processError,
             addPage,
             removePage,
             reset,
             processAndContinue,
+            uploadPages,
         ],
     );
 

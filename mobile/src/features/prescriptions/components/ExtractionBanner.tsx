@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Info, Sparkles } from "lucide-react-native";
 
 import { Colors, Radius, Spacing, Typography } from "@/theme";
-import { ExtractionResult } from "@/data/services/gemini.service";
+import { ExtractionResult } from "@/data/services/extraction.service";
 
 interface ExtractionBannerProps {
     extraction: ExtractionResult | null;
