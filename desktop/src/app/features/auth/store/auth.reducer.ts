@@ -52,6 +52,22 @@ export const authReducer = createReducer(
     ),
 
     on(
+        AuthActions.loginWithGoogle,
+        (state) => ({
+            ...state,
+            loading: true
+        })
+    ),
+
+    on(
+        AuthActions.loginWithGoogleCancelled,
+        (state) => ({
+            ...state,
+            loading: false
+        })
+    ),
+
+    on(
         AuthActions.logout,
 
         () => initialState

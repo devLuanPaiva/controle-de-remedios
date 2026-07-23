@@ -105,6 +105,27 @@ describe('authReducer', () => {
     });
   });
 
+  describe('loginWithGoogle action', () => {
+    it('should set loading to true while preserving the rest of the state', () => {
+      const action = AuthActions.loginWithGoogle();
+
+      const result = authReducer(initialState, action);
+
+      expect(result).toEqual({ ...initialState, loading: true });
+    });
+  });
+
+  describe('loginWithGoogleCancelled action', () => {
+    it('should stop loading without touching the authenticated user', () => {
+      const loadingState: AuthState = { ...initialState, user: mockUser, loading: true, authenticated: true };
+      const action = AuthActions.loginWithGoogleCancelled();
+
+      const result = authReducer(loadingState, action);
+
+      expect(result).toEqual({ ...initialState, user: mockUser, loading: false, authenticated: true });
+    });
+  });
+
   describe('logout action', () => {
     it('should reset the state back to the exact initial state reference regardless of the prior state', () => {
       const fullyAuthenticatedState: AuthState = { ...initialState, user: mockUser, loading: true, authenticated: true };

@@ -24,6 +24,14 @@ export const loginFailure = createAction(
     props<{ message: string }>()
 )
 
+export const loginWithGoogle = createAction(
+    "[Auth] Login With Google"
+)
+
+export const loginWithGoogleCancelled = createAction(
+    "[Auth] Login With Google Cancelled"
+)
+
 export const forgotPassword = createAction(
     "[Auth] Forgot Password",
     props<{ email: string }>()

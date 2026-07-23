@@ -2,6 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import * as AuthActions from './auth.actions';
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import { AuthService } from "../services/auth.service";
+import { GoogleAuthService, GoogleSignInCancelledError } from "../services/google-auth.service";
 import { Router } from "@angular/router";
 import { ToastService } from "@core/ui/toast/service/toast.service";
 import { catchError, exhaustMap, map, of, tap } from "rxjs";
@@ -13,6 +14,7 @@ import { extractErrorMessage, extractErrors } from "@shared/utils/api-error.util
 export class AuthEffects {
     private readonly actions$ = inject(Actions);
     private readonly authService = inject(AuthService);
+    private readonly googleAuthService = inject(GoogleAuthService);
     private readonly router = inject(Router);
     private readonly toast = inject(ToastService);
     private readonly session = inject(AuthSessionService)
@@ -62,6 +64,28 @@ export class AuthEffects {
         ),
         { dispatch: false }
 
+    )
+
+    loginWithGoogle$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.loginWithGoogle),
+
+            exhaustMap(() => this.googleAuthService.login().pipe(
+                map(response => AuthActions.loginSuccess({ user: response.user })),
+                catchError(error => {
+                    if (error instanceof GoogleSignInCancelledError) {
+                        return of(AuthActions.loginWithGoogleCancelled());
+                    }
+
+                    return of(
+                        AuthActions.loginFailure({
+                            message: extractErrorMessage(error, "Erro ao entrar com o Google.")
+                        })
+                    );
+                })
+            )
+            )
+        )
     )
 
     logout$ = createEffect(() =>
