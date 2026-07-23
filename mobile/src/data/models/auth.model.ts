@@ -14,3 +14,7 @@ export interface ChangePasswordRequest {
     newPassword: string;
     confirmPassword: string;
 }
+
+export interface DeleteAccountRequest {
+    password: string;
+}
