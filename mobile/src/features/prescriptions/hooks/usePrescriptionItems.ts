@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 
 import { createLocalId } from "@/lib/createLocalId";
-import { ExtractedMedication } from "@/data/services/gemini.service";
+import { ExtractedMedication } from "@/data/services/extraction.service";
 import {
     CreatePrescriptionItemRequest,
     FrequencyType,

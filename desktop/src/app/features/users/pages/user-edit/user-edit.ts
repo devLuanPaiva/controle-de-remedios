@@ -14,6 +14,9 @@ import { CpfField } from '@shared/ui/cpf-field/cpf-field';
 import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-field';
 import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
 import { DangerCard } from '@shared/ui/danger-card/danger-card';
+import { ToastService } from '@core/ui/toast/service/toast.service';
+import { ToastType } from '@core/ui/toast/models/toast.model';
+import { FileUploadService } from '@shared/services/file-upload.service';
 
 import { UpdateUserRequest } from '../../models/user-api.model';
 import * as UsersActions from '../../store/user.actions';
@@ -35,6 +38,8 @@ export class UserEdit implements OnDestroy {
     private readonly store = inject(Store);
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    private readonly fileUploadService = inject(FileUploadService);
+    private readonly toastService = inject(ToastService);
 
     readonly userId = toSignal(
         this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
@@ -47,11 +52,12 @@ export class UserEdit implements OnDestroy {
     readonly mutating = this.store.selectSignal(selectUsersMutating);
 
     readonly showResetConfirm = signal(false);
+    readonly submitting = signal(false);
+    readonly imageFile = signal<File | null>(null);
 
     readonly model = signal({
         name: '',
         cpf: '',
-        imageUrl: '',
     });
 
     readonly editForm = form(this.model, (schema) => {
@@ -62,7 +68,7 @@ export class UserEdit implements OnDestroy {
         validate(schema.cpf, ({ value }) => (isValidCpf(value()) ? null : { kind: 'cpf', message: 'CPF inválido.' }));
     });
 
-    readonly canSubmit = computed(() => this.editForm().valid() && !this.mutating());
+    readonly canSubmit = computed(() => this.editForm().valid() && !this.mutating() && !this.submitting());
 
     constructor() {
         effect(() => {
@@ -78,7 +84,6 @@ export class UserEdit implements OnDestroy {
                 this.model.set({
                     name: user.name,
                     cpf: formatCpf(user.cpf),
-                    imageUrl: user.imageUrl ?? '',
                 });
             }
         });
@@ -88,7 +93,7 @@ export class UserEdit implements OnDestroy {
         this.store.dispatch(UsersActions.clearSelectedUser());
     }
 
-    onSubmit(event: Event): void {
+    async onSubmit(event: Event): Promise<void> {
         event.preventDefault();
 
         if (!this.canSubmit()) {
@@ -103,23 +108,36 @@ export class UserEdit implements OnDestroy {
         }
 
         const value = this.model();
+        const pendingImageFile = this.imageFile();
 
-        const payload: UpdateUserRequest = {
-            name: diffPrimitive(original.name, value.name),
-            cpf: diffPrimitive(original.cpf, onlyDigits(value.cpf)),
-            imageUrl: diffPrimitive(original.imageUrl ?? '', value.imageUrl) || undefined,
-        };
+        this.submitting.set(true);
 
-        this.store.dispatch(
-            UsersActions.updateUser({
-                id: this.userId(),
-                payload,
-            }),
-        );
+        try {
+            const imageUrl = pendingImageFile
+                ? await this.fileUploadService.uploadImage(pendingImageFile, 'PROFILE', value.name)
+                : undefined;
+
+            const payload: UpdateUserRequest = {
+                name: diffPrimitive(original.name, value.name),
+                cpf: diffPrimitive(original.cpf, onlyDigits(value.cpf)),
+                imageUrl,
+            };
+
+            this.store.dispatch(
+                UsersActions.updateUser({
+                    id: this.userId(),
+                    payload,
+                }),
+            );
+        } catch {
+            this.toastService.show(ToastType.Error, 'Não foi possível enviar a imagem. Tente novamente.');
+        } finally {
+            this.submitting.set(false);
+        }
     }
 
-    onImageUploaded(url: string): void {
-        this.model.update((current) => ({ ...current, imageUrl: url }));
+    onImageSelected(file: File): void {
+        this.imageFile.set(file);
     }
 
     openResetConfirm(): void {

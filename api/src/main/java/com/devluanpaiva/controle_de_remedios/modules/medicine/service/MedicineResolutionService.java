@@ -3,12 +3,14 @@ package com.devluanpaiva.controle_de_remedios.modules.medicine.service;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.devluanpaiva.controle_de_remedios.modules.company.entity.Company;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.entity.Medicine;
 import com.devluanpaiva.controle_de_remedios.modules.medicine.repository.MedicineRepository;
+import com.devluanpaiva.controle_de_remedios.shared.exceptions.BusinessException;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -57,6 +59,14 @@ public class MedicineResolutionService {
     }
 
     private Medicine createMedicine(Company company, String name, String eanCode, String imageUrl) {
+        if (!StringUtils.hasText(imageUrl)) {
+            throw new BusinessException(
+                    HttpStatus.UNPROCESSABLE_CONTENT,
+                    "Imagem do medicamento é obrigatória",
+                    "MEDICINE_IMAGE_REQUIRED",
+                    "imageUrl",
+                    "É necessário informar uma imagem ao cadastrar um novo medicamento.");
+        }
 
         return medicineRepository.save(Medicine.builder()
                 .name(name)

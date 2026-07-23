@@ -42,10 +42,7 @@
             <app-image-upload-field
                 id="create-medicine-image"
                 label="Imagem do medicamento"
-                context="MEDICINE"
-                [ownerName]="model().name"
-                [imageUrl]="model().imageUrl"
-                (uploaded)="onImageUploaded($event)"
+                (fileSelected)="onImageSelected($event)"
             />
 
             @if (connectedCompany(); as company) {
@@ -58,7 +55,7 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-outline btn-sm" (click)="modalRef.requestClose()">Cancelar</button>
             <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canSubmit()">
-                @if (mutating()) {
+                @if (mutating() || submitting()) {
                     <span class="spinner spinner-sm" aria-hidden="true"></span>
                     <span>Salvando...</span>
                 } @else {

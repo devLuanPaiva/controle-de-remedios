@@ -43,6 +43,29 @@ export interface CreatePrescriptionItemRequest {
     treatmentDays: number;
 }
 
+/**
+ * Draft variant used while a prescription is being assembled in the create form: a
+ * quick-created medicine carries a pending `imageFile` instead of an already-uploaded
+ * `imageUrl`, since the upload only happens when the whole prescription is submitted.
+ */
+export interface CreatePrescriptionItemMedicineDraft {
+    name: string;
+    eanCode?: string;
+    imageFile?: File;
+}
+
+export interface CreatePrescriptionItemRequestDraft {
+    medicineId?: string;
+    medicine?: CreatePrescriptionItemMedicineDraft;
+    dosage: string;
+    prescribedQuantity: number;
+    unityType: UnityType;
+    frequency: number;
+    frequencyType: FrequencyType;
+    treatmentType: TreatmentType;
+    treatmentDays: number;
+}
+
 export interface UpdatePrescriptionItemRequest {
     status?: PrescriptionStatus;
     dosage?: string;
