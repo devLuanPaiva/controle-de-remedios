@@ -53,4 +53,13 @@
         <span>Entrar</span>
         }
     </button>
+
+    <div class="login-form__divider" role="separator">
+        <span>ou</span>
+    </div>
+
+    <button type="button" class="btn btn-outline login-form__google" [disabled]="loading()"
+        (click)="onGoogleLogin()">
+        <span>Entrar com o Google</span>
+    </button>
 </form>

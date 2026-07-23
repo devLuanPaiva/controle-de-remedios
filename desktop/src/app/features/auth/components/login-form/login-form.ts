@@ -73,4 +73,9 @@ export class LoginForm {
             })
         )
     }
+
+    onGoogleLogin() {
+        this.submitError.set(null);
+        this.store.dispatch(AuthActions.loginWithGoogle());
+    }
 }
