@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AiExtractionServiceImpl implements AiExtractionService {
     private static final String ESUS_MODEL = "gemini-3.1-flash-lite";
-    private static final String HANDWRITTEN_MODEL = "gemini-3.5-flash";
+    private static final String HANDWRITTEN_MODEL = "gemini-2.5-flash";
     private static final String MEDICINE_MODEL = "gemini-3.1-flash-lite";
 
     private static final Pattern ISO_DATE_PATTERN = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
@@ -48,26 +48,22 @@ public class AiExtractionServiceImpl implements AiExtractionService {
     private static final List<String> FREQUENCY_TYPE_VALUES = enumNames(FrequencyType.values());
     private static final List<String> TREATMENT_TYPE_VALUES = enumNames(TreatmentType.values());
 
-    private static final String ESUS_TYPE_INSTRUCTIONS =
-            "A receita é digitalizada, no modelo e-SUS. O nome do paciente normalmente está na primeira linha do "
-                    + "bloco CIDADÃO. A data de emissão costuma aparecer próxima à assinatura do médico ou no rodapé.";
+    private static final String ESUS_TYPE_INSTRUCTIONS = "A receita é digitalizada, no modelo e-SUS. O nome do paciente normalmente está na primeira linha do "
+            + "bloco CIDADÃO. A data de emissão costuma aparecer próxima à assinatura do médico ou no rodapé.";
 
-    private static final String HANDWRITTEN_TYPE_INSTRUCTIONS =
-            "A receita é escrita à mão por um médico. O nome do paciente normalmente aparece logo após o campo "
-                    + "impresso 'Nome:'. A data normalmente aparece no campo 'Data:' na parte inferior da página. A "
-                    + "caligrafia pode ser difícil de ler — faça o melhor possível e use null quando não tiver certeza.";
+    private static final String HANDWRITTEN_TYPE_INSTRUCTIONS = "A receita é escrita à mão por um médico. O nome do paciente normalmente aparece logo após o campo "
+            + "impresso 'Nome:'. A data normalmente aparece no campo 'Data:' na parte inferior da página. A "
+            + "caligrafia pode ser difícil de ler — faça o melhor possível e use null quando não tiver certeza.";
 
-    private static final String BARCODE_PROMPT =
-            "Atue como um leitor de código de barras. Esta imagem mostra o código de barras (EAN) impresso na caixa "
-                    + "de um medicamento. Leia o número impresso em texto logo abaixo ou ao lado das barras e "
-                    + "retorne apenas os dígitos desse código em JSON. Se não for possível ler o número com "
-                    + "confiança, retorne null.";
+    private static final String BARCODE_PROMPT = "Atue como um leitor de código de barras. Esta imagem mostra o código de barras (EAN) impresso na caixa "
+            + "de um medicamento. Leia o número impresso em texto logo abaixo ou ao lado das barras e "
+            + "retorne apenas os dígitos desse código em JSON. Se não for possível ler o número com "
+            + "confiança, retorne null.";
 
-    private static final String MEDICINE_NAME_PROMPT =
-            "Atue como um assistente de identificação de medicamentos. Esta imagem mostra a caixa de um "
-                    + "medicamento. Leia o nome comercial do medicamento impresso na caixa (ignore fabricante, "
-                    + "dosagem, código de barras e outras informações) e retorne em JSON. Se não for possível "
-                    + "identificar o nome com confiança, retorne null.";
+    private static final String MEDICINE_NAME_PROMPT = "Atue como um assistente de identificação de medicamentos. Esta imagem mostra a caixa de um "
+            + "medicamento. Leia o nome comercial do medicamento impresso na caixa (ignore fabricante, "
+            + "dosagem, código de barras e outras informações) e retorne em JSON. Se não for possível "
+            + "identificar o nome com confiança, retorne null.";
 
     private static final Map<String, Object> BARCODE_RESPONSE_SCHEMA = Map.of(
             "type", "OBJECT",
@@ -152,7 +148,8 @@ public class AiExtractionServiceImpl implements AiExtractionService {
 
     private void authorizeExtraction() {
         User actor = securityContextHelper.getCurrentUser();
-        authorizationPolicy.requireAdminOrRolesWithCondition(actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT), () -> true);
+        authorizationPolicy.requireAdminOrRolesWithCondition(actor, Set.of(UserRole.MANAGER, UserRole.ASSISTANT),
+                () -> true);
     }
 
     private List<ExtractedMedicationDTO> parseMedications(JsonNode medicamentos) {
