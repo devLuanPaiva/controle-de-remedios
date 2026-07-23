@@ -1,11 +1,10 @@
 package com.devluanpaiva.controle_de_remedios.modules.assistant.client;
 
-import java.time.Duration;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -24,14 +23,11 @@ public class N8nAssistantClient {
     private final String internalSecret;
 
     public N8nAssistantClient(
+            @Qualifier("n8nRestClientBuilder") RestClient.Builder restClientBuilder,
             @Value("${assistant.n8n-webhook-url}") String webhookUrl,
             @Value("${assistant.internal-secret}") String internalSecret) {
 
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout((int) Duration.ofSeconds(5).toMillis());
-        requestFactory.setReadTimeout((int) Duration.ofSeconds(30).toMillis());
-
-        this.restClient = RestClient.builder().requestFactory(requestFactory).build();
+        this.restClient = restClientBuilder.build();
         this.webhookUrl = webhookUrl;
         this.internalSecret = internalSecret;
     }

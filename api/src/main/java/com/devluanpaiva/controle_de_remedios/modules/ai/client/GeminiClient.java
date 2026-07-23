@@ -1,6 +1,5 @@
 package com.devluanpaiva.controle_de_remedios.modules.ai.client;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,9 +8,9 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
@@ -38,12 +37,11 @@ public class GeminiClient {
     private final String apiKey;
     private final Semaphore concurrencyLimiter = new Semaphore(MAX_CONCURRENT_CALLS);
 
-    public GeminiClient(@Value("${gemini.api-key}") String apiKey) {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout((int) Duration.ofSeconds(5).toMillis());
-        requestFactory.setReadTimeout((int) Duration.ofSeconds(20).toMillis());
+    public GeminiClient(
+            @Qualifier("geminiRestClientBuilder") RestClient.Builder restClientBuilder,
+            @Value("${gemini.api-key}") String apiKey) {
 
-        this.restClient = RestClient.builder().requestFactory(requestFactory).build();
+        this.restClient = restClientBuilder.build();
         this.apiKey = apiKey;
     }
 
