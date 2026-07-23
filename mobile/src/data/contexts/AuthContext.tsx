@@ -1,5 +1,4 @@
 import { useRouter, type Href } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
     useState,
     PropsWithChildren,
@@ -11,8 +10,8 @@ import {
     useCallback,
 } from "react";
 
+import { clearTokens, getStoredTokens, persistTokens } from "@/lib/authStorage";
 import { BASE_URL } from "@/lib/env";
-import { AUTH_STORAGE_KEYS } from "@/lib/storageKeys";
 import { IUser, UserRole, normalizeUserRole } from "../models/user.model";
 
 const SIGN_IN_ROUTE = "/(authentication)/signIn" as Href;
@@ -80,23 +79,12 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
         }
     }, []);
 
-    const persistTokens = useCallback(async (access: string, refresh: string) => {
-        await AsyncStorage.multiSet([
-            [AUTH_STORAGE_KEYS.ACCESS, access],
-            [AUTH_STORAGE_KEYS.REFRESH, refresh],
-        ]);
-    }, []);
-
-    const removeTokens = useCallback(async () => {
-        await AsyncStorage.multiRemove([AUTH_STORAGE_KEYS.ACCESS, AUTH_STORAGE_KEYS.REFRESH]);
-    }, []);
-
     const endSession = useCallback(async () => {
         clearTimer();
-        await removeTokens();
+        await clearTokens();
         setIsLoggedIn(false);
         setUser(null);
-    }, [clearTimer, removeTokens]);
+    }, [clearTimer]);
 
     const scheduleRefresh = useCallback((access: string, refresh: string) => {
         clearTimer();
@@ -134,13 +122,13 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
             const newRefresh: string =
                 result.data?.refresh ?? result.refresh ?? refreshToken;
 
-            await persistTokens(newAccess, newRefresh);
+            await persistTokens({ access: newAccess, refresh: newRefresh });
             startSession(newAccess, newRefresh);
         } catch {
             await endSession();
             router.replace(SIGN_IN_ROUTE);
         }
-    }, [endSession, persistTokens, router, startSession]);
+    }, [endSession, router, startSession]);
 
     useEffect(() => {
         performRefreshRef.current = performRefresh;
@@ -149,10 +137,7 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
     useEffect(() => {
         async function restore() {
             try {
-                const [[, access], [, refresh]] = await AsyncStorage.multiGet([
-                    AUTH_STORAGE_KEYS.ACCESS,
-                    AUTH_STORAGE_KEYS.REFRESH,
-                ]);
+                const { access, refresh } = await getStoredTokens();
 
                 if (!access || !refresh) return;
 
@@ -195,10 +180,10 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
                 throw new Error("Resposta inválida do servidor");
             }
 
-            await persistTokens(access, refresh);
+            await persistTokens({ access, refresh });
             startSession(access, refresh);
         },
-        [persistTokens, startSession],
+        [startSession],
     );
 
     const logout = useCallback(async () => {
