@@ -40,6 +40,7 @@ import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyR
 import com.devluanpaiva.controle_de_remedios.modules.notification.service.EmailService;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.ChangePasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.DeleteAccountRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
@@ -921,6 +922,45 @@ class UserServiceImplTest {
                     });
 
             verify(userRepository, never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteOwnAccount")
+    class DeleteOwnAccount {
+
+        @Test
+        @DisplayName("should delete the current user when the password is correct")
+        void shouldDeleteCurrentUserWhenPasswordIsCorrect() {
+            User self = buildUser(UserRole.ASSISTANT);
+            DeleteAccountRequestDTO dto = new DeleteAccountRequestDTO("current-password");
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(self);
+            when(passwordEncoder.matches(dto.password(), self.getPassword())).thenReturn(true);
+
+            userService.deleteOwnAccount(dto);
+
+            verify(userRepository).delete(self);
+        }
+
+        @Test
+        @DisplayName("should throw 400 and not delete when the password is incorrect")
+        void shouldThrowWhenPasswordIsIncorrect() {
+            User self = buildUser(UserRole.ASSISTANT);
+            DeleteAccountRequestDTO dto = new DeleteAccountRequestDTO("wrong-password");
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(self);
+            when(passwordEncoder.matches(dto.password(), self.getPassword())).thenReturn(false);
+
+            assertThatThrownBy(() -> userService.deleteOwnAccount(dto))
+                    .isInstanceOf(BusinessException.class)
+                    .satisfies(ex -> {
+                        BusinessException businessException = (BusinessException) ex;
+                        assertThat(businessException.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+                        assertThat(businessException.getCode()).isEqualTo("CURRENT_PASSWORD_INVALID");
+                    });
+
+            verify(userRepository, never()).delete(any(User.class));
         }
     }
 
