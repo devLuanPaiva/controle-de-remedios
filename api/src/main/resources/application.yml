@@ -5,6 +5,10 @@ spring:
   application:
     name: controle-de-remedios
 
+  threads:
+    virtual:
+      enabled: true
+
   datasource:
     url: ${DB_URL:}
     username: ${DB_USERNAME:}

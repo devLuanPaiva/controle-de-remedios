@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -26,16 +28,20 @@ import lombok.extern.slf4j.Slf4j;
 public class GeminiClient {
     private static final String GENERATE_CONTENT_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent";
     private static final Set<Integer> RETRYABLE_STATUSES = Set.of(429, 503);
-    private static final int MAX_ATTEMPTS = 5;
+    private static final int MAX_ATTEMPTS = 3;
     private static final long RETRY_BACKOFF_MS = 1_500;
+
+    private static final int MAX_CONCURRENT_CALLS = 8;
+    private static final long PERMIT_WAIT_MS = 10_000;
 
     private final RestClient restClient;
     private final String apiKey;
+    private final Semaphore concurrencyLimiter = new Semaphore(MAX_CONCURRENT_CALLS);
 
     public GeminiClient(@Value("${gemini.api-key}") String apiKey) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout((int) Duration.ofSeconds(5).toMillis());
-        requestFactory.setReadTimeout((int) Duration.ofSeconds(30).toMillis());
+        requestFactory.setReadTimeout((int) Duration.ofSeconds(20).toMillis());
 
         this.restClient = RestClient.builder().requestFactory(requestFactory).build();
         this.apiKey = apiKey;
@@ -47,6 +53,30 @@ public class GeminiClient {
             log.warn("Gemini extraction skipped -> chave GEMINI_API_KEY não configurada");
             return null;
         }
+
+        if (!tryAcquirePermit()) {
+            log.warn("Gemini extraction skipped -> limite de {} chamadas simultâneas atingido", MAX_CONCURRENT_CALLS);
+            return null;
+        }
+
+        try {
+            return callWithRetry(model, prompt, base64Images, responseSchema);
+        } finally {
+            concurrencyLimiter.release();
+        }
+    }
+
+    private boolean tryAcquirePermit() {
+        try {
+            return concurrencyLimiter.tryAcquire(PERMIT_WAIT_MS, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
+    }
+
+    private String callWithRetry(String model, String prompt, List<String> base64Images,
+            Map<String, Object> responseSchema) {
 
         String uri = UriComponentsBuilder
                 .fromUriString(String.format(GENERATE_CONTENT_URL_TEMPLATE, model))
