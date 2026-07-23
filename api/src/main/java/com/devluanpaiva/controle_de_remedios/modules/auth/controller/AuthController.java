@@ -6,10 +6,13 @@ import org.springframework.web.bind.annotation.*;
 
 import com.devluanpaiva.controle_de_remedios.modules.auth.dto.AuthResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.auth.dto.ForgotPasswordRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.auth.dto.GoogleDesktopLoginRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.auth.dto.GoogleLoginRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.auth.dto.LoginRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.auth.dto.RefreshTokenRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.auth.dto.ResetPasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.auth.service.AuthService;
+import com.devluanpaiva.controle_de_remedios.modules.auth.service.GoogleAuthService;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponse;
 import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponseFactory;
 
@@ -18,6 +21,7 @@ import com.devluanpaiva.controle_de_remedios.shared.responses.ApiResponseFactory
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final GoogleAuthService googleAuthService;
 
     @PostMapping("/login")
     public AuthResponseDTO login(
@@ -30,6 +34,18 @@ public class AuthController {
             @RequestBody @Valid RefreshTokenRequestDTO dto) {
 
         return authService.refresh(dto);
+    }
+
+    @PostMapping("/google")
+    public AuthResponseDTO loginWithGoogle(
+            @RequestBody @Valid GoogleLoginRequestDTO dto) {
+        return googleAuthService.loginWithIdToken(dto);
+    }
+
+    @PostMapping("/google/desktop")
+    public AuthResponseDTO loginWithGoogleDesktop(
+            @RequestBody @Valid GoogleDesktopLoginRequestDTO dto) {
+        return googleAuthService.loginWithAuthorizationCode(dto);
     }
 
     @PostMapping("/forgot-password")
