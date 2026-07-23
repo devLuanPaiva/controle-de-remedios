@@ -48,6 +48,14 @@ assistant:
 gemini:
   api-key: ${GEMINI_API_KEY:}
 
+google:
+  oauth:
+    client-id-web: ${OAUTH_CLIENT_ID_WEB:}
+    client-id-mobile: ${OAUTH_CLIENT_ID_MOBILE:}
+    client-id-desktop: ${OAUTH_CLIENT_ID_DESKTOP:}
+    client-secret: ${OAUTH_CLIENT_SECRET:}
+    token-uri: https://oauth2.googleapis.com/token
+
 resend:
   api-key: ${RESEND_API_KEY:}
   from-email: ${RESEND_FROM_EMAIL:}
