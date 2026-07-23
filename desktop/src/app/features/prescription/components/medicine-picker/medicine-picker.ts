@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 
 import { selectSelectedCompanyId } from '@features/company/store/company.selectors';
@@ -7,9 +7,9 @@ import { MedicineService } from '@features/medicine/services/medicine.service';
 import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-field';
 import { Field } from '@shared/ui/field/field';
 
-import { CreatePrescriptionItemMedicine } from '../../models/prescription-item-api.model';
+import { CreatePrescriptionItemMedicineDraft } from '../../models/prescription-item-api.model';
 
-export type MedicinePickerSelection = { medicineId: string } | { medicine: CreatePrescriptionItemMedicine };
+export type MedicinePickerSelection = { medicineId: string } | { medicine: CreatePrescriptionItemMedicineDraft };
 
 type PickerSelection = { type: 'existing'; medicine: IMedicine } | { type: 'new'; name: string } | null;
 
@@ -23,6 +23,8 @@ type PickerSelection = { type: 'existing'; medicine: IMedicine } | { type: 'new'
 export class MedicinePicker {
     private readonly medicineService = inject(MedicineService);
     private readonly store = inject(Store);
+
+    readonly idPrefix = input.required<string>();
 
     readonly medicineSelected = output<MedicinePickerSelection>();
     readonly cleared = output<void>();
@@ -39,7 +41,7 @@ export class MedicinePicker {
 
     readonly newMedicineName = signal('');
     readonly newMedicineEanCode = signal('');
-    readonly newMedicineImageUrl = signal<string | null>(null);
+    readonly newMedicineImageFile = signal<File | null>(null);
 
     onSearchTermChange(value: string): void {
         this.searchTerm.set(value);
@@ -104,37 +106,37 @@ export class MedicinePicker {
         this.newMedicineEanCode.set(value);
     }
 
-    onNewMedicineImageUploaded(imageUrl: string): void {
-        this.newMedicineImageUrl.set(imageUrl);
+    onNewMedicineImageSelected(file: File): void {
+        this.newMedicineImageFile.set(file);
     }
 
     get canConfirmQuickCreate(): boolean {
-        return this.newMedicineName().trim().length > 0 && !!this.newMedicineImageUrl();
+        return this.newMedicineName().trim().length > 0;
     }
 
     confirmQuickCreate(): void {
         const name = this.newMedicineName().trim();
-        const imageUrl = this.newMedicineImageUrl();
 
-        if (!name || !imageUrl) {
+        if (!name) {
             return;
         }
 
         const eanCode = this.newMedicineEanCode().trim();
+        const imageFile = this.newMedicineImageFile();
 
         this.selection.set({ type: 'new', name });
         this.medicineSelected.emit({
             medicine: {
                 name,
                 eanCode: eanCode || undefined,
-                imageUrl,
+                imageFile: imageFile ?? undefined,
             },
         });
 
         this.showQuickCreate.set(false);
         this.newMedicineName.set('');
         this.newMedicineEanCode.set('');
-        this.newMedicineImageUrl.set(null);
+        this.newMedicineImageFile.set(null);
     }
 
     clearSelection(): void {

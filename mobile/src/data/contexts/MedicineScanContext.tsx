@@ -10,7 +10,7 @@ import {
 import { useCompanies } from "@/data/contexts/CompanyContext";
 import { uploadImage } from "@/data/services/upload.service";
 import { createMedicine, searchMedicineByEan, updateMedicine } from "@/data/services/medicine.service";
-import { extractBarcodeValue, extractMedicineName } from "@/data/services/gemini.service";
+import { extractBarcodeValue, extractMedicineName } from "@/data/services/extraction.service";
 import { IMedicine } from "@/data/models/medicine.model";
 
 export interface CapturedPhoto {

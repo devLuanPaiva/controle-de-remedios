@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bem-vindo ao ChegaMed</title>
+</head>
+
+<body style="margin:0; padding:0; background-color:#f2ede4; font-family:'Segoe UI', Arial, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+        style="background-color:#f2ede4; padding:32px 16px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="100%"
+                    style="max-width:520px; background-color:#ffffff; border-radius:12px; overflow:hidden;"
+                    cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td align="center" style="background-color:#035941; padding:32px 24px;">
+                            <img src="{{logoUrl}}" alt="ChegaMed" width="140"
+                                style="display:block; max-width:140px; height:auto;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:32px 32px 8px 32px;">
+                            <h1 style="margin:0 0 16px 0; font-size:20px; color:#171615;">Bem-vindo(a) ao ChegaMed</h1>
+                            <p style="margin:0 0 16px 0; font-size:15px; line-height:22px; color:#4d4a46;">Olá,
+                                {{name}}.</p>
+                            <p style="margin:0 0 24px 0; font-size:15px; line-height:22px; color:#4d4a46;">
+                                Sua conta foi criada com sucesso. Abaixo estão seus dados de acesso à plataforma:
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:0 32px 24px 32px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                                style="background-color:#f8f6f2; border-radius:8px;">
+                                <tr>
+                                    <td style="padding:16px 20px;">
+                                        <p style="margin:0 0 8px 0; font-size:13px; color:#8f8b85;">E-mail de acesso</p>
+                                        <p style="margin:0 0 16px 0; font-size:15px; color:#171615; font-weight:bold;">
+                                            {{email}}</p>
+                                        <p style="margin:0 0 8px 0; font-size:13px; color:#8f8b85;">Senha temporária</p>
+                                        <p style="margin:0; font-size:15px; color:#171615; font-weight:bold;">
+                                            {{password}}</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding:0 32px 24px 32px;">
+                            <a href="{{loginUrl}}"
+                                style="display:inline-block; background-color:#035941; color:#ffffff; text-decoration:none; font-size:15px; font-weight:bold; padding:14px 32px; border-radius:999px;">
+                                Acessar plataforma
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:0 32px 32px 32px;">
+                            <p style="margin:0; font-size:13px; line-height:20px; color:#8f8b85;">
+                                Por segurança, recomendamos alterar sua senha assim que acessar a plataforma pela
+                                primeira vez.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:20px 32px; background-color:#f8f6f2; border-top:1px solid #f2ede4;">
+                            <p style="margin:0; font-size:12px; color:#8f8b85; text-align:center;">
+                                &copy; {{year}} ChegaMed. Todos os direitos reservados.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

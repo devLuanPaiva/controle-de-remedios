@@ -16,6 +16,7 @@ export class PasswordField {
     readonly label = input('Senha');
     readonly autocomplete = input('new-password');
     readonly field = input.required<FieldTree<string>>();
+    readonly showGenerate = input(true);
 
     readonly showPassword = signal(false);
 

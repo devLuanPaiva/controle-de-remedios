@@ -1,0 +1,29 @@
+<app-widget-card
+    title="Entregas em atraso"
+    subtitle="Pacientes que passaram do prazo de tratamento"
+    [loading]="loading()"
+    [error]="errorMessage()"
+    (retry)="retry()"
+>
+    <svg widgetActions lucideCalendarX aria-hidden="true"></svg>
+
+    <app-stat-tile label="Em atraso" [value]="list().count + ''" accent="danger" />
+
+    @if (list().items.length > 0) {
+        <ul class="overdue-availability-widget__list">
+            @for (item of list().items; track item.deliveryId) {
+                <li>
+                    <div class="overdue-availability-widget__item-main">
+                        <span class="overdue-availability-widget__patient">{{ item.patientName }}</span>
+                        <span class="overdue-availability-widget__medicine">
+                            {{ item.medicineName }} · {{ UnityTypeLabels[item.unityType] }}
+                        </span>
+                    </div>
+                    <span class="overdue-availability-widget__when">{{ formatDaysUntil(item.daysUntilAvailable) }}</span>
+                </li>
+            }
+        </ul>
+    } @else {
+        <p class="overdue-availability-widget__empty">Nenhuma entrega em atraso.</p>
+    }
+</app-widget-card>

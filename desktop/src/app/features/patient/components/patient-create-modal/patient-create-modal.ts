@@ -44,6 +44,8 @@ export class PatientCreateModal {
         name: '',
         cpf: '',
         birthDate: '',
+        contact: '',
+        address: '',
         withAccount: false,
         email: '',
         password: '',
@@ -62,6 +64,9 @@ export class PatientCreateModal {
         validate(schema.birthDate, ({ value }) =>
             isNotFutureDate(value(), new Date()) ? null : { kind: 'birthDate', message: 'A data de nascimento não pode ser futura.' },
         );
+
+        maxLength(schema.contact, 20, { message: 'O contato deve ter no máximo 20 caracteres.' });
+        maxLength(schema.address, 255, { message: 'O endereço deve ter no máximo 255 caracteres.' });
 
         applyWhen(
             schema,
@@ -105,6 +110,8 @@ export class PatientCreateModal {
                         companyId,
                         email: value.email,
                         password: value.password,
+                        contact: value.contact || undefined,
+                        address: value.address || undefined,
                     },
                 }),
             );
@@ -116,6 +123,8 @@ export class PatientCreateModal {
                         cpf: onlyDigits(value.cpf),
                         birthDate: value.birthDate,
                         companyId,
+                        contact: value.contact || undefined,
+                        address: value.address || undefined,
                     },
                 }),
             );

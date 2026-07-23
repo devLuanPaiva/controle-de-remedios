@@ -10,13 +10,19 @@ export const authRoutes: Routes = [
         title: 'Entrar',
     },
     {
+        path: 'reset-password',
+        loadComponent: () => import('./pages/reset-password/reset-password').then(m => m.ResetPassword),
+        title: 'Redefinir senha',
+    },
+    {
         path: '',
         canActivate: [authGuard],
         loadComponent: () => import('@layouts/shell/shell').then((m) => m.Shell),
         children: [
             {
                 path: 'dashboard',
-                loadComponent: () => import('./pages/home/home').then(m => m.Home),
+                loadComponent: () =>
+                    import('@features/dashboard/pages/dashboard-page/dashboard-page').then((m) => m.DashboardPage),
                 title: 'Início',
             },
             {

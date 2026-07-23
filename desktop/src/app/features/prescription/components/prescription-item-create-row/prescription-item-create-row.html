@@ -19,7 +19,11 @@
             <span class="field__error">{{ errorMessage() }}</span>
         }
 
-        <app-medicine-picker (medicineSelected)="onMedicineSelected($event)" (cleared)="onMedicineCleared()" />
+        <app-medicine-picker
+            [idPrefix]="'item-' + index() + '-medicine-picker'"
+            (medicineSelected)="onMedicineSelected($event)"
+            (cleared)="onMedicineCleared()"
+        />
 
         <div class="item-row__grid">
             <div class="field">

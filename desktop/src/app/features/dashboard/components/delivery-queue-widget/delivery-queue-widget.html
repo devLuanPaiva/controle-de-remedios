@@ -1,0 +1,32 @@
+<app-widget-card
+    title="Fila de entrega"
+    subtitle="Itens aguardando dispensação"
+    [loading]="loading()"
+    [error]="errorMessage()"
+    (retry)="retry()"
+>
+    <svg widgetActions lucideHourglass aria-hidden="true"></svg>
+
+    <div class="delivery-queue-widget__stats">
+        <app-stat-tile label="Pendentes" [value]="summary().pendingCount + ''" accent="warning" />
+        <app-stat-tile label="Espera média" [value]="averageWaitLabel()" accent="neutral" />
+    </div>
+
+    @if (summary().oldestPending.length > 0) {
+        <ul class="delivery-queue-widget__list">
+            @for (item of summary().oldestPending; track item.prescriptionItemId) {
+                <li>
+                    <div class="delivery-queue-widget__item-main">
+                        <span class="delivery-queue-widget__patient">{{ item.patientName }}</span>
+                        <span class="delivery-queue-widget__medicine">
+                            {{ item.medicineName }} · {{ item.prescribedQuantity }} {{ UnityTypeLabels[item.unityType] }}
+                        </span>
+                    </div>
+                    <span class="delivery-queue-widget__waiting">{{ item.waitingDays }}d</span>
+                </li>
+            }
+        </ul>
+    } @else {
+        <p class="delivery-queue-widget__empty">Nenhum item aguardando entrega.</p>
+    }
+</app-widget-card>

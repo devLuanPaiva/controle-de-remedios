@@ -67,9 +67,9 @@
             </button>
         } @else {
             <div class="medicine-picker__quick-create-panel">
-                <app-field for="medicine-picker-new-name" label="Nome do medicamento">
+                <app-field [for]="idPrefix() + '-new-name'" label="Nome do medicamento">
                     <input
-                        id="medicine-picker-new-name"
+                        [id]="idPrefix() + '-new-name'"
                         #newNameInput
                         type="text"
                         class="input"
@@ -79,9 +79,9 @@
                     />
                 </app-field>
 
-                <app-field for="medicine-picker-new-ean-code" label="Código EAN (opcional)">
+                <app-field [for]="idPrefix() + '-new-ean-code'" label="Código EAN (opcional)">
                     <input
-                        id="medicine-picker-new-ean-code"
+                        [id]="idPrefix() + '-new-ean-code'"
                         #newEanInput
                         type="text"
                         inputmode="numeric"
@@ -94,12 +94,9 @@
                 </app-field>
 
                 <app-image-upload-field
-                    id="medicine-picker-new-image"
+                    [id]="idPrefix() + '-new-image'"
                     label="Imagem do medicamento"
-                    context="MEDICINE"
-                    [ownerName]="newMedicineName()"
-                    [imageUrl]="newMedicineImageUrl() ?? undefined"
-                    (uploaded)="onNewMedicineImageUploaded($event)"
+                    (fileSelected)="onNewMedicineImageSelected($event)"
                 />
 
                 <div class="medicine-picker__quick-create-actions">

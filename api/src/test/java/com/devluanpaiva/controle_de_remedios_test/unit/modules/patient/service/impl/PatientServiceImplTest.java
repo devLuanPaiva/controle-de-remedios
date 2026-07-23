@@ -149,7 +149,7 @@ class PatientServiceImplTest {
             User admin = buildUser(UserRole.ADMIN);
             Company company = buildCompany();
             CreatePatientRequestDTO dto = new CreatePatientRequestDTO(
-                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), company.getId());
+                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), company.getId(), null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
@@ -169,7 +169,7 @@ class PatientServiceImplTest {
             User manager = buildUser(UserRole.MANAGER);
             Company company = buildCompany();
             CreatePatientRequestDTO dto = new CreatePatientRequestDTO(
-                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), company.getId());
+                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), company.getId(), null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
             when(companyRepository.existsByIdAndUsers_Id(company.getId(), manager.getId())).thenReturn(true);
@@ -187,7 +187,7 @@ class PatientServiceImplTest {
             User patientUser = buildUser(UserRole.PATIENT);
             UUID companyId = UUID.randomUUID();
             CreatePatientRequestDTO dto = new CreatePatientRequestDTO(
-                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), companyId);
+                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), companyId, null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(patientUser);
 
@@ -203,7 +203,7 @@ class PatientServiceImplTest {
             User manager = buildUser(UserRole.MANAGER);
             UUID companyId = UUID.randomUUID();
             CreatePatientRequestDTO dto = new CreatePatientRequestDTO(
-                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), companyId);
+                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), companyId, null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
             when(companyRepository.existsByIdAndUsers_Id(companyId, manager.getId())).thenReturn(false);
@@ -220,7 +220,7 @@ class PatientServiceImplTest {
             User admin = buildUser(UserRole.ADMIN);
             Company company = buildCompany();
             CreatePatientRequestDTO dto = new CreatePatientRequestDTO(
-                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), company.getId());
+                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), company.getId(), null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
@@ -237,7 +237,7 @@ class PatientServiceImplTest {
             User admin = buildUser(UserRole.ADMIN);
             UUID companyId = UUID.randomUUID();
             CreatePatientRequestDTO dto = new CreatePatientRequestDTO(
-                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), companyId);
+                    "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), companyId, null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(companyRepository.findById(companyId)).thenReturn(Optional.empty());
@@ -414,7 +414,7 @@ class PatientServiceImplTest {
             Company company = buildCompany();
             Patient patient = buildPatient(company);
             String originalCpf = patient.getCpf();
-            UpdatePatientRequestDTO dto = new UpdatePatientRequestDTO("Jane Doe", null, null);
+            UpdatePatientRequestDTO dto = new UpdatePatientRequestDTO("Jane Doe", null, null, null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(patientRepository.findById(patient.getId())).thenReturn(Optional.of(patient));
@@ -433,7 +433,7 @@ class PatientServiceImplTest {
             User admin = buildUser(UserRole.ADMIN);
             Company company = buildCompany();
             Patient patient = buildPatient(company);
-            UpdatePatientRequestDTO dto = new UpdatePatientRequestDTO(null, "11144477735", null);
+            UpdatePatientRequestDTO dto = new UpdatePatientRequestDTO(null, "11144477735", null, null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(patientRepository.findById(patient.getId())).thenReturn(Optional.of(patient));
@@ -452,7 +452,7 @@ class PatientServiceImplTest {
             User manager = buildUser(UserRole.MANAGER);
             Company company = buildCompany();
             Patient patient = buildPatient(company);
-            UpdatePatientRequestDTO dto = new UpdatePatientRequestDTO("Jane Doe", null, null);
+            UpdatePatientRequestDTO dto = new UpdatePatientRequestDTO("Jane Doe", null, null, null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
             when(patientRepository.findById(patient.getId())).thenReturn(Optional.of(patient));
@@ -468,7 +468,7 @@ class PatientServiceImplTest {
         void shouldThrowNotFoundWhenPatientDoesNotExist() {
             User admin = buildUser(UserRole.ADMIN);
             UUID id = UUID.randomUUID();
-            UpdatePatientRequestDTO dto = new UpdatePatientRequestDTO("Jane Doe", null, null);
+            UpdatePatientRequestDTO dto = new UpdatePatientRequestDTO("Jane Doe", null, null, null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(patientRepository.findById(id)).thenReturn(Optional.empty());
@@ -615,7 +615,7 @@ class PatientServiceImplTest {
             Company company = buildCompany();
             CreatePatientWithAccountRequestDTO dto = new CreatePatientWithAccountRequestDTO(
                     "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), company.getId(),
-                    "patient@example.com", "password123", null);
+                    "patient@example.com", "password123", null, null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
@@ -643,7 +643,7 @@ class PatientServiceImplTest {
             Company company = buildCompany();
             CreatePatientWithAccountRequestDTO dto = new CreatePatientWithAccountRequestDTO(
                     "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), company.getId(),
-                    "patient@example.com", "password123", null);
+                    "patient@example.com", "password123", null, null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(admin);
             when(companyRepository.findById(company.getId())).thenReturn(Optional.of(company));
@@ -664,7 +664,7 @@ class PatientServiceImplTest {
             UUID companyId = UUID.randomUUID();
             CreatePatientWithAccountRequestDTO dto = new CreatePatientWithAccountRequestDTO(
                     "John Doe", "52998224725", LocalDate.of(1950, Month.JANUARY, 1), companyId,
-                    "patient@example.com", "password123", null);
+                    "patient@example.com", "password123", null, null, null);
 
             when(securityContextHelper.getCurrentUser()).thenReturn(manager);
             when(companyRepository.existsByIdAndUsers_Id(companyId, manager.getId())).thenReturn(false);

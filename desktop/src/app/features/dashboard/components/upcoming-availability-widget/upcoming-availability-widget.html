@@ -1,0 +1,29 @@
+<app-widget-card
+    title="Próximas liberações"
+    subtitle="Pacientes liberados nos próximos 7 dias"
+    [loading]="loading()"
+    [error]="errorMessage()"
+    (retry)="retry()"
+>
+    <svg widgetActions lucideCalendarClock aria-hidden="true"></svg>
+
+    <app-stat-tile label="Liberações previstas" [value]="list().count + ''" accent="info" />
+
+    @if (list().items.length > 0) {
+        <ul class="upcoming-availability-widget__list">
+            @for (item of list().items; track item.deliveryId) {
+                <li>
+                    <div class="upcoming-availability-widget__item-main">
+                        <span class="upcoming-availability-widget__patient">{{ item.patientName }}</span>
+                        <span class="upcoming-availability-widget__medicine">
+                            {{ item.medicineName }} · {{ UnityTypeLabels[item.unityType] }}
+                        </span>
+                    </div>
+                    <span class="upcoming-availability-widget__when">{{ formatDaysUntil(item.daysUntilAvailable) }}</span>
+                </li>
+            }
+        </ul>
+    } @else {
+        <p class="upcoming-availability-widget__empty">Nenhuma liberação prevista para o período.</p>
+    }
+</app-widget-card>

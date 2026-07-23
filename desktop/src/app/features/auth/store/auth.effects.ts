@@ -7,7 +7,7 @@ import { ToastService } from "@core/ui/toast/service/toast.service";
 import { catchError, exhaustMap, map, of, tap } from "rxjs";
 import { ToastType } from "@core/ui/toast/models/toast.model";
 import { AuthSessionService } from "../services/auth-session.service";
-import { extractErrorMessage } from "@shared/utils/api-error.util";
+import { extractErrorMessage, extractErrors } from "@shared/utils/api-error.util";
 
 @Injectable()
 export class AuthEffects {
@@ -70,6 +70,51 @@ export class AuthEffects {
             tap(() => {
                 this.session.logout();
                 this.toast.show(ToastType.Info, "Logout realizado com sucesso!");
+            })
+        ),
+        { dispatch: false }
+    )
+
+    resetPassword$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.resetPassword),
+
+            exhaustMap(action => this.authService.resetPassword({
+                token: action.token,
+                newPassword: action.newPassword,
+                confirmPassword: action.confirmPassword
+
+            }).pipe(
+                map(() => AuthActions.resetPasswordSuccess()),
+                catchError(error =>
+                    of(
+                        AuthActions.resetPasswordFailure({
+                            message: extractErrorMessage(error, "Erro ao redefinir a senha."),
+                            errors: extractErrors(error)
+                        })
+                    )
+                )
+            )
+            )
+        )
+    )
+
+    resetPasswordSuccess$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.resetPasswordSuccess),
+            tap(() => {
+                this.toast.show(ToastType.Success, "Senha redefinida com sucesso! Faça login com sua nova senha.");
+                this.router.navigate(['/login']);
+            })
+        ),
+        { dispatch: false }
+    )
+
+    resetPasswordFailure$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.resetPasswordFailure),
+            tap(action => {
+                this.toast.show(ToastType.Error, action.message);
             })
         ),
         { dispatch: false }

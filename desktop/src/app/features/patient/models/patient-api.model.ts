@@ -9,6 +9,8 @@ export interface PatientApiDto {
     birthDate: string;
     companyId: string;
     userId: string | null;
+    contact: string | null;
+    address: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -18,6 +20,8 @@ export interface CreatePatientRequest {
     cpf: string;
     birthDate: string;
     companyId: string;
+    contact?: string;
+    address?: string;
 }
 
 export interface CreatePatientWithAccountRequest {
@@ -28,6 +32,8 @@ export interface CreatePatientWithAccountRequest {
     email: string;
     password: string;
     imageUrl?: string;
+    contact?: string;
+    address?: string;
 }
 
 export interface CreatePatientAccountRequest {
@@ -39,6 +45,8 @@ export interface UpdatePatientRequest {
     name?: string;
     cpf?: string;
     birthDate?: string;
+    contact?: string;
+    address?: string;
 }
 
 export interface PatientFilterParams {
@@ -64,6 +72,8 @@ export function toPatient(dto: PatientApiDto): IPatient {
         birthDate: parseLocalDate(dto.birthDate),
         companyId: dto.companyId,
         userId: dto.userId ?? undefined,
+        contact: dto.contact ?? undefined,
+        address: dto.address ?? undefined,
         createdAt: new Date(dto.createdAt),
         updatedAt: new Date(dto.updatedAt),
     };

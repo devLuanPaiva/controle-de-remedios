@@ -1,0 +1,60 @@
+<main class="dashboard-page">
+    <header class="dashboard-page__header">
+        <div>
+            <h1 class="dashboard-page__title">
+                @if (user(); as currentUser) {
+                    Olá, {{ currentUser.name }}
+                } @else {
+                    Bem-vindo(a)
+                }
+            </h1>
+            @if (isStaff()) {
+                <p class="dashboard-page__subtitle">Visão geral das entregas e receituários</p>
+            }
+        </div>
+
+        @if (companies().length > 0) {
+            <app-company-switcher
+                [companies]="companies()"
+                [selectedCompanyId]="selectedCompanyId()"
+                (companySelected)="onCompanySelected($event)"
+            />
+        }
+    </header>
+
+    @if (isStaff()) {
+        @if (selectedCompanyId(); as companyId) {
+            <div class="dashboard-page__grid">
+                <div class="dashboard-page__cell dashboard-page__cell--wide">
+                    <app-prescription-status-widget [companyId]="companyId" />
+                </div>
+
+                <div class="dashboard-page__cell">
+                    <app-fulfillment-summary-widget [companyId]="companyId" />
+                </div>
+
+                <div class="dashboard-page__cell">
+                    <app-delivery-queue-widget [companyId]="companyId" />
+                </div>
+
+                <div class="dashboard-page__cell">
+                    <app-upcoming-availability-widget [companyId]="companyId" />
+                </div>
+
+                <div class="dashboard-page__cell">
+                    <app-overdue-availability-widget [companyId]="companyId" />
+                </div>
+
+                <div class="dashboard-page__cell dashboard-page__cell--full">
+                    <app-delivery-timeline-widget [companyId]="companyId" />
+                </div>
+            </div>
+        } @else {
+            <p class="dashboard-page__empty">Selecione uma empresa para ver o painel.</p>
+        }
+    } @else {
+        <section class="dashboard-page__card card">
+            <p class="dashboard-page__subtitle">Você está autenticado com sucesso.</p>
+        </section>
+    }
+</main>

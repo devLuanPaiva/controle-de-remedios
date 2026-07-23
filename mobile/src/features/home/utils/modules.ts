@@ -1,5 +1,5 @@
 import { Href } from "expo-router";
-import { PillBottle, ScanLine, Truck } from "lucide-react-native";
+import { PillBottle, ScanLine, Truck, Users } from "lucide-react-native";
 import type { LucideIcon } from "lucide-react-native";
 
 import { UserRole } from "@/data/models/user.model";
@@ -21,6 +21,14 @@ export const HOME_MODULES: ModuleDefinition[] = [
         icon: ScanLine,
         route: "/(protected)/prescriptions" as Href,
         allowedRoles: [UserRole.MANAGER],
+    },
+    {
+        id: "patients",
+        title: "Pacientes",
+        subtitle: "Consultar e cadastrar pacientes",
+        icon: Users,
+        route: "/(protected)/patients" as Href,
+        allowedRoles: [UserRole.MANAGER, UserRole.ASSISTANT],
     },
     {
         id: "medicines",

@@ -1,0 +1,23 @@
+<app-widget-card
+    title="Status das receitas"
+    [subtitle]="subtitle()"
+    [loading]="loading()"
+    [error]="errorMessage()"
+    (retry)="retry()"
+>
+    <svg widgetActions lucideListChecks aria-hidden="true"></svg>
+
+    <div class="prescription-status-widget__chart">
+        <app-chart type="bar" [data]="chartData()" [options]="chartOptions" ariaLabel="Gráfico de status das receitas" />
+    </div>
+
+    <ul class="prescription-status-widget__legend">
+        @for (row of rows(); track row.status) {
+            <li>
+                <span class="prescription-status-widget__swatch" [style.background]="row.color" aria-hidden="true"></span>
+                <span class="prescription-status-widget__legend-label">{{ row.label }}</span>
+                <span class="prescription-status-widget__legend-count">{{ row.count }}</span>
+            </li>
+        }
+    </ul>
+</app-widget-card>

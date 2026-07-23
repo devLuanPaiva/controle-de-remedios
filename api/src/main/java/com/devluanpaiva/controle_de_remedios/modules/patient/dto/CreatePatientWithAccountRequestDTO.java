@@ -18,5 +18,7 @@ public record CreatePatientWithAccountRequestDTO(
         @NotNull UUID companyId,
         @NotBlank @Email String email,
         @NotBlank @Size(min = 6, max = 20) String password,
-        @Size(max = 255) String imageUrl) {
+        @Size(max = 255) String imageUrl,
+        @Size(max = 20) String contact,
+        @Size(max = 255) String address) {
 }

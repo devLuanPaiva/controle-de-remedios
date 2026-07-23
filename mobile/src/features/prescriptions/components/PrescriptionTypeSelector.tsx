@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { Colors, Radius, Spacing, Typography } from "@/theme";
-import { PrescriptionType } from "@/data/services/gemini.service";
+import { PrescriptionType } from "@/data/services/extraction.service";
 
 interface PrescriptionTypeOption {
     value: PrescriptionType;

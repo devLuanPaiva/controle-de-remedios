@@ -1,0 +1,29 @@
+# Build output (rebuilt inside the image)
+target/
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# IDE / editors
+.idea/
+.vscode/
+.claude/
+*.iml
+
+# Maven wrapper (image uses the maven base image's own mvn)
+.mvn/
+mvnw
+mvnw.cmd
+
+# Secrets and local env
+.env
+.env.sample
+
+# Docs
+HELP.md
+*.md
+
+# Logs
+*.log

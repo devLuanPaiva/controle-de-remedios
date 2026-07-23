@@ -19,8 +19,6 @@
         <app-image-upload-multi-field
             id="create-prescription-image"
             label="Imagens da receita (opcional)"
-            context="PRESCRIPTION"
-            [imageUrls]="model().imageUrls"
             (imagesChanged)="onImagesChanged($event)"
         />
 
@@ -49,7 +47,7 @@
 
     <div class="card-footer">
         <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
-            @if (mutating()) {
+            @if (mutating() || submitting()) {
                 <span class="spinner spinner-sm" aria-hidden="true"></span>
                 <span>Salvando...</span>
             } @else {

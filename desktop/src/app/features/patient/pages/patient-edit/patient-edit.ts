@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormField, form, minLength, required, validate } from '@angular/forms/signals';
+import { FormField, form, maxLength, minLength, required, validate } from '@angular/forms/signals';
 import { Store } from '@ngrx/store';
 import { map } from 'rxjs';
 
@@ -55,6 +55,8 @@ export class PatientEdit implements OnDestroy {
         name: '',
         cpf: '',
         birthDate: '',
+        contact: '',
+        address: '',
     });
 
     readonly editForm = form(this.model, (schema) => {
@@ -68,6 +70,9 @@ export class PatientEdit implements OnDestroy {
         validate(schema.birthDate, ({ value }) =>
             isNotFutureDate(value(), new Date()) ? null : { kind: 'birthDate', message: 'A data de nascimento não pode ser futura.' },
         );
+
+        maxLength(schema.contact, 20, { message: 'O contato deve ter no máximo 20 caracteres.' });
+        maxLength(schema.address, 255, { message: 'O endereço deve ter no máximo 255 caracteres.' });
     });
 
     readonly canSubmit = computed(() => this.editForm().valid() && !this.mutating());
@@ -87,6 +92,8 @@ export class PatientEdit implements OnDestroy {
                     name: patient.name,
                     cpf: formatCpf(patient.cpf),
                     birthDate: toDateInputValue(patient.birthDate),
+                    contact: patient.contact ?? '',
+                    address: patient.address ?? '',
                 });
             }
         });
@@ -116,6 +123,8 @@ export class PatientEdit implements OnDestroy {
             name: diffPrimitive(original.name, value.name),
             cpf: diffPrimitive(original.cpf, onlyDigits(value.cpf)),
             birthDate: diffPrimitive(toDateInputValue(original.birthDate), value.birthDate),
+            contact: diffPrimitive(original.contact ?? '', value.contact),
+            address: diffPrimitive(original.address ?? '', value.address),
         };
 
         this.store.dispatch(

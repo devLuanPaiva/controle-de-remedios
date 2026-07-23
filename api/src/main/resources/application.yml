@@ -5,6 +5,10 @@ spring:
   application:
     name: controle-de-remedios
 
+  threads:
+    virtual:
+      enabled: true
+
   datasource:
     url: ${DB_URL:}
     username: ${DB_USERNAME:}
@@ -27,7 +31,7 @@ spring:
       password: 565a2051-676b-4baf-bf51-2a0465b97a14
 
     jwt:
-      secret: ${JWT_SECRET:6a7d4e8c1f9b3a5d7c8f6e1b2a4c9d7e3f8b5a0f1a6c4d9b8e8c9c5f95f0d2}
+      secret: ${JWT_SECRET:}
 
 aws:
   region: ${AWS_REGION:us-east-1}
@@ -40,3 +44,20 @@ aws:
 assistant:
   n8n-webhook-url: ${N8N_WEBHOOK_URL:http://localhost:5678/webhook/assistant}
   internal-secret: ${ASSISTANT_INTERNAL_SECRET:}
+
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+
+resend:
+  api-key: ${RESEND_API_KEY:}
+  from-email: ${RESEND_FROM_EMAIL:}
+
+app:
+  branding:
+    logo-url: ${APP_LOGO_URL:https://cdn.chegamed.com.br/branding/logo.png}
+  frontend:
+    web-url: ${APP_WEB_URL:https://chegamed.com.br}
+    desktop-reset-password-url: ${DESKTOP_RESET_PASSWORD_URL:chegamed-desktop://reset-password}
+    mobile-reset-password-url: ${MOBILE_RESET_PASSWORD_URL:chegamed://reset-password}
+  password-reset:
+    token-expiration-minutes: ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES:60}

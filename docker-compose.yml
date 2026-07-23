@@ -1,18 +1,55 @@
 services:
   postgres:
     image: postgres:18
-    container_name: postgres-controle-de-remedios
+    container_name: postgres-chegamed
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ${DOCKERHUB_USERNAME}/chegamed:${API_IMAGE_TAG:-latest}
+    container_name: api-chegamed
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_S3_PUBLIC_BASE_URL: ${AWS_S3_PUBLIC_BASE_URL}
+      AWS_CDN_BASE_URL: ${AWS_CDN_BASE_URL}
+      N8N_WEBHOOK_URL: http://n8n:5678/webhook/assistant
+      ASSISTANT_INTERNAL_SECRET: ${ASSISTANT_INTERNAL_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      APP_LOGO_URL: ${APP_LOGO_URL}
+      APP_WEB_URL: ${APP_WEB_URL}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      DESKTOP_RESET_PASSWORD_URL: ${DESKTOP_RESET_PASSWORD_URL}
+      MOBILE_RESET_PASSWORD_URL: ${MOBILE_RESET_PASSWORD_URL}
+    ports:
+      - "127.0.0.1:8080:8080"
 
   n8n:
     image: docker.n8n.io/n8nio/n8n
-    container_name: n8n-controle-de-remedios
+    container_name: n8n-chegamed
     restart: always
     environment:
       N8N_HOST: ${N8N_HOST}
@@ -25,9 +62,29 @@ services:
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
     ports:
-      - "5678:5678"
+      - "127.0.0.1:5678:5678"
     volumes:
       - n8n_data:/home/node/.n8n
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy-chegamed
+    restart: always
+    depends_on:
+      - api
+      - n8n
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
   n8n_data:
+  postgres_data:
+  caddy_data:
+  caddy_config:

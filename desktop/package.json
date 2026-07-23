@@ -1,5 +1,5 @@
 {
-  "name": "desktop",
+  "name": "ChegaMed",
   "version": "0.1.0",
   "scripts": {
     "ng": "ng",
@@ -25,7 +25,9 @@
     "@ngrx/store": "^21.1.1",
     "@ngrx/store-devtools": "^21.1.1",
     "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-deep-link": "^2.4.9",
     "@tauri-apps/plugin-opener": "^2.5.4",
+    "chart.js": "^4.5.1",
     "express": "^5.2.1",
     "rxjs": "~7.8.2",
     "tslib": "^2.8.1",

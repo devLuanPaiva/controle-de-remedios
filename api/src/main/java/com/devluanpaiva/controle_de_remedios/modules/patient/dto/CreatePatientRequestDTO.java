@@ -14,5 +14,7 @@ public record CreatePatientRequestDTO(
         @NotBlank @Size(max = 120) String name,
         @NotBlank @Cpf String cpf,
         @NotNull @Past LocalDate birthDate,
-        @NotNull UUID companyId) {
+        @NotNull UUID companyId,
+        @Size(max = 20) String contact,
+        @Size(max = 255) String address) {
 }

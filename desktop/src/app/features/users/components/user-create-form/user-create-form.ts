@@ -3,10 +3,13 @@ import { FormField, email, form, maxLength, minLength, required, validate } from
 import { Store } from '@ngrx/store';
 
 import { selectSelectedCompany } from '@features/company/store/company.selectors';
+import { ToastService } from '@core/ui/toast/service/toast.service';
+import { ToastType } from '@core/ui/toast/models/toast.model';
 import { Field } from '@shared/ui/field/field';
 import { CpfField } from '@shared/ui/cpf-field/cpf-field';
 import { PasswordField } from '@shared/ui/password-field/password-field';
 import { ImageUploadField } from '@shared/ui/image-upload-field/image-upload-field';
+import { FileUploadService } from '@shared/services/file-upload.service';
 import { isValidCpf, onlyDigits } from '@shared/utils/cpf.util';
 
 import * as UsersActions from '../../store/user.actions';
@@ -22,6 +25,8 @@ import { UserRole, UserRoleLabels } from '../../models/user.model';
 })
 export class UserCreateForm {
     private readonly store = inject(Store);
+    private readonly fileUploadService = inject(FileUploadService);
+    private readonly toastService = inject(ToastService);
 
     readonly allowedRoles = input.required<UserRole[]>();
 
@@ -30,13 +35,15 @@ export class UserCreateForm {
     readonly mutating = this.store.selectSignal(selectUsersMutating);
     readonly connectedCompany = this.store.selectSignal(selectSelectedCompany);
 
+    readonly submitting = signal(false);
+
     readonly model = signal({
         name: '',
         email: '',
         cpf: '',
         role: null as UserRole | null,
         password: '',
-        imageUrl: '',
+        imageFile: null as File | null,
     });
 
     readonly userForm = form(this.model, (schema) => {
@@ -56,7 +63,7 @@ export class UserCreateForm {
         maxLength(schema.password, 20, { message: 'A senha deve ter no máximo 20 caracteres.' });
     });
 
-    readonly canSubmit = computed(() => this.userForm().valid() && !this.mutating());
+    readonly canSubmit = computed(() => this.userForm().valid() && !this.mutating() && !this.submitting());
 
     roleLabel(role: UserRole): string {
         return UserRoleLabels[role];
@@ -67,11 +74,11 @@ export class UserCreateForm {
         this.model.update((current) => ({ ...current, role }));
     }
 
-    onImageUploaded(url: string): void {
-        this.model.update((current) => ({ ...current, imageUrl: url }));
+    onImageSelected(file: File): void {
+        this.model.update((current) => ({ ...current, imageFile: file }));
     }
 
-    onSubmit(event: Event): void {
+    async onSubmit(event: Event): Promise<void> {
         event.preventDefault();
 
         if (!this.canSubmit()) {
@@ -81,18 +88,30 @@ export class UserCreateForm {
 
         const value = this.model();
 
-        this.store.dispatch(
-            UsersActions.createUser({
-                payload: {
-                    name: value.name,
-                    email: value.email,
-                    cpf: onlyDigits(value.cpf),
-                    role: value.role!,
-                    password: value.password,
-                    imageUrl: value.imageUrl || undefined,
-                    companyId: this.connectedCompany()?.id,
-                },
-            }),
-        );
+        this.submitting.set(true);
+
+        try {
+            const imageUrl = value.imageFile
+                ? await this.fileUploadService.uploadImage(value.imageFile, 'PROFILE', value.name)
+                : undefined;
+
+            this.store.dispatch(
+                UsersActions.createUser({
+                    payload: {
+                        name: value.name,
+                        email: value.email,
+                        cpf: onlyDigits(value.cpf),
+                        role: value.role!,
+                        password: value.password,
+                        imageUrl,
+                        companyId: this.connectedCompany()?.id,
+                    },
+                }),
+            );
+        } catch {
+            this.toastService.show(ToastType.Error, 'Não foi possível enviar a imagem. Tente novamente.');
+        } finally {
+            this.submitting.set(false);
+        }
     }
 }

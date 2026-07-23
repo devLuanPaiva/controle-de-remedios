@@ -53,16 +53,14 @@
                 <app-image-upload-field
                     id="edit-user-image"
                     label="Foto de perfil (opcional)"
-                    context="PROFILE"
-                    [ownerName]="model().name"
-                    [imageUrl]="model().imageUrl"
-                    (uploaded)="onImageUploaded($event)"
+                    [initialImageUrl]="user()!.imageUrl"
+                    (fileSelected)="onImageSelected($event)"
                 />
             </div>
 
             <div class="card-footer">
                 <button type="submit" class="btn btn-primary" [disabled]="!canSubmit()">
-                    @if (mutating()) {
+                    @if (mutating() || submitting()) {
                         <span class="spinner spinner-sm" aria-hidden="true"></span>
                         <span>Salvando...</span>
                     } @else {
