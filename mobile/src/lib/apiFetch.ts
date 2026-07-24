@@ -1,7 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { getAccessToken } from "./authStorage";
 import { BASE_URL } from "./env";
-import { AUTH_STORAGE_KEYS } from "./storageKeys";
 
 export interface ApiSuccessResponse<T> {
     success: true;
@@ -63,10 +61,6 @@ function pickErrorMessage(errorBody: ApiErrorResponse | null, fallbackMessage: s
     return errors.map(formatErrorEntry).join("; ");
 }
 
-async function readAccessToken(): Promise<string | null> {
-    return AsyncStorage.getItem(AUTH_STORAGE_KEYS.ACCESS);
-}
-
 function buildHeaders(accessToken: string | null, extraHeaders?: HeadersInit): Record<string, string> {
     const headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -86,7 +80,7 @@ function toApiRequestError(errorBody: ApiErrorResponse | null, fallbackMessage: 
 }
 
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<ApiSuccessResponse<T>> {
-    const accessToken = await readAccessToken();
+    const accessToken = await getAccessToken();
     const headers = buildHeaders(accessToken, options.headers);
 
     const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });

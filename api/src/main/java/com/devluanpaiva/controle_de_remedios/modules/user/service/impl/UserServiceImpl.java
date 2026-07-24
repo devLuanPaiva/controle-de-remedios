@@ -16,6 +16,7 @@ import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyR
 import com.devluanpaiva.controle_de_remedios.modules.notification.service.EmailService;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.ChangePasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.DeleteAccountRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
@@ -153,6 +154,23 @@ public class UserServiceImpl implements UserService {
                         "Não foi possível encontrar um usuário com o ID '" + id + "'."));
 
         assertCanManage(securityContextHelper.getCurrentUser(), user);
+
+        userRepository.delete(user);
+    }
+
+    @Override
+    @Transactional
+    public void deleteOwnAccount(DeleteAccountRequestDTO dto) {
+        User user = securityContextHelper.getCurrentUser();
+
+        if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
+            throw new BusinessException(
+                    HttpStatus.BAD_REQUEST,
+                    "Senha incorreta",
+                    "CURRENT_PASSWORD_INVALID",
+                    "password",
+                    "A senha informada não confere com a senha cadastrada.");
+        }
 
         userRepository.delete(user);
     }
