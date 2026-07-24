@@ -19,14 +19,20 @@ public class MedicineResolutionService {
     private final MedicineRepository medicineRepository;
 
     public Medicine resolveOrCreate(Company company, String name, String eanCode, String imageUrl) {
-        if (StringUtils.hasText(eanCode)) {
-            return resolveByEanCode(company, name, eanCode, imageUrl);
-        }
-
-        return resolveByName(company, name, imageUrl);
+        return resolveOrCreate(company, name, eanCode, imageUrl, true);
     }
 
-    private Medicine resolveByEanCode(Company company, String name, String eanCode, String imageUrl) {
+    public Medicine resolveOrCreate(
+            Company company, String name, String eanCode, String imageUrl, boolean requireImageOnCreate) {
+        if (StringUtils.hasText(eanCode)) {
+            return resolveByEanCode(company, name, eanCode, imageUrl, requireImageOnCreate);
+        }
+
+        return resolveByName(company, name, imageUrl, requireImageOnCreate);
+    }
+
+    private Medicine resolveByEanCode(
+            Company company, String name, String eanCode, String imageUrl, boolean requireImageOnCreate) {
         Optional<Medicine> existingByEanCode = medicineRepository.findByCompany_IdAndEanCode(
                 company.getId(), eanCode);
         if (existingByEanCode.isPresent()) {
@@ -46,20 +52,21 @@ public class MedicineResolutionService {
             return medicineRepository.save(medicine);
         }
 
-        return createMedicine(company, name, eanCode, imageUrl);
+        return createMedicine(company, name, eanCode, imageUrl, requireImageOnCreate);
     }
 
-    private Medicine resolveByName(Company company, String name, String imageUrl) {
+    private Medicine resolveByName(Company company, String name, String imageUrl, boolean requireImageOnCreate) {
         Optional<Medicine> similar = findSimilarByName(company.getId(), name);
         if (similar.isPresent()) {
             return similar.get();
         }
 
-        return createMedicine(company, name, null, imageUrl);
+        return createMedicine(company, name, null, imageUrl, requireImageOnCreate);
     }
 
-    private Medicine createMedicine(Company company, String name, String eanCode, String imageUrl) {
-        if (!StringUtils.hasText(imageUrl)) {
+    private Medicine createMedicine(
+            Company company, String name, String eanCode, String imageUrl, boolean requireImageOnCreate) {
+        if (requireImageOnCreate && !StringUtils.hasText(imageUrl)) {
             throw new BusinessException(
                     HttpStatus.UNPROCESSABLE_CONTENT,
                     "Imagem do medicamento é obrigatória",

@@ -222,6 +222,21 @@ class MedicineResolutionServiceTest {
         }
 
         @Test
+        @DisplayName("should create a new medicine without an imageUrl when requireImageOnCreate is false")
+        void shouldCreateNewMedicineWithoutImageUrlWhenRequireImageOnCreateIsFalse() {
+            Company company = buildCompany();
+
+            when(medicineRepository.findByCompany_IdAndNameContainingIgnoreCase(eq(company.getId()), any()))
+                    .thenReturn(List.of());
+            when(medicineRepository.save(any(Medicine.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Medicine result = medicineResolutionService.resolveOrCreate(company, "Dipirona", null, null, false);
+
+            assertThat(result.getName()).isEqualTo("Dipirona");
+            assertThat(result.getImageUrl()).isNull();
+        }
+
+        @Test
         @DisplayName("should persist all provided fields when creating a new medicine")
         void shouldPersistAllProvidedFieldsWhenCreatingNewMedicine() {
             Company company = buildCompany();

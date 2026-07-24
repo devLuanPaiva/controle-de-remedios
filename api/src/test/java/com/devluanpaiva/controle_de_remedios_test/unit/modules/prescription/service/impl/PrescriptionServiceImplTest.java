@@ -55,6 +55,7 @@ import com.devluanpaiva.controle_de_remedios.modules.prescription.filter.Prescri
 import com.devluanpaiva.controle_de_remedios.modules.prescription.mapper.PrescriptionMapper;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.repository.PrescriptionRepository;
 import com.devluanpaiva.controle_de_remedios.modules.prescription.service.impl.PrescriptionServiceImpl;
+import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.CreatePrescriptionItemMedicineRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.dto.CreatePrescriptionItemRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.enums.FrequencyType;
 import com.devluanpaiva.controle_de_remedios.modules.prescription_item.enums.TreatmentType;
@@ -160,6 +161,15 @@ class PrescriptionServiceImplTest {
     private CreatePrescriptionItemRequestDTO buildItemDto(UUID medicineId) {
         return new CreatePrescriptionItemRequestDTO(
                 medicineId, null, "10mg", 30, UnityType.TABLET, 2, FrequencyType.PER_DAY,
+                TreatmentType.CONTINUOUS, 15);
+    }
+
+    private CreatePrescriptionItemRequestDTO buildItemDtoWithNewMedicine(String medicineName) {
+        CreatePrescriptionItemMedicineRequestDTO medicine = new CreatePrescriptionItemMedicineRequestDTO(
+                medicineName, null, null);
+
+        return new CreatePrescriptionItemRequestDTO(
+                null, medicine, "10mg", 30, UnityType.TABLET, 2, FrequencyType.PER_DAY,
                 TreatmentType.CONTINUOUS, 15);
     }
 
@@ -272,6 +282,33 @@ class PrescriptionServiceImplTest {
                     HttpStatus.UNPROCESSABLE_CONTENT, "MEDICINE_REQUIRED", "items[0].medicineId");
 
             verify(prescriptionRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("should create a new medicine without requiring an image when cadastrado inline through a prescription")
+        void shouldCreateNewMedicineWithoutRequiringImageWhenCadastradoInlineThroughPrescription() {
+            User admin = buildUser(UserRole.ADMIN);
+            Company company = buildCompany();
+            Patient patient = buildPatient(company);
+            Medicine newMedicine = Medicine.builder()
+                    .id(UUID.randomUUID())
+                    .name("Amoxicilina")
+                    .company(company)
+                    .build();
+            CreatePrescriptionRequestDTO dto = new CreatePrescriptionRequestDTO(
+                    null, LocalDate.now(), patient.getId(), List.of(buildItemDtoWithNewMedicine("Amoxicilina")));
+
+            when(securityContextHelper.getCurrentUser()).thenReturn(admin);
+            when(patientRepository.findById(patient.getId())).thenReturn(Optional.of(patient));
+            when(medicineResolutionService.resolveOrCreate(company, "Amoxicilina", null, null, false))
+                    .thenReturn(newMedicine);
+            when(prescriptionRepository.save(any(Prescription.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            PrescriptionResponseDTO response = prescriptionService.createPrescription(dto);
+
+            assertThat(response.status()).isEqualTo(PrescriptionStatus.PENDING);
+            verify(medicineResolutionService).resolveOrCreate(company, "Amoxicilina", null, null, false);
         }
 
         @Test

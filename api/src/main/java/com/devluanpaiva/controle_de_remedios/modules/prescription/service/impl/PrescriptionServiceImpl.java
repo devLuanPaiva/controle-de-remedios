@@ -134,7 +134,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
             CreatePrescriptionItemMedicineRequestDTO medicine = dto.medicine();
             return medicineResolutionService.resolveOrCreate(
-                    company, medicine.name(), medicine.eanCode(), medicine.imageUrl());
+                    company, medicine.name(), medicine.eanCode(), medicine.imageUrl(), false);
         } catch (BusinessException ex) {
             throw withIndexedField(ex, index);
         }
