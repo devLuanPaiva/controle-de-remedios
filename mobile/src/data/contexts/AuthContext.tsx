@@ -13,6 +13,7 @@ import {
 
 import { BASE_URL } from "@/lib/env";
 import { AUTH_STORAGE_KEYS } from "@/lib/storageKeys";
+import { signInWithGoogle } from "@/data/services/googleAuth.service";
 import { IUser, UserRole, normalizeUserRole } from "../models/user.model";
 
 const SIGN_IN_ROUTE = "/(authentication)/signIn" as Href;
@@ -33,6 +34,7 @@ interface AuthContextType {
     isLoadingSession: boolean;
     user: Partial<IUser> | null;
     login: (email: string, password: string) => Promise<void>;
+    loginWithGoogle: () => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -41,6 +43,7 @@ export const AuthContext = createContext<AuthContextType>({
     isLoadingSession: true,
     user: null,
     login: async () => { },
+    loginWithGoogle: async () => { },
     logout: async () => { },
 });
 
@@ -201,14 +204,20 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
         [persistTokens, startSession],
     );
 
+    const loginWithGoogle = useCallback(async () => {
+        const { accessToken, refreshToken } = await signInWithGoogle();
+        await persistTokens(accessToken, refreshToken);
+        startSession(accessToken, refreshToken);
+    }, [persistTokens, startSession]);
+
     const logout = useCallback(async () => {
         await endSession();
         router.replace(SIGN_IN_ROUTE);
     }, [endSession, router]);
 
     const contextValue = useMemo(
-        () => ({ isLoggedIn, isLoadingSession, user, login, logout }),
-        [isLoggedIn, isLoadingSession, user, login, logout],
+        () => ({ isLoggedIn, isLoadingSession, user, login, loginWithGoogle, logout }),
+        [isLoggedIn, isLoadingSession, user, login, loginWithGoogle, logout],
     );
     return (
         <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

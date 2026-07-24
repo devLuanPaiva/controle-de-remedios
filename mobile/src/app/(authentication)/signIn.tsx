@@ -1,4 +1,5 @@
 import { useAuth } from "@/data/contexts/AuthContext";
+import { GoogleSignInCancelledError } from "@/data/services/googleAuth.service";
 import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
 import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useRef, useState } from "react";
@@ -21,13 +22,14 @@ import { AlertCircle, CheckCircle2, Eye, EyeOff, Lock, Mail } from "lucide-react
 import { Wave } from "@/components/shared/Wave";
 
 export default function SignIn() {
-    const { login } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
     const router = useRouter();
     const { resetSuccess } = useLocalSearchParams<{ resetSuccess?: string }>();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [secure, setSecure] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
@@ -49,6 +51,20 @@ export default function SignIn() {
             setError(err instanceof Error ? err.message : "Erro ao realizar login.");
         } finally {
             setIsLoading(false);
+        }
+    }
+
+    async function handleGoogleLogin() {
+        try {
+            setError(null);
+            setIsGoogleLoading(true);
+            await loginWithGoogle();
+            router.replace("/(protected)/home");
+        } catch (err) {
+            if (err instanceof GoogleSignInCancelledError) return;
+            setError(err instanceof Error ? err.message : "Erro ao entrar com o Google.");
+        } finally {
+            setIsGoogleLoading(false);
         }
     }
 
@@ -179,7 +195,7 @@ export default function SignIn() {
                             style={[styles.button, isLoading && styles.buttonDisabled]}
                             activeOpacity={0.85}
                             onPress={handleLogin}
-                            disabled={isLoading}
+                            disabled={isLoading || isGoogleLoading}
                             accessibilityRole="button"
                             accessibilityLabel="Entrar"
                         >
@@ -187,6 +203,27 @@ export default function SignIn() {
                                 <ActivityIndicator color={Colors.white} />
                             ) : (
                                 <Text style={styles.buttonText}>Entrar</Text>
+                            )}
+                        </TouchableOpacity>
+
+                        <View style={styles.dividerRow}>
+                            <View style={styles.dividerLine} />
+                            <Text style={styles.dividerText}>ou</Text>
+                            <View style={styles.dividerLine} />
+                        </View>
+
+                        <TouchableOpacity
+                            style={[styles.googleButton, isGoogleLoading && styles.buttonDisabled]}
+                            activeOpacity={0.85}
+                            onPress={handleGoogleLogin}
+                            disabled={isLoading || isGoogleLoading}
+                            accessibilityRole="button"
+                            accessibilityLabel="Entrar com o Google"
+                        >
+                            {isGoogleLoading ? (
+                                <ActivityIndicator color={Colors.primary} />
+                            ) : (
+                                <Text style={styles.googleButtonText}>Entrar com o Google</Text>
                             )}
                         </TouchableOpacity>
                     </View>
@@ -374,6 +411,41 @@ const styles = StyleSheet.create({
         fontFamily: Typography.fonts.bodySemiBold,
         fontSize: Typography.sizes.md,
         color: Colors.white,
+        letterSpacing: 0.5,
+    },
+
+    dividerRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: Spacing.sm,
+    },
+
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: Colors.border,
+    },
+
+    dividerText: {
+        fontFamily: Typography.fonts.body,
+        fontSize: Typography.sizes.sm,
+        color: Colors.textSecondary,
+    },
+
+    googleButton: {
+        backgroundColor: Colors.surface,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        borderRadius: Radius.full,
+        height: 54,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    googleButtonText: {
+        fontFamily: Typography.fonts.bodySemiBold,
+        fontSize: Typography.sizes.md,
+        color: Colors.text,
         letterSpacing: 0.5,
     },
 });

@@ -14,3 +14,8 @@ export interface ChangePasswordRequest {
     newPassword: string;
     confirmPassword: string;
 }
+
+export interface AuthTokens {
+    accessToken: string;
+    refreshToken: string;
+}

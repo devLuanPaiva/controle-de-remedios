@@ -85,7 +85,7 @@ function toApiRequestError(errorBody: ApiErrorResponse | null, fallbackMessage: 
     return new ApiRequestError(message, errorBody?.errors ?? []);
 }
 
-export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<ApiSuccessResponse<T>> {
+async function request(endpoint: string, options: RequestInit): Promise<unknown> {
     const accessToken = await readAccessToken();
     const headers = buildHeaders(accessToken, options.headers);
 
@@ -96,5 +96,15 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
         throw toApiRequestError(body as ApiErrorResponse | null, "Erro na requisição.");
     }
 
-    return body as ApiSuccessResponse<T>;
+    return body;
+}
+
+/** For endpoints that wrap their success payload in the `{ success, message, data }` envelope. */
+export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<ApiSuccessResponse<T>> {
+    return (await request(endpoint, options)) as ApiSuccessResponse<T>;
+}
+
+/** For endpoints that return their success payload directly, with no envelope (e.g. the `/auth` token endpoints). */
+export async function rawFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    return (await request(endpoint, options)) as T;
 }

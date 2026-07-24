@@ -43,7 +43,8 @@
         {
           "cameraPermission": "O ChegaMed precisa acessar a câmera para fotografar receitas médicas."
         }
-      ]
+      ],
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true,
