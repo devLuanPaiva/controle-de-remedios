@@ -63,6 +63,8 @@ resend:
 app:
   branding:
     logo-url: ${APP_LOGO_URL:https://cdn.chegamed.com.br/branding/logo.png}
+  support:
+    email: ${SUPPORT_EMAIL:suporte@chegamed.com.br}
   frontend:
     web-url: ${APP_WEB_URL:https://chegamed.com.br}
     desktop-reset-password-url: ${DESKTOP_RESET_PASSWORD_URL:chegamed-desktop://reset-password}
