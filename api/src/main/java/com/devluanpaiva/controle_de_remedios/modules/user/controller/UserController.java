@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.ChangePasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.DataDeletionRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.DeleteAccountRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
@@ -92,5 +93,12 @@ public class UserController {
     public ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequestDTO dto) {
         userService.changePassword(dto);
         return ApiResponseFactory.success("Senha alterada com sucesso", null);
+    }
+
+    @PostMapping("/me/data-deletion-request")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<Void> requestDataDeletion(@RequestBody @Valid DataDeletionRequestDTO dto) {
+        userService.requestDataDeletion(dto);
+        return ApiResponseFactory.success("Solicitação de exclusão de dados registrada com sucesso", null);
     }
 }

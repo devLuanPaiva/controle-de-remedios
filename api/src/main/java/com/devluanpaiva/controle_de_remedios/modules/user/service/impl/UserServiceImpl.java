@@ -16,13 +16,16 @@ import com.devluanpaiva.controle_de_remedios.modules.company.repository.CompanyR
 import com.devluanpaiva.controle_de_remedios.modules.notification.service.EmailService;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.ChangePasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.DataDeletionRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.DeleteAccountRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.entity.DataDeletionRequest;
 import com.devluanpaiva.controle_de_remedios.modules.user.entity.User;
 import com.devluanpaiva.controle_de_remedios.modules.user.filter.UserFilter;
 import com.devluanpaiva.controle_de_remedios.modules.user.filter.UserSpecification;
 import com.devluanpaiva.controle_de_remedios.modules.user.mapper.UserMapper;
+import com.devluanpaiva.controle_de_remedios.modules.user.repository.DataDeletionRequestRepository;
 import com.devluanpaiva.controle_de_remedios.modules.user.repository.UserRepository;
 import com.devluanpaiva.controle_de_remedios.modules.user.service.UserService;
 import com.devluanpaiva.controle_de_remedios.security.AuthorizationPolicy;
@@ -43,6 +46,7 @@ public class UserServiceImpl implements UserService {
     private final SecurityContextHelper securityContextHelper;
     private final AuthorizationPolicy authorizationPolicy;
     private final EmailService emailService;
+    private final DataDeletionRequestRepository dataDeletionRequestRepository;
 
     @Value("${app.frontend.web-url}")
     private String webUrl;
@@ -228,6 +232,33 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(dto.newPassword()));
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void requestDataDeletion(DataDeletionRequestDTO dto) {
+        User user = securityContextHelper.getCurrentUser();
+
+        DataDeletionRequest request = DataDeletionRequest.builder()
+                .requesterName(user.getName())
+                .requesterEmail(user.getEmail())
+                .requesterCpf(user.getCpf())
+                .message(dto.message())
+                .build();
+
+        dataDeletionRequestRepository.save(request);
+
+        sendDataDeletionRequestEmails(user, dto.message());
+    }
+
+    private void sendDataDeletionRequestEmails(User user, String message) {
+        try {
+            emailService.sendDataDeletionRequestConfirmationEmail(user);
+            emailService.sendDataDeletionRequestNotificationEmail(user, message);
+        } catch (RuntimeException ex) {
+            log.error("Falha ao enviar e-mails da solicitação de exclusão de dados do usuário '{}'", user.getId(),
+                    ex);
+        }
     }
 
     private void assertCanManage(User actor, User target) {
