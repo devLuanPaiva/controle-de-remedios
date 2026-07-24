@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter, type Href } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { KeyRound, MoreVertical, ShieldCheck, Trash2 } from "lucide-react-native";
+import { DatabaseX, KeyRound, MoreVertical, ShieldCheck, Trash2 } from "lucide-react-native";
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -10,9 +10,10 @@ import { Colors, Radius, Shadows, Spacing, Typography } from "@/theme";
 
 interface ProfileMenuProps {
     onRequestDeleteAccount: () => void;
+    onRequestDataDeletion: () => void;
 }
 
-export function ProfileMenu({ onRequestDeleteAccount }: Readonly<ProfileMenuProps>) {
+export function ProfileMenu({ onRequestDeleteAccount, onRequestDataDeletion }: Readonly<ProfileMenuProps>) {
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
     const insets = useSafeAreaInsets();
@@ -34,6 +35,11 @@ export function ProfileMenu({ onRequestDeleteAccount }: Readonly<ProfileMenuProp
     function requestDeleteAccount() {
         close();
         onRequestDeleteAccount();
+    }
+
+    function requestDataDeletion() {
+        close();
+        onRequestDataDeletion();
     }
 
     return (
@@ -69,6 +75,16 @@ export function ProfileMenu({ onRequestDeleteAccount }: Readonly<ProfileMenuProp
                         >
                             <KeyRound size={18} color={Colors.text} />
                             <Text style={styles.menuLabel}>Alterar senha</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles.menuItem}
+                            onPress={requestDataDeletion}
+                            accessibilityRole="button"
+                            accessibilityLabel="Solicitar exclusão de dados"
+                        >
+                            <DatabaseX size={18} color={Colors.text} />
+                            <Text style={styles.menuLabel}>Solicitar exclusão de dados</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity

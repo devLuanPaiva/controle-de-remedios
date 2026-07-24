@@ -1,6 +1,7 @@
 import { apiFetch } from "@/lib/apiFetch";
 import {
     ChangePasswordRequest,
+    DataDeletionRequest,
     DeleteAccountRequest,
     ForgotPasswordRequest,
     ResetPasswordRequest,
@@ -32,6 +33,13 @@ export async function changePassword(payload: ChangePasswordRequest): Promise<vo
 export async function deleteAccount(payload: DeleteAccountRequest): Promise<void> {
     await apiFetch<null>("/users/me", {
         method: "DELETE",
+        body: JSON.stringify(payload),
+    });
+}
+
+export async function requestDataDeletion(payload: DataDeletionRequest): Promise<void> {
+    await apiFetch<null>("/users/me/data-deletion-request", {
+        method: "POST",
         body: JSON.stringify(payload),
     });
 }

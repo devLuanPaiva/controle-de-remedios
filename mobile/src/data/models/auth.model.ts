@@ -23,3 +23,7 @@ export interface AuthTokens {
 export interface DeleteAccountRequest {
     password: string;
 }
+
+export interface DataDeletionRequest {
+    message?: string;
+}

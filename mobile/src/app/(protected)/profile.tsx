@@ -10,6 +10,7 @@ import { useCompanies } from "@/data/contexts/CompanyContext";
 import { CompanySection } from "@/features/profile/components/CompanySection";
 import { DeleteAccountDialog } from "@/features/profile/components/DeleteAccountDialog";
 import { ProfileMenu } from "@/features/profile/components/ProfileMenu";
+import { RequestDataDeletionDialog } from "@/features/profile/components/RequestDataDeletionDialog";
 import { UserInfoCard } from "@/features/profile/components/UserInfoCard";
 import { Colors, Radius, Spacing, Typography } from "@/theme";
 
@@ -18,6 +19,7 @@ export default function Profile() {
     const { companies, selectedCompany, isLoading, error, selectCompany } = useCompanies();
     const [isLogoutDialogVisible, setIsLogoutDialogVisible] = useState(false);
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
+    const [isDataDeletionDialogVisible, setIsDataDeletionDialogVisible] = useState(false);
 
     function openLogoutDialog() {
         setIsLogoutDialogVisible(true);
@@ -47,6 +49,22 @@ export default function Profile() {
         ]);
     }
 
+    function openDataDeletionDialog() {
+        setIsDataDeletionDialogVisible(true);
+    }
+
+    function closeDataDeletionDialog() {
+        setIsDataDeletionDialogVisible(false);
+    }
+
+    function handleDataDeletionRequested() {
+        closeDataDeletionDialog();
+        Alert.alert(
+            "Solicitação enviada",
+            "Recebemos sua solicitação de exclusão de dados e responderemos em até 15 dias úteis.",
+        );
+    }
+
     return (
         <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
             <StatusBar style="dark" />
@@ -54,7 +72,10 @@ export default function Profile() {
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 <View style={styles.header}>
                     <Text style={styles.screenTitle}>Perfil</Text>
-                    <ProfileMenu onRequestDeleteAccount={openDeleteDialog} />
+                    <ProfileMenu
+                        onRequestDeleteAccount={openDeleteDialog}
+                        onRequestDataDeletion={openDataDeletionDialog}
+                    />
                 </View>
 
                 <UserInfoCard
@@ -99,6 +120,12 @@ export default function Profile() {
                 visible={isDeleteDialogVisible}
                 onCancel={closeDeleteDialog}
                 onDeleted={handleAccountDeleted}
+            />
+
+            <RequestDataDeletionDialog
+                visible={isDataDeletionDialogVisible}
+                onCancel={closeDataDeletionDialog}
+                onRequested={handleDataDeletionRequested}
             />
         </SafeAreaView>
     );
