@@ -15,16 +15,21 @@ import com.devluanpaiva.controle_de_remedios.shared.utils.TemplateRenderer;
 public class EmailServiceImpl implements EmailService {
     private static final String PASSWORD_RESET_TEMPLATE = "templates/email/password-reset.html";
     private static final String WELCOME_TEMPLATE = "templates/email/welcome.html";
+    private static final String DATA_DELETION_CONFIRMATION_TEMPLATE = "templates/email/data-deletion-request-confirmation.html";
+    private static final String DATA_DELETION_NOTIFICATION_TEMPLATE = "templates/email/data-deletion-request-notification.html";
 
     private final ResendClient resendClient;
     private final String logoUrl;
+    private final String supportEmail;
 
     public EmailServiceImpl(
             ResendClient resendClient,
-            @Value("${app.branding.logo-url}") String logoUrl) {
+            @Value("${app.branding.logo-url}") String logoUrl,
+            @Value("${app.support.email}") String supportEmail) {
 
         this.resendClient = resendClient;
         this.logoUrl = logoUrl;
+        this.supportEmail = supportEmail;
     }
 
     @Override
@@ -50,6 +55,28 @@ public class EmailServiceImpl implements EmailService {
                 "year", currentYear()));
 
         resendClient.send(user.getEmail(), "Bem-vindo(a) ao ChegaMed", html);
+    }
+
+    @Override
+    public void sendDataDeletionRequestConfirmationEmail(User user) {
+        String html = TemplateRenderer.render(DATA_DELETION_CONFIRMATION_TEMPLATE, Map.of(
+                "logoUrl", logoUrl,
+                "name", user.getName(),
+                "year", currentYear()));
+
+        resendClient.send(user.getEmail(), "Solicitação de exclusão de dados recebida - ChegaMed", html);
+    }
+
+    @Override
+    public void sendDataDeletionRequestNotificationEmail(User user, String message) {
+        String html = TemplateRenderer.render(DATA_DELETION_NOTIFICATION_TEMPLATE, Map.of(
+                "logoUrl", logoUrl,
+                "name", user.getName(),
+                "email", user.getEmail(),
+                "message", message == null || message.isBlank() ? "(nenhuma mensagem informada)" : message,
+                "year", currentYear()));
+
+        resendClient.send(supportEmail, "Nova solicitação de exclusão de dados - ChegaMed", html);
     }
 
     private String currentYear() {

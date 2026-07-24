@@ -6,4 +6,8 @@ public interface EmailService {
     void sendPasswordResetEmail(User user, String resetUrl, long expirationMinutes);
 
     void sendWelcomeEmail(User user, String rawPassword, String loginUrl);
+
+    void sendDataDeletionRequestConfirmationEmail(User user);
+
+    void sendDataDeletionRequestNotificationEmail(User user, String message);
 }
