@@ -48,3 +48,6 @@ docs
 
 # Testes
 coverage
+
+# Arquivo local com identificadores/tokens sensíveis
+project.txt

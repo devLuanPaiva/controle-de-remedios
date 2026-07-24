@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.ChangePasswordRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.CreateUserRequestDTO;
+import com.devluanpaiva.controle_de_remedios.modules.user.dto.DeleteAccountRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UpdateUserRequestDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.dto.UserResponseDTO;
 import com.devluanpaiva.controle_de_remedios.modules.user.enums.UserRole;
@@ -79,6 +80,12 @@ public class UserController {
     public ApiResponse<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ApiResponseFactory.success("Usuário deletado com sucesso", null);
+    }
+
+    @DeleteMapping("/me")
+    public ApiResponse<Void> deleteOwnAccount(@RequestBody @Valid DeleteAccountRequestDTO dto) {
+        userService.deleteOwnAccount(dto);
+        return ApiResponseFactory.success("Conta excluída com sucesso", null);
     }
 
     @PostMapping("/change-password")
